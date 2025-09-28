@@ -1,6 +1,5 @@
 import mongoose from "mongoose";
-import { type } from "os";
-
+import User from "./user.model.js";
 const lectureSchema = new mongoose.Schema(
   {
     title: {
@@ -22,6 +21,11 @@ const lectureSchema = new mongoose.Schema(
     compressedSize:{
         type:Number,
         required:true}
+    ,course_id:{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Course",
+        required: true,
+    }
   },
   { timestamps: true }
 );

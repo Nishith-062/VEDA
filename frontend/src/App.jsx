@@ -7,7 +7,7 @@ import TeacherLive from "./pages/TeacherLive";
 import StudentLive from "./pages/StudentLive";
 import { useEffect, useState, useRef } from "react";
 import { useAuthStore } from "./store/useAuthStore";
-import { ChevronDown } from "lucide-react";
+import { ChevronDown, Loader } from "lucide-react";
 import Admin from "./pages/Admin";
 import { useTranslation } from "react-i18next";
 import Languageselector from "./pages/Languageselector";
@@ -33,7 +33,13 @@ function App() {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  if (isCheckingAuth) return <div>Loading...</div>;
+if (isCheckingAuth) {
+  return (
+    <div className="flex items-center justify-center w-full h-screen">
+      <Loader className="animate-spin size-10 text-center" />
+    </div>
+  );
+}
 
   return (
     <div className="min-h-screen flex flex-col bg-gray-50">
@@ -93,6 +99,10 @@ function App() {
       {/* Main Routes */}
       <main className="flex-grow">
         <Routes>
+          <Route
+            path="/"
+            element={<Navigate to={"/login"} replace />}
+          />
           <Route
             path="/login"
             element={

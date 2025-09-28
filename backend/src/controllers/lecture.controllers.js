@@ -5,6 +5,7 @@ import fs from "fs";
 import { fileURLToPath } from "url";
 import cloudinary from "../lib/coudinary.js";
 import Lecture from "../models/lecture.model.js";
+import Course from "../models/course.model.js";
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
@@ -27,12 +28,17 @@ export const postLectures = (req, res) => {
           resource_type: "video",
         });
 
+
+        const course_id = Course.findOne({faculty_id:req.user._id}).select("_id","course_name");
+
         const newLecture = new Lecture({
           faculty_id: req.user._id,
           title: req.body.title,
           originalSize: req.file.size/(1024*1024),
           compressedSize: fs.statSync(outputPath).size/(1024*1024),
           url: result.secure_url,
+          course_id: course_id._id,
+          course_name: course_id.course_name
         });
         await newLecture.save();
 
