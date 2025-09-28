@@ -16,7 +16,7 @@ console.log("JWT_SECRETKEY:", process.env.JWT_SECRETKEY);
 app.use(express.json());
 app.use(cookieParser());
 app.use(cors({
-    origin: ["http://localhost:4173", "http://localhost:5173"], // allow both
+    origin: ["http://localhost:4173", "http://localhost:5173","https://veda-gamma.vercel.app"], // allow both
   credentials: true,
 }));
 
