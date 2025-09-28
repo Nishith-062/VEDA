@@ -1,5 +1,7 @@
 // store/useAuthStore.js
 import { create } from "zustand";
+import Cookies from "js-cookie";
+import jwtDecode from "jwt-decode";
 import axios from "axios";
 
 const BASE_URL = "https://veda-bj5v.onrender.com";
@@ -15,6 +17,13 @@ export const useAuthStore = create((set, get) => ({
   checkAuth: async () => {
     set({ isCheckingAuth: true });
     try {
+      const token = Cookies.get("jwt");
+      if (token) {
+        const decoded = jwtDecode(token);
+        set({ authUser: decoded, isCheckingAuth: false });
+        return;
+      }
+
       const res = await axios.get(BASE_URL + "/api/user/check", {
         withCredentials: true, // include cookies if needed
       });
@@ -53,5 +62,5 @@ export const useAuthStore = create((set, get) => ({
     } catch (error) {
       console.log("Error in logout:", error);
     }
-  }
+  },
 }));

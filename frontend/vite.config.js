@@ -33,7 +33,7 @@ export default defineConfig({
 
       workbox: {
         navigateFallback: "/index.html",
-        globPatterns: ["**/*.{js,css,html,png,svg,woff2}"], // <-- add all chunks
+globPatterns: ["**/*.{js,css,html,png,svg,woff2,ico}"],
         runtimeCaching: [
           {
             // Cache API calls
