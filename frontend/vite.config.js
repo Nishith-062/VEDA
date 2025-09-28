@@ -14,8 +14,7 @@ export default defineConfig({
     tailwindcss(),
     VitePWA({
       registerType: "autoUpdate",
-      includeAssets: ["favicon.ico", "index.html"],
-
+      includeAssets: ["favicon.ico", "index.html"], // Ensures index.html is cached
       manifest: {
         name: "Virtual Education Delivery Assistant",
         short_name: "VEDA",
@@ -23,21 +22,20 @@ export default defineConfig({
         theme_color: "#f43131ff",
         background_color: "#ea6363ff",
         display: "standalone",
-        scope: "/",
-        start_url: "/",
+        scope: "/student", // Restricts PWA to /student paths only
+        start_url: "/student", // Starts the installed PWA at /student
         icons: [
           { src: "pwa-192x192.png", sizes: "192x192", type: "image/png" },
           { src: "pwa-512x512.png", sizes: "512x512", type: "image/png" },
         ],
       },
-
       workbox: {
-        navigateFallback: "/student",
-globPatterns: ["**/*.{js,css,html,png,svg,woff2,ico}"],
+        navigateFallback: "/index.html", // FIX: Fallback to cached index.html for all navigation requests (SPA handling)
+        globPatterns: ["**/*.{js,css,html,png,svg,woff2,ico}"], // Caches build assets
         runtimeCaching: [
           {
-            // Cache API calls
-  urlPattern: /^https:\/\/veda-bj5v\.onrender\.com\/api\/.*$/i,
+            // Cache API calls (unchanged)
+            urlPattern: /^https:\/\/veda-bj5v\.onrender\.com\/api\/lectures$/i,
             handler: "NetworkFirst",
             options: {
               cacheName: "api-cache",
@@ -50,7 +48,7 @@ globPatterns: ["**/*.{js,css,html,png,svg,woff2,ico}"],
             },
           },
           {
-            // Cache all static assets (JS, CSS, images)
+            // Cache all static assets (unchanged)
             urlPattern: ({ request }) =>
               request.destination === "script" ||
               request.destination === "style" ||

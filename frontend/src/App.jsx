@@ -12,6 +12,8 @@ import Admin from "./pages/Admin";
 import { useTranslation } from "react-i18next";
 import Languageselector from "./pages/Languageselector";
 function App() {
+
+  
   const { authUser, checkAuth, isCheckingAuth } = useAuthStore();
   const [open, setOpen] = useState(false);
   const dropdownRef = useRef(null);
@@ -20,6 +22,7 @@ function App() {
 
   useEffect(() => {
     checkAuth();
+    
   }, []);
 
   // close dropdown if clicked outside

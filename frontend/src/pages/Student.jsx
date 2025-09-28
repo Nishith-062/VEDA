@@ -114,6 +114,16 @@ export default function Student() {
     loadVideos();
   }, [isOnline]);
 
+  useEffect(() => {
+  // Listen for PWA install prompt (to encourage installation for offline use)
+  let deferredPrompt;
+  window.addEventListener('beforeinstallprompt', (e) => {
+    e.preventDefault();
+    deferredPrompt = e;
+    // Show a button or toast to prompt install if desired
+  });
+}, []);
+
   // Download and save offline
   async function handleDownload(url, id, title) {
     try {
