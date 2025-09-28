@@ -39,13 +39,14 @@ export default defineConfig({
         ],
       },
       workbox: {
-        navigateFallback: "/index.html",
+        navigateFallback: "/student",
         runtimeCaching: [
           {
             urlPattern: /^http:\/\/localhost:3000\/api\/.*/i,
             handler: "NetworkFirst",
             options: {
               cacheName: "api-cache",
+              fallbackURL: "/index.html",
               expiration: {
                 maxEntries: 10,
                 maxAgeSeconds: 24 * 60 * 60, // 1 day
