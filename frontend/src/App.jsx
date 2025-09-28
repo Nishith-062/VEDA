@@ -12,6 +12,7 @@ import Admin from "./pages/Admin";
 import { useTranslation } from "react-i18next";
 import Languageselector from "./pages/Languageselector";
 import Online from "./components/Online";
+import Chatbot from "./components/Chatbot";
 function App() {
   const { authUser, checkAuth, isCheckingAuth } = useAuthStore();
   const [open, setOpen] = useState(false);
@@ -188,6 +189,9 @@ function App() {
           />
         </Routes>
       </main>
+
+      {/* Floating Chatbot */}
+      <Chatbot />
 
       {/* Footer */}
       <footer className="bg-white border-t border-gray-200 shadow-sm">
