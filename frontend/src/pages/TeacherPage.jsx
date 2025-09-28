@@ -1,23 +1,23 @@
-// src/pages/Teacher.jsx
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Video, Upload, PlayCircle } from "lucide-react";
+import { useTranslation } from "react-i18next";
+import "../i18n"; // make sure your i18n setup is imported
 
 export default function TeacherPage() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const [title, setTitle] = useState("");
   const [videoFile, setVideoFile] = useState(null);
   const [message, setMessage] = useState("");
   const [uploading, setUploading] = useState(false);
 
-  const handleFileChange = (e) => {
-    setVideoFile(e.target.files[0]);
-  };
+  const handleFileChange = (e) => setVideoFile(e.target.files[0]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!videoFile) {
-      setMessage("❌ Please select a video file to upload.");
+      setMessage(t("selectVideoError"));
       return;
     }
     setUploading(true);
@@ -37,14 +37,14 @@ export default function TeacherPage() {
       const result = await response.json();
 
       if (response.ok) {
-        setMessage("✅ Upload successful!");
+        setMessage(t("uploadSuccess"));
         setTitle("");
         setVideoFile(null);
       } else {
-        setMessage("❌ Upload failed: " + (result.error || "Unknown error"));
+        setMessage(t("uploadFailed", { error: result.error || "Unknown error" }));
       }
     } catch (error) {
-      setMessage("❌ Upload error: " + error.message);
+      setMessage(t("uploadError", { error: error.message }));
     } finally {
       setUploading(false);
     }
@@ -57,11 +57,9 @@ export default function TeacherPage() {
         <div className="max-w-6xl mx-auto text-center">
           <h1 className="text-4xl font-extrabold text-gray-800 flex items-center justify-center gap-3">
             <Video className="w-9 h-9 text-blue-600" />
-            Teacher Dashboard
+            {t("teacherDashboard")}
           </h1>
-          <p className="mt-3 text-lg text-gray-600">
-            Manage your lectures and host live classes seamlessly
-          </p>
+          <p className="mt-3 text-lg text-gray-600">{t("teacherSubtitle")}</p>
         </div>
       </div>
 
@@ -73,31 +71,25 @@ export default function TeacherPage() {
             <div>
               <h2 className="text-xl font-semibold text-gray-800 flex items-center gap-2">
                 <Upload className="w-6 h-6 text-blue-500" />
-                Upload Lecture
+                {t("uploadLecture")}
               </h2>
-              <p className="mt-1 text-sm text-gray-500">
-                Add new recorded sessions to your library
-              </p>
+              <p className="mt-1 text-sm text-gray-500">{t("uploadLectureDesc")}</p>
 
               <form onSubmit={handleSubmit} className="mt-6 space-y-6">
                 <div>
-                  <label className="block mb-2 text-gray-700 font-medium">
-                    Lecture Title
-                  </label>
+                  <label className="block mb-2 text-gray-700 font-medium">{t("lectureTitle")}</label>
                   <input
                     type="text"
                     value={title}
                     onChange={(e) => setTitle(e.target.value)}
                     required
-                    placeholder="Enter lecture title"
+                    placeholder={t("lectureTitlePlaceholder")}
                     className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
                   />
                 </div>
 
                 <div>
-                  <label className="block mb-2 text-gray-700 font-medium">
-                    Video File
-                  </label>
+                  <label className="block mb-2 text-gray-700 font-medium">{t("videoFile")}</label>
                   <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-blue-400 transition cursor-pointer">
                     <input
                       type="file"
@@ -107,16 +99,11 @@ export default function TeacherPage() {
                       className="hidden"
                       id="video-upload"
                     />
-                    <label
-                      htmlFor="video-upload"
-                      className="cursor-pointer text-gray-500"
-                    >
+                    <label htmlFor="video-upload" className="cursor-pointer text-gray-500">
                       {videoFile ? (
-                        <span className="text-gray-700 font-medium">
-                          {videoFile.name}
-                        </span>
+                        <span className="text-gray-700 font-medium">{videoFile.name}</span>
                       ) : (
-                        "Click to select or drag & drop your video"
+                        t("videoSelectPlaceholder")
                       )}
                     </label>
                   </div>
@@ -126,12 +113,10 @@ export default function TeacherPage() {
                   type="submit"
                   disabled={uploading}
                   className={`w-full py-3 rounded-lg font-semibold text-white shadow transition ${
-                    uploading
-                      ? "bg-blue-300 cursor-not-allowed"
-                      : "bg-blue-600 hover:bg-blue-700"
+                    uploading ? "bg-blue-300 cursor-not-allowed" : "bg-blue-600 hover:bg-blue-700"
                   }`}
                 >
-                  {uploading ? "Uploading..." : "Upload Video"}
+                  {uploading ? t("uploading") : t("uploadVideo")}
                 </button>
 
                 {message && (
@@ -154,17 +139,13 @@ export default function TeacherPage() {
             <div className="bg-green-100 p-6 rounded-full mb-6">
               <PlayCircle className="w-14 h-14 text-green-600" />
             </div>
-            <h2 className="text-2xl font-semibold text-gray-800">
-              Start a Live Class
-            </h2>
-            <p className="mt-2 text-gray-500 text-sm">
-              Begin an interactive session that students can instantly join
-            </p>
+            <h2 className="text-2xl font-semibold text-gray-800">{t("startLiveClass")}</h2>
+            <p className="mt-2 text-gray-500 text-sm">{t("startLiveClassDesc")}</p>
             <button
               onClick={() => navigate("/teacher/live")}
               className="mt-8 w-full py-3 rounded-lg bg-green-600 hover:bg-green-700 text-white font-semibold shadow transition"
             >
-              Go Live Now
+              {t("goLiveNow")}
             </button>
           </div>
         </div>
