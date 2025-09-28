@@ -6,29 +6,42 @@ import lectureRoutes from './routes/lecture.routes.js'
 import DbConnect from "./lib/db.js";
 import userRoutes from "./routes/user.routes.js";
 
-dotenv.config(); 
-
+dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+const allowedOrigins = [
+  "http://localhost:4173",
+  "http://localhost:5173",
+  "https://veda-gamma.vercel.app"
+];
 
 app.use(cors({
-    origin: ["http://localhost:4173", "http://localhost:5173","https://veda-gamma.vercel.app"], // allow both
+  origin: function (origin, callback) {
+    if (!origin) return callback(null, true); // allow mobile apps / curl
+    if (allowedOrigins.includes(origin)) {
+      return callback(null, true);
+    } else {
+      return callback(new Error("Not allowed by CORS"));
+    }
+  },
   credentials: true,
 }));
-
-console.log("JWT_SECRETKEY:", process.env.JWT_SECRETKEY);
 
 app.use(express.json());
 app.use(cookieParser());
 
-// app.use(cors());
+// your routes after cors
+import userRoutes from "./routes/user.routes.js";
+import lectureRoutes from "./routes/lecture.routes.js";
 
 app.use("/api/user", userRoutes);
-app.use('/api',lectureRoutes)
+app.use("/api", lectureRoutes);
 
+import DbConnect from "./lib/db.js";
 DbConnect().then(() => {
   app.listen(PORT, () => {
-    console.log(`server running on http://localhost:${PORT}`);
+    console.log(`server running on port ${PORT}`);
   });
 });
+
