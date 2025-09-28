@@ -28,7 +28,7 @@ export default function TeacherPage() {
     formData.append("video", videoFile);
 
     try {
-      const response = await fetch("http://localhost:3000/api/lectures", {
+      const response = await fetch("https://veda-bj5v.onrender.com/api/lectures", {
         method: "POST",
         body: formData,
         credentials: "include",
