@@ -3,7 +3,11 @@ import { useState, useRef, useEffect } from "react";
 function Chatbot() {
   const [open, setOpen] = useState(false);
   const [messages, setMessages] = useState([
-    { role: "bot", text: "Hi! Ask me where the language change option is." },
+    {
+      role: "bot",
+      text:
+        "Hi! You can ask things like: 'Where is language change?', 'How to start live stream?', 'How to upload?'.",
+    },
   ]);
   const [input, setInput] = useState("");
   const inputRef = useRef(null);
@@ -19,18 +23,57 @@ function Chatbot() {
     if (!text) return;
     const userMsg = { role: "user", text };
 
-    // Very small rule-based reply
+    // Simple rule-based replies
     const lower = text.toLowerCase();
+
+    const rules = [
+      {
+        test: (s) =>
+          s.includes("language") && (s.includes("change") || s.includes("switch") || s.includes("where")),
+        reply:
+          "The language change option is in the top-right corner of the navbar.",
+      },
+      {
+        test: (s) => s.includes("start") && (s.includes("live") || s.includes("stream")),
+        reply:
+          "Teachers can start a live stream by navigating to the Teacher page and using the 'Live' option (e.g., /teacher → Live).",
+      },
+      {
+        test: (s) => (s.includes("join") || s.includes("watch")) && (s.includes("live") || s.includes("class")),
+        reply:
+          "Students can join a live session from the Student page via the 'Live' option (e.g., /student → Live).",
+      },
+      {
+        test: (s) => s.includes("upload") || s.includes("add") || s.includes("submit"),
+        reply:
+          "To upload materials/lectures, use the upload option in the relevant page section (Teacher page typically has upload controls).",
+      },
+      {
+        test: (s) => s.includes("login") || s.includes("sign in"),
+        reply:
+          "Go to the Login page (/login). After login, you'll be redirected based on your role (Student/Teacher/Admin).",
+      },
+      {
+        test: (s) => s.includes("logout") || s.includes("log out"),
+        reply:
+          "Open the user dropdown in the top-right of the navbar and click Logout.",
+      },
+      {
+        test: (s) => s.includes("admin"),
+        reply:
+          "Admins can access the Admin page at /admin after logging in with an Admin account.",
+      },
+      {
+        test: (s) => s.includes("help") || s.includes("support") || s.includes("contact"),
+        reply:
+          "For help, check the footer links (Contact/Privacy/Terms) or reach out to your project admin.",
+      },
+    ];
+
     let reply =
-      "I can currently help with where to find the language change option.";
-    if (
-      (lower.includes("language") &&
-        (lower.includes("change") || lower.includes("switch"))) ||
-      lower.includes("where")
-    ) {
-      reply =
-        "The language change option is in the top-right corner of the navbar.";
-    }
+      "I'm here to help with quick tips like language change, starting/joining live, uploading, and login/logout.";
+    const found = rules.find((r) => r.test(lower));
+    if (found) reply = found.reply;
 
     setMessages((prev) => [...prev, userMsg, { role: "bot", text: reply }]);
     setInput("");
