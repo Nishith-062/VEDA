@@ -13,6 +13,7 @@ export const useAuthStore = create((set, get) => ({
   onlineUsers: [],
 
   checkAuth: async () => {
+    set({ isCheckingAuth: true });
     try {
       const res = await axios.get(BASE_URL + "/api/user/check", {
         withCredentials: true, // include cookies if needed

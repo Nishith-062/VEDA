@@ -4,7 +4,7 @@ const userSchema = new mongoose.Schema(
   {
     role: {
       type: String,
-      enum: ['Teacher', 'Student'], // allowed values
+      enum: ['Teacher', 'Student','Admin'], // allowed values
       required: true
     },
     email: {
