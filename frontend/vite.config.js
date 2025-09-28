@@ -6,7 +6,7 @@ import tailwindcss from "@tailwindcss/vite";
 export default defineConfig({
   server: {
     proxy: {
-      "/api": "http://localhost:3000", // forward API calls to backend
+      "/api": "http://localhost:3000",
     },
   },
   plugins: [
@@ -14,7 +14,7 @@ export default defineConfig({
     tailwindcss(),
     VitePWA({
       registerType: "autoUpdate",
-            includeAssets: ["index.html"],
+      includeAssets: ["favicon.ico", "offline.html"],
 
       manifest: {
         name: "Virtual Education Delivery Assistant",
@@ -26,34 +26,41 @@ export default defineConfig({
         scope: "/",
         start_url: "/",
         icons: [
-          {
-            src: "pwa-192x192.png",
-            sizes: "192x192",
-            type: "image/png",
-          },
-          {
-            src: "pwa-512x512.png",
-            sizes: "512x512",
-            type: "image/png",
-          },
+          { src: "pwa-192x192.png", sizes: "192x192", type: "image/png" },
+          { src: "pwa-512x512.png", sizes: "512x512", type: "image/png" },
         ],
       },
+
       workbox: {
-        navigateFallback: "/student",
+        navigateFallback: "/offline.html",
+
         runtimeCaching: [
           {
-            urlPattern: /^http:\/\/localhost:3000\/api\/.*/i,
+            // Cache API calls
+            urlPattern: /^http:\/\/localhost:3000\/api\/.*$/i,
             handler: "NetworkFirst",
             options: {
               cacheName: "api-cache",
-              fallbackURL: "/index.html",
               expiration: {
                 maxEntries: 10,
-                maxAgeSeconds: 24 * 60 * 60, // 1 day
+                maxAgeSeconds: 24 * 60 * 60,
               },
               networkTimeoutSeconds: 10,
-              cacheableResponse: {
-                statuses: [0, 200],
+              cacheableResponse: { statuses: [0, 200] },
+            },
+          },
+          {
+            // Cache all static assets (JS, CSS, images)
+            urlPattern: ({ request }) =>
+              request.destination === "script" ||
+              request.destination === "style" ||
+              request.destination === "image",
+            handler: "CacheFirst",
+            options: {
+              cacheName: "static-resources",
+              expiration: {
+                maxEntries: 50,
+                maxAgeSeconds: 30 * 24 * 60 * 60, // 30 days
               },
             },
           },
