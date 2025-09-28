@@ -1,30 +1,43 @@
-import React from 'react';
-import { useTranslation } from 'react-i18next';
+import React, { useState } from "react";
+import { useTranslation } from "react-i18next";
 
 function LanguageSelector() {
   const { i18n } = useTranslation();
+  const [lang, setLang] = useState("en");
 
   const languages = [
-    { code: 'hi', label: 'Hindi' },
-    { code: 'en', label: 'English' },
+    { code: "en", label: "English" },
+    { code: "hi", label: "Hindi" },
   ];
 
-  const handleLanguageChange = (event) => {
-    i18n.changeLanguage(event.target.value);
-  };
+const handleLanguageChange = () => {
+  const newLang = lang === "en" ? "hi" : "en";
+  setLang(newLang);
+  i18n.changeLanguage(newLang);
+};
+
+
+  
 
   return (
-    <select
-      onChange={handleLanguageChange}
-      value={i18n.language} // current selected language
-      className="px-3 py-1 rounded border border-gray-300 bg-white hover:bg-gray-100 transition"
-    >
-      {languages.map((lng) => (
-        <option key={lng.code} value={lng.code}>
-          {lng.label}
-        </option>
-      ))}
-    </select>
+<div className="flex justify-center items-center">
+  <button
+    onClick={handleLanguageChange}
+    className="flex items-center px-3 py-1.5 rounded-full border border-gray-200 shadow-sm hover:bg-gray-50 transition-colors duration-200 focus:outline-none focus:ring-1 focus:ring-orange-300"
+  >
+    {lang === "en" ? (
+      <span className="bg-orange-200 text-orange-800 px-2 py-0.5 rounded-full font-medium text-sm transition-all duration-200">
+        हिंदी
+      </span>
+    ) : (
+      <span className="text-gray-500 font-medium text-sm transition-colors duration-200">
+        English
+      </span>
+    )}
+  </button>
+</div>
+
+
   );
 }
 

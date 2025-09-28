@@ -11,18 +11,16 @@ import { ChevronDown, Loader } from "lucide-react";
 import Admin from "./pages/Admin";
 import { useTranslation } from "react-i18next";
 import Languageselector from "./pages/Languageselector";
+import Online from "./components/Online";
 function App() {
-
-  
   const { authUser, checkAuth, isCheckingAuth } = useAuthStore();
   const [open, setOpen] = useState(false);
   const dropdownRef = useRef(null);
-  
-  const {t} =useTranslation();
+
+  const { t } = useTranslation();
 
   useEffect(() => {
     checkAuth();
-    
   }, []);
 
   // close dropdown if clicked outside
@@ -36,13 +34,13 @@ function App() {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-if (isCheckingAuth) {
-  return (
-    <div className="flex items-center justify-center w-full h-screen">
-      <Loader className="animate-spin size-10 text-center" />
-    </div>
-  );
-}
+  if (isCheckingAuth) {
+    return (
+      <div className="flex items-center justify-center w-full h-screen">
+        <Loader className="animate-spin size-10 text-center" />
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen flex flex-col bg-gray-50">
@@ -61,39 +59,45 @@ if (isCheckingAuth) {
             </div>
 
             {/* Right - User Dropdown */}
-            <div className="relative" ref={dropdownRef}>
-            <Languageselector/>
-              {authUser ? (
-                <>
-                  <button
-                    onClick={() => setOpen(!open)}
-                    className="flex items-center gap-2 bg-gray-50 hover:bg-gray-100 text-gray-800 text-sm font-medium px-3 py-2 rounded-lg transition"
-                  >
-                    <span>{authUser.fullName}</span>
-                    <ChevronDown
-                      className={`w-4 h-4 text-gray-500 transition-transform ${
-                        open ? "rotate-180" : ""
-                      }`}
-                    />
-                  </button>
 
-                  {open && (
-                    <div className="absolute right-0 mt-2 w-40 bg-white border border-gray-200 rounded-md shadow-md py-1">
-                      <button
-                        onClick={() => {
-                          useAuthStore.getState().logout();
-                          setOpen(false);
-                        }}
-                        className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                      >
-                        Logout
-                      </button>
-                    </div>
-                  )}
-                </>
-              ) : (
-                <span className="text-gray-600 text-sm">{t("notLoggedIn")}</span>
-              )}
+            <div className="flex items-center gap-2">
+              <Online />
+              <Languageselector />
+              <div className="relative" ref={dropdownRef}>
+                {authUser ? (
+                  <>
+                    <button
+                      onClick={() => setOpen(!open)}
+                      className="flex items-center gap-2 bg-gray-50 hover:bg-gray-100 text-gray-800 text-sm font-medium px-3 py-2 rounded-lg transition"
+                    >
+                      <span>{authUser.fullName}</span>
+                      <ChevronDown
+                        className={`w-4 h-4 text-gray-500 transition-transform ${
+                          open ? "rotate-180" : ""
+                        }`}
+                      />
+                    </button>
+
+                    {open && (
+                      <div className="absolute right-0 mt-2 w-40 bg-white border border-gray-200 rounded-md shadow-md py-1">
+                        <button
+                          onClick={() => {
+                            useAuthStore.getState().logout();
+                            setOpen(false);
+                          }}
+                          className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                        >
+                          Logout
+                        </button>
+                      </div>
+                    )}
+                  </>
+                ) : (
+                  <span className="text-gray-600 text-sm">
+                    {t("notLoggedIn")}
+                  </span>
+                )}
+              </div>
             </div>
           </div>
         </div>
@@ -102,17 +106,13 @@ if (isCheckingAuth) {
       {/* Main Routes */}
       <main className="flex-grow">
         <Routes>
-          <Route
-            path="/"
-            element={<Navigate to={"/login"} replace />}
-          />
+          <Route path="/" element={<Navigate to={"/login"} replace />} />
           <Route
             path="/login"
             element={
               authUser ? (
                 authUser.role === "Teacher" ? (
                   <Navigate to="/teacher" replace />
-
                 ) : authUser.role === "Admin" ? (
                   <Navigate to="/admin" replace />
                 ) : authUser.role === "Student" ? (
