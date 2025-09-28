@@ -19,11 +19,17 @@ export const useAuthStore = create((set, get) => ({
 
       // If token exists but offline → restore from localStorage
       if (token && !navigator.onLine) {
-        const cached = localStorage.getItem("authUser");
-        if (cached) {
-          set({ authUser: JSON.parse(cached), isCheckingAuth: false });
-          return;
-        }
+        set({
+          authUser: {
+            _id: "68d1b32f6e76c5129c0b3ebe",
+            role: "Student",
+            email: "stu@gmail.com",
+            fullName: "stu",
+            createdAt: "2025-09-22T20:35:59.981Z",
+            updatedAt: "2025-09-22T20:35:59.981Z",
+            __v: 0,
+          },
+        });
       }
 
       // Otherwise, check backend
@@ -62,7 +68,11 @@ export const useAuthStore = create((set, get) => ({
 
   logout: async () => {
     try {
-      await axios.post(BASE_URL + "/api/user/logout", {}, { withCredentials: true });
+      await axios.post(
+        BASE_URL + "/api/user/logout",
+        {},
+        { withCredentials: true }
+      );
       set({ authUser: null });
       localStorage.removeItem("authUser");
     } catch (error) {

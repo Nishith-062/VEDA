@@ -32,12 +32,12 @@ export default defineConfig({
       },
 
       workbox: {
-        navigateFallback: "/index.html",
+        navigateFallback: "/student",
 globPatterns: ["**/*.{js,css,html,png,svg,woff2,ico}"],
         runtimeCaching: [
           {
             // Cache API calls
-            urlPattern: /^http:\/\/localhost:3000\/api\/.*$/i,
+  urlPattern: /^https:\/\/veda-bj5v\.onrender\.com\/api\/.*$/i,
             handler: "NetworkFirst",
             options: {
               cacheName: "api-cache",
