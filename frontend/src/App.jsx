@@ -11,6 +11,7 @@ import { ChevronDown, Loader } from "lucide-react";
 import Admin from "./pages/Admin";
 import { useTranslation } from "react-i18next";
 import Languageselector from "./pages/Languageselector";
+import ChatWidget from "./components/ChatWidget";
 function App() {
 
   
@@ -208,6 +209,8 @@ if (isCheckingAuth) {
           </div>
         </div>
       </footer>
+      {/* Floating assistant widget */}
+      <ChatWidget />
     </div>
   );
 }

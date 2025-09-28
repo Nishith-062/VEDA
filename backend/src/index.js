@@ -2,7 +2,7 @@ import express from "express";
 import dotenv from "dotenv";
 import cookieParser from "cookie-parser";
 import cors from "cors";
-import lectureRoutes from './routes/lecture.routes.js'
+import lectureRoutes from "./routes/lecture.routes.js";
 import DbConnect from "./lib/db.js";
 import userRoutes from "./routes/user.routes.js";
 
@@ -32,13 +32,10 @@ app.use(express.json());
 app.use(cookieParser());
 
 // your routes after cors
-import userRoutes from "./routes/user.routes.js";
-import lectureRoutes from "./routes/lecture.routes.js";
 
 app.use("/api/user", userRoutes);
 app.use("/api", lectureRoutes);
 
-import DbConnect from "./lib/db.js";
 DbConnect().then(() => {
   app.listen(PORT, () => {
     console.log(`server running on port ${PORT}`);

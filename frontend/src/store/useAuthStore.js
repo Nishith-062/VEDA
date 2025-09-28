@@ -2,7 +2,7 @@ import { create } from "zustand";
 import Cookies from "js-cookie";
 import axios from "axios";
 
-const BASE_URL = "https://veda-bj5v.onrender.com";
+const BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
 
 export const useAuthStore = create((set, get) => ({
   authUser: null,

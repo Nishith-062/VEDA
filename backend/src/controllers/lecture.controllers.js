@@ -29,7 +29,7 @@ export const postLectures = (req, res) => {
         });
 
 
-        const course_id = Course.findOne({faculty_id:req.user._id}).select("_id","course_name");
+        const course = await Course.findOne({ faculty_id: req.user._id }).select("_id course_name");
 
         const newLecture = new Lecture({
           faculty_id: req.user._id,
@@ -37,8 +37,8 @@ export const postLectures = (req, res) => {
           originalSize: req.file.size/(1024*1024),
           compressedSize: fs.statSync(outputPath).size/(1024*1024),
           url: result.secure_url,
-          course_id: course_id._id,
-          course_name: course_id.course_name
+          course_id: course?._id,
+          course_name: course?.course_name
         });
         await newLecture.save();
 
