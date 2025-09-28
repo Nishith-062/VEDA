@@ -14,7 +14,7 @@ export default defineConfig({
     tailwindcss(),
     VitePWA({
       registerType: "autoUpdate",
-      includeAssets: ["favicon.ico", "offline.html"],
+      includeAssets: ["favicon.ico", "index.html"],
 
       manifest: {
         name: "Virtual Education Delivery Assistant",
@@ -33,7 +33,7 @@ export default defineConfig({
 
       workbox: {
         navigateFallback: "/index.html",
-
+        globPatterns: ["**/*.{js,css,html,png,svg,woff2}"], // <-- add all chunks
         runtimeCaching: [
           {
             // Cache API calls
