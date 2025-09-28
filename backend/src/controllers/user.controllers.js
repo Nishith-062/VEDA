@@ -1,9 +1,10 @@
 import { generateToken } from "../lib/utils.js";
 import User from "../models/user.model.js";
+import Course from "../models/course.model.js";
 import bcrypt from "bcryptjs";
 
 export const signup = async (req,res) => {
-    const {role,fullName,email,password}= req.body;
+    const {role,fullName,email,password,course_name,description}= req.body;
     // console.log(req.body);
     
     try {
@@ -29,6 +30,17 @@ export const signup = async (req,res) => {
             password: hashedPassword
         });
 
+        if (role === 'Teacher') {
+            if (!course_name) {
+                return res.status(400).json({ message: "Course name is required for teachers" });
+            }
+            const newCourse = new Course({
+                faculty_id: newUser._id,
+                course_name,
+                description})
+            await newCourse.save();
+        }
+
         if(newUser) {
             //generate jwt token here
             generateToken(newUser._id,res)
@@ -38,8 +50,7 @@ export const signup = async (req,res) => {
                 _id: newUser._id,
                 fullName: newUser.fullName,
                 email: newUser.email,
-                profilePic: newUser.profilePic,
-            });
+                role: newUser.role,});
         } else {
             req.status(400).json({message: "Invalid user data"});
         }
