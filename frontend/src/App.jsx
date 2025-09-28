@@ -9,11 +9,14 @@ import { useEffect, useState, useRef } from "react";
 import { useAuthStore } from "./store/useAuthStore";
 import { ChevronDown } from "lucide-react";
 import Admin from "./pages/Admin";
-
+import { useTranslation } from "react-i18next";
+import Languageselector from "./pages/Languageselector";
 function App() {
   const { authUser, checkAuth, isCheckingAuth } = useAuthStore();
   const [open, setOpen] = useState(false);
   const dropdownRef = useRef(null);
+  
+  const {t} =useTranslation();
 
   useEffect(() => {
     checkAuth();
@@ -50,6 +53,7 @@ function App() {
 
             {/* Right - User Dropdown */}
             <div className="relative" ref={dropdownRef}>
+            <Languageselector/>
               {authUser ? (
                 <>
                   <button
@@ -79,7 +83,7 @@ function App() {
                   )}
                 </>
               ) : (
-                <span className="text-gray-600 text-sm">Not logged in</span>
+                <span className="text-gray-600 text-sm">{t("notLoggedIn")}</span>
               )}
             </div>
           </div>

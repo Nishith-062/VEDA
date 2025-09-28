@@ -1,9 +1,11 @@
-// TeacherLive.js
 import React from "react";
 import { JitsiMeeting } from "@jitsi/react-sdk";
+import { useTranslation } from "react-i18next";
+import "../i18n"; // make sure your i18n setup is imported
 
 export default function TeacherLive() {
-  const roomName = "veda-live-classroom"; // You could make this dynamic
+  const { t } = useTranslation();
+  const roomName = "veda-live-classroom"; // Could make this dynamic
 
   return (
     <div className="h-screen w-full">
@@ -15,13 +17,21 @@ export default function TeacherLive() {
         }}
         interfaceConfigOverwrite={{
           TOOLBAR_BUTTONS: [
-            "microphone", "camera", "desktop", "fullscreen",
-            "fodeviceselection", "hangup", "chat", "settings",
-            "raisehand", "tileview", "videoquality"
+            "microphone",
+            "camera",
+            "desktop",
+            "fullscreen",
+            "fodeviceselection",
+            "hangup",
+            "chat",
+            "settings",
+            "raisehand",
+            "tileview",
+            "videoquality"
           ]
         }}
         userInfo={{
-          displayName: "Teacher",
+          displayName: t("teacher"), // Translatable name
         }}
         getIFrameRef={(iframeRef) => {
           iframeRef.style.height = "100%";
