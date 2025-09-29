@@ -8,7 +8,6 @@ const courseSchema = new mongoose.Schema(
       ref: "User",
       required: true,
       unique: true,
-      default: () => new mongoose.Types.ObjectId(),
     },
     course_name: {
       type: String,
@@ -17,6 +16,12 @@ const courseSchema = new mongoose.Schema(
     description: {
       type: String,
     },
+     students: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "User",
+      },
+    ],
   },
   {
     timestamps: { createdAt: "created_at", updatedAt: false },

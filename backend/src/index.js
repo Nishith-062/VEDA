@@ -5,6 +5,7 @@ import cors from "cors";
 import lectureRoutes from './routes/lecture.routes.js'
 import DbConnect from "./lib/db.js";
 import userRoutes from "./routes/user.routes.js";
+import liveRoutes from "./routes/liveClass.routes.js";
 
 dotenv.config();
 const app = express();
@@ -35,6 +36,7 @@ app.use(cookieParser());
 
 app.use("/api/user", userRoutes);
 app.use("/api", lectureRoutes);
+app.use('/api/live-class',liveRoutes);
 
 DbConnect().then(() => {
   app.listen(PORT, () => {
