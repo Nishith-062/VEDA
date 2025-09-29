@@ -5,32 +5,36 @@ import { useAuthStore } from "../store/useAuthStore";
 
 const StudentLiveClasses = () => {
   const [classes, setClasses] = useState([]);
-  const {token}=useAuthStore()
-  console.log(token);
-  
+  const [loading, setLoading] = useState(true); // new loading state
+  const { token } = useAuthStore();
 
   useEffect(() => {
     const fetchClasses = async () => {
       try {
-        const res = await axios.get("https://veda-bj5v.onrender.com/api/live-class/schedule", {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        setClasses(res.data.classes); // adjust according to backend
+        setLoading(true);
+        const res = await axios.get(
+          "https://veda-bj5v.onrender.com/api/live-class/schedule",
+          {
+            headers: { Authorization: `Bearer ${token}` },
+          }
+        );
+        setClasses(res.data.classes || []); // ensure it's an array
       } catch (error) {
         console.error("Error fetching classes:", error.response || error.message);
+      } finally {
+        setLoading(false);
       }
     };
 
-    // console.log(classes);
-    
-
     fetchClasses();
-  }, []);
+  }, [token]);
 
   return (
-    <div>
-      <h1>Student Live Classes</h1>
-      <LiveClassTable classes={classes} />
+    <div className="p-6 bg-gray-50 min-h-screen">
+      <h1 className="text-2xl font-bold mb-6 text-gray-800">
+        Student Live Classes
+      </h1>
+      <LiveClassTable classes={classes} loading={loading} />
     </div>
   );
 };

@@ -17,6 +17,7 @@ import StudentLiveClasses from "./pages/StudentLiveClasses";
 import TeacherManageClass from "./pages/TeacherManageClass";
 import BroadcastPage from "./pages/BroadcastPage";
 import ViewerPage from "./pages/ViewerPage";
+import Navbar from "./components/navbar";
 function App() {
   const { authUser, checkAuth, isCheckingAuth } = useAuthStore();
   const [open, setOpen] = useState(false);
@@ -50,153 +51,116 @@ function App() {
   return (
     <div className="min-h-screen flex flex-col bg-gray-50">
       {/* Navbar */}
-      <nav className="sticky top-0 z-50 bg-white border-b border-gray-200 shadow-sm">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
-            {/* Left - Logo + Brand */}
-            <div className="flex items-center gap-2">
-              <img
-                src="/logo.jpg"
-                alt="VEDA"
-                className="h-9 w-9 rounded-md object-cover"
-              />
-              <span className="text-lg font-semibold text-gray-800">VEDA</span>
-            </div>
+      <Navbar authUser={authUser} />
 
-            {/* Right - User Dropdown */}
-
-            <div className="flex items-center gap-2">
-              <Online />
-              <Languageselector />
-              <div className="relative" ref={dropdownRef}>
-                {authUser ? (
-                  <>
-                    <button
-                      onClick={() => setOpen(!open)}
-                      className="flex items-center gap-2 bg-gray-50 hover:bg-gray-100 text-gray-800 text-sm font-medium px-3 py-2 rounded-lg transition"
-                    >
-                      <span>{authUser.fullName}</span>
-                      <ChevronDown
-                        className={`w-4 h-4 text-gray-500 transition-transform ${
-                          open ? "rotate-180" : ""
-                        }`}
-                      />
-                    </button>
-
-                    {open && (
-                      <div className="absolute right-0 mt-2 w-40 bg-white border border-gray-200 rounded-md shadow-md py-1">
-                        <button
-                          onClick={() => {
-                            useAuthStore.getState().logout();
-                            setOpen(false);
-                          }}
-                          className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                        >
-                          Logout
-                        </button>
-                      </div>
-                    )}
-                  </>
-                ) : (
-                  <span className="text-gray-600 text-sm">
-                    {t("notLoggedIn")}
-                  </span>
-                )}
-              </div>
-            </div>
-          </div>
-        </div>
-      </nav>
 
       {/* Main Routes */}
       <main className="flex-grow">
-        <Routes>
-          <Route path="/" element={<Navigate to={"/login"} replace />} />
-          <Route
-            path="/login"
-            element={
-              authUser ? (
-                authUser.role === "Teacher" ? (
-                  <Navigate to="/teacher" replace />
-                ) : authUser.role === "Admin" ? (
-                  <Navigate to="/admin" replace />
-                ) : authUser.role === "Student" ? (
-                  <Navigate to="/student" replace />
-                ) : (
-                  <Navigate to="/login" replace />
-                )
-              ) : (
-                <LoginPage />
-              )
-            }
-          />
+<Routes>
+  {/* Default / Login Redirect */}
+  <Route path="/" element={<Navigate to="/login" replace />} />
+  <Route
+    path="/login"
+    element={
+      authUser ? (
+        authUser.role === "Teacher" ? (
+          <Navigate to="/teacher" replace />
+        ) : authUser.role === "Admin" ? (
+          <Navigate to="/admin" replace />
+        ) : authUser.role === "Student" ? (
+          <Navigate to="/student" replace />
+        ) : (
+          <Navigate to="/login" replace />
+        )
+      ) : (
+        <LoginPage />
+      )
+    }
+  />
 
-          {/* Student Routes */}
-          <Route
-            path="/student"
-            element={
-              authUser && authUser.role === "Student" ? (
-                <Student />
-              ) : (
-                <Navigate to="/login" replace />
-              )
-            }
-          />
-          <Route
-            path="/student/live"
-            element={
-              authUser && authUser.role === "Student" ? (
-                <StudentLiveClasses />
-              ) : (
-                <Navigate to="/login" replace />
-              )
-            }
-          />
+  {/* Student Routes */}
+  <Route
+    path="/student"
+    element={
+      authUser && authUser.role === "Student" ? (
+        <Student />
+      ) : (
+        <Navigate to="/login" replace />
+      )
+    }
+  />
+  <Route
+    path="/student/live"
+    element={
+      authUser && authUser.role === "Student" ? (
+        <StudentLiveClasses />
+      ) : (
+        <Navigate to="/login" replace />
+      )
+    }
+  />
+  <Route
+    path="/student/live-class/:classId"
+    element={
+      authUser && authUser.role === "Student" ? (
+        <ViewerPage />
+      ) : (
+        <Navigate to="/login" replace />
+      )
+    }
+  />
 
-          {/* Teacher Routes */}
-          <Route
-            path="/teacher"
-            element={
-              authUser && authUser.role === "Teacher" ? (
-                <TeacherPage />
-              ) : (
-                <Navigate to="/login" replace />
-              )
-            }
-          />
-          <Route
-            path="/teacher/live"
-            element={
-              authUser && authUser.role === "Teacher" ? (
-                <TeacherManageClass />
-              ) : (
-                <Navigate to="/login" replace />
-              )
-            }
-          />
+  {/* Teacher Routes */}
+  <Route
+    path="/teacher"
+    element={
+      authUser && authUser.role === "Teacher" ? (
+        <TeacherPage />
+      ) : (
+        <Navigate to="/login" replace />
+      )
+    }
+  />
+  <Route
+    path="/teacher/live"
+    element={
+      authUser && authUser.role === "Teacher" ? (
+        <TeacherManageClass />
+      ) : (
+        <Navigate to="/login" replace />
+      )
+    }
+  />
+  <Route
+    path="/teacher/class/:id/broadcast"
+    element={
+      authUser && authUser.role === "Teacher" ? (
+        <BroadcastPage />
+      ) : (
+        <Navigate to="/login" replace />
+      )
+    }
+  />
 
-          {/* Default */}
-          <Route
-            path="*"
-            element={<Navigate to={authUser ? "/student" : "/login"} replace />}
-          />
+  {/* Admin Routes */}
+  <Route
+    path="/admin"
+    element={
+      authUser && authUser.role === "Admin" ? (
+        <Admin />
+      ) : (
+        <Navigate to="/login" replace />
+      )
+    }
+  />
 
-          <Route
-            path="/admin"
-            element={
-              authUser && authUser.role === "Admin" ? (
-                <Admin />
-              ) : (
-                <Navigate to="/login" replace />
-              )
-            }
-          />
+  {/* Wildcard / Fallback */}
+  <Route
+    path="*"
+    element={<Navigate to={authUser ? `/${authUser.role.toLowerCase()}` : "/login"} replace />}
+  />
+</Routes>
 
-          <Route path="/teacher/class/:id/broadcast" element={<BroadcastPage />} />
-
-          <Route path="/student/live-class/:classId" element={<ViewerPage />} />
-
-        </Routes>
       </main>
 
       {/* Floating Chatbot */}

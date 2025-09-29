@@ -22,7 +22,7 @@ export default defineConfig({
         theme_color: "#f43131ff",
         background_color: "#ea6363ff",
         display: "standalone",
-        scope: "/student", // Restricts PWA to /student paths only
+        scope: "/", // Restricts PWA to /student paths only
         start_url: "/student", // Starts the installed PWA at /student
         icons: [
           { src: "pwa-192x192.png", sizes: "192x192", type: "image/png" },
