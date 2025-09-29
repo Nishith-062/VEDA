@@ -17,7 +17,7 @@ export default function TeacherManageClass() {
   const [activeClass, setActiveClass] = useState(null);
   const [loading, setLoading] = useState(false);
 
-  const API_BASE = "http://localhost:3000/api/live-class";
+  const API_BASE = "https://veda-bj5v.onrender.com/api/live-class";
 
   // ✅ Fetch teacher's classes on mount
   // Fetch teacher’s scheduled classes

@@ -5,7 +5,7 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 
 export default function BroadcastPage() {
-  const API_BASE = "http://localhost:3000/api/live-class";
+  const API_BASE = "https://veda-bj5v.onrender.com/api/live-class";
   const { id } = useParams();
   const navigate = useNavigate();
   const token = useAuthStore((state) => state.token);

@@ -21,7 +21,7 @@ const ViewerPage = () => {
       try {
         // ✅ Changed to POST (your backend uses POST for join)
         const res = await axios.get(
-          `http://localhost:3000/api/live-class/${classId}/join`,
+          `https://veda-bj5v.onrender.com/api/live-class/${classId}/join`,
           { 
             headers: { Authorization: `Bearer ${token}` } 
           }

@@ -12,7 +12,7 @@ const StudentLiveClasses = () => {
   useEffect(() => {
     const fetchClasses = async () => {
       try {
-        const res = await axios.get("http://localhost:3000/api/live-class/schedule", {
+        const res = await axios.get("https://veda-bj5v.onrender.com/api/live-class/schedule", {
           headers: { Authorization: `Bearer ${token}` },
         });
         setClasses(res.data.classes); // adjust according to backend

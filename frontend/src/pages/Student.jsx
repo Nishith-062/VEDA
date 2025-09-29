@@ -53,7 +53,7 @@ export default function Student() {
         let backendVideos = [];
         if (isOnline) {
           const res = await axios.get(
-            "http://localhost:3000/api/lectures"
+            "https://veda-bj5v.onrender.com/api/lectures"
           );
           backendVideos = (res.data.data || []).map((v) => ({
             id: v._id || v.id,

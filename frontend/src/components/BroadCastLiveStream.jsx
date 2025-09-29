@@ -11,7 +11,7 @@ import axios from "axios";
 import { useNavigate, useParams } from "react-router-dom";
 import { useAuthStore } from "../store/useAuthStore";
 
-  const API_BASE = "http://localhost:3000/api/live-class";
+  const API_BASE = "https://veda-bj5v.onrender.com/api/live-class";
 
 
 export default function BroadCastLiveStream({ apiKey, token, userId, classId }) {

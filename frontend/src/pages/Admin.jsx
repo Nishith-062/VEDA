@@ -14,7 +14,7 @@ const Admin = () => {
   ]
 
   const fetchData = async () => {
-    const response = await fetch("http://localhost:3000/api/lectures");
+    const response = await fetch("https://veda-bj5v.onrender.com/api/lectures");
     const data = await response.json();
     // console.log(data);
     setLectures(data.data);
