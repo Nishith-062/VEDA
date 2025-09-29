@@ -2,9 +2,9 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Video, Upload, PlayCircle } from "lucide-react";
 import { useTranslation } from "react-i18next";
-import "../i18n"; // make sure your i18n setup is imported
+import "../i18n";
 
-export default function TeacherPage() {
+export default function TeacherDashboard() {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const [title, setTitle] = useState("");
@@ -20,6 +20,7 @@ export default function TeacherPage() {
       setMessage(t("selectVideoError"));
       return;
     }
+
     setUploading(true);
     setMessage("");
 
@@ -28,11 +29,10 @@ export default function TeacherPage() {
     formData.append("video", videoFile);
 
     try {
-      const response = await fetch("https://veda-bj5v.onrender.com/api/lectures", {
-        method: "POST",
-        body: formData,
-        credentials: "include",
-      });
+      const response = await fetch(
+        "http://localhost:3000/api/lectures",
+        { method: "POST", body: formData, credentials: "include" }
+      );
 
       const result = await response.json();
 
@@ -100,11 +100,7 @@ export default function TeacherPage() {
                       id="video-upload"
                     />
                     <label htmlFor="video-upload" className="cursor-pointer text-gray-500">
-                      {videoFile ? (
-                        <span className="text-gray-700 font-medium">{videoFile.name}</span>
-                      ) : (
-                        t("videoSelectPlaceholder")
-                      )}
+                      {videoFile ? videoFile.name : t("videoSelectPlaceholder")}
                     </label>
                   </div>
                 </div>

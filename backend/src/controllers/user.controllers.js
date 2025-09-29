@@ -75,6 +75,8 @@ export const login = async (req,res) => {
         }
 
         generateToken(user._id,res);
+        console.log(req.cookies);
+        
 
         res.status(200).json(user);
     } catch (error) {
@@ -86,6 +88,10 @@ export const login = async (req,res) => {
 export const logout = (req,res) => {
     try {
         res.cookie("jwt","", {maxAge:0});
+        console.log(
+            "Cookie after logout:", req.cookies
+        );
+        
         res.status(200).json({message: "Logged out Successfully"});
     } catch (error) {
         console.log("Error in logout controller", error.message);

@@ -3,8 +3,6 @@ import "./App.css";
 import Student from "./pages/Student";
 import TeacherPage from "./pages/TeacherPage";
 import LoginPage from "./pages/LoginPage";
-import TeacherLive from "./pages/TeacherLive";
-import StudentLive from "./pages/StudentLive";
 import { useEffect, useState, useRef } from "react";
 import { useAuthStore } from "./store/useAuthStore";
 import { ChevronDown, Loader } from "lucide-react";
@@ -13,6 +11,12 @@ import { useTranslation } from "react-i18next";
 import Languageselector from "./pages/Languageselector";
 import Online from "./components/Online";
 import Chatbot from "./components/Chatbot";
+import BroadCast from "./components/BroadCastLiveStream";
+import Viewer from "./components/Viewer";
+import StudentLiveClasses from "./pages/StudentLiveClasses";
+import TeacherManageClass from "./pages/TeacherManageClass";
+import BroadcastPage from "./pages/BroadcastPage";
+import ViewerPage from "./pages/ViewerPage";
 function App() {
   const { authUser, checkAuth, isCheckingAuth } = useAuthStore();
   const [open, setOpen] = useState(false);
@@ -142,7 +146,7 @@ function App() {
             path="/student/live"
             element={
               authUser && authUser.role === "Student" ? (
-                <StudentLive />
+                <StudentLiveClasses />
               ) : (
                 <Navigate to="/login" replace />
               )
@@ -164,7 +168,7 @@ function App() {
             path="/teacher/live"
             element={
               authUser && authUser.role === "Teacher" ? (
-                <TeacherLive />
+                <TeacherManageClass />
               ) : (
                 <Navigate to="/login" replace />
               )
@@ -187,6 +191,11 @@ function App() {
               )
             }
           />
+
+          <Route path="/teacher/class/:id/broadcast" element={<BroadcastPage />} />
+
+          <Route path="/student/live-class/:classId" element={<ViewerPage />} />
+
         </Routes>
       </main>
 

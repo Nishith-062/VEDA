@@ -7,9 +7,21 @@ export const scheduleClass = async (req, res) => {
   try {
     const { title, description, startTime } = req.body;
     const faculty_id = req.user._id;
+    console.log(faculty_id);
+    
     const course = await Course.findOne({ faculty_id: faculty_id }).select(
       "_id"
     );
+    console.log(course);
+    if (!course) {
+      const newCourse = new Course({
+        faculty_id: faculty_id,
+        course_name: "Default Course",});
+      await newCourse.save();
+      // console.log("New course created for faculty:", newCourse);
+    }
+          
+    
     // console.log(course._id); // ✅ logs the id
 
     // Generate a unique Stream Call ID
@@ -27,9 +39,18 @@ export const scheduleClass = async (req, res) => {
 
     res.status(201).json({ success: true, class: newClass });
   } catch (error) {
+    
     res.status(500).json({ success: false, message: error.message });
   }
 };
+
+export const getTeacherClasses = async (req, res) => {
+  try {
+    const classes = await LiveClass.find({ faculty_id: req.user._id });
+    res.json({ success: true, classes });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  } }
 
 // 🟢 Teacher: Start class (generate token)
 // wherever you export the Stream client (you already have this):
@@ -44,22 +65,34 @@ export const startClass = async (req, res) => {
     liveClass.status = "live";
     await liveClass.save();
 
-    // ensure call exists
     const call = streamServerClient.video.call("livestream", liveClass.streamId);
-    await call.getOrCreate({ data: { created_by_id: req.user._id.toString() } });
+    
+    // ✅ Create call with proper settings
+    await call.getOrCreate({ 
+      data: { 
+        created_by_id: req.user._id.toString(),
+        settings_override: {
+          backstage: {
+            enabled: true  // Enable backstage if you need it
+          }
+        }
+      } 
+    });
 
-    // Option A — create a plain user token (no call claims)
-    // const token = streamServerClient.createToken(req.user._id.toString());
-
-    // Option B — create a call token (recommended if you want the token to grant access only to this call + a role)
     const token = streamServerClient.generateCallToken({
       user_id: req.user._id.toString(),
       call_cids: [`livestream:${liveClass.streamId}`],
-      role: "host",                 // or "admin"/"viewer" depending on your needs
-      validity_in_seconds: 60 * 60, // 1 hour
+      role: "host",
+      validity_in_seconds: 60 * 60,
     });
 
-    return res.json({ success: true, token, apiKey: process.env.STREAM_API_KEY, class: liveClass });
+    return res.json({ 
+      success: true, 
+      token, 
+      apiKey: process.env.STREAM_API_KEY, 
+      streamId: liveClass.streamId,  // ✅ Also return streamId
+      class: liveClass 
+    });
   } catch (error) {
     return res.status(500).json({ success: false, message: error.message });
   }
@@ -107,21 +140,30 @@ export const joinClass = async (req, res) => {
     if (liveClass.status === "scheduled")
       return res.status(403).json({ message: "Class not started yet" });
 
-    // Correct way: use video.call()
     const call = streamServerClient.video.call("livestream", liveClass.streamId);
+    
+    // ✅ Ensure the call exists (don't create it, just verify)
+    try {
+      await call.get();
+    } catch (error) {
+      return res.status(404).json({ 
+        success: false, 
+        message: "Call not started by host yet" 
+      });
+    }
 
-    // Create a call token for the student (participant role)
     const token = streamServerClient.generateCallToken({
       user_id: req.user._id.toString(),
       call_cids: [`livestream:${liveClass.streamId}`],
-      role: "participant",
-      validity_in_seconds: 60 * 60, // 1 hour token
+      role: "viewer",
+      validity_in_seconds: 60 * 60,
     });
 
     res.json({
       success: true,
       token,
       apiKey: process.env.STREAM_API_KEY,
+      streamId: liveClass.streamId, // ✅ Add this
       class: liveClass,
     });
   } catch (error) {

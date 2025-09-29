@@ -11,23 +11,11 @@ dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-const allowedOrigins = [
-  "http://localhost:4173",
-  "http://localhost:5173",
-  "https://veda-gamma.vercel.app"
-];
-
 app.use(cors({
-  origin: function (origin, callback) {
-    if (!origin) return callback(null, true); // allow mobile apps / curl
-    if (allowedOrigins.includes(origin)) {
-      return callback(null, true);
-    } else {
-      return callback(new Error("Not allowed by CORS"));
-    }
-  },
+  origin: true, // allow any origin
   credentials: true,
 }));
+
 
 app.use(express.json());
 app.use(cookieParser());

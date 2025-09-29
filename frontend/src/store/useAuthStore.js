@@ -2,7 +2,7 @@ import { create } from "zustand";
 import Cookies from "js-cookie";
 import axios from "axios";
 
-const BASE_URL = "https://veda-bj5v.onrender.com";
+const BASE_URL = "http://localhost:3000";
 
 export const useAuthStore = create((set, get) => ({
   authUser: null,
@@ -11,11 +11,11 @@ export const useAuthStore = create((set, get) => ({
   isUpdatingProfile: false,
   isCheckingAuth: false,
   onlineUsers: [],
+  token: null,
 
   checkAuth: async () => {
     set({ isCheckingAuth: true });
     try {
-      const token = Cookies.get("jwt");
 
       // If token exists but offline → restore from localStorage
       if (!navigator.onLine) {
@@ -33,7 +33,8 @@ export const useAuthStore = create((set, get) => ({
         withCredentials: true,
       });
 
-      set({ authUser: res.data });
+      set({ authUser: res.data.user });
+      set({ token: res.data.token });
       localStorage.setItem("authUser", JSON.stringify(res.data));
     } catch (error) {
       if (navigator.onLine) {
