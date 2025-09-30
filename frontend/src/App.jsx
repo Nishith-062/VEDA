@@ -31,6 +31,35 @@ function App() {
     checkAuth();
   }, []);
 
+  useEffect(() => {
+  const tryInstallPwa = async () => {
+    const deferredPrompt = window.__deferredPwaPrompt;
+    if (deferredPrompt) {
+      // Show the install prompt
+      deferredPrompt.prompt();
+
+      // Wait for the user choice
+      const choice = await deferredPrompt.userChoice;
+      if (choice.outcome === "accepted") {
+        console.log("PWA installed ✅");
+      } else {
+        console.log("PWA dismissed ❌");
+      }
+
+      // Clear the saved prompt
+      window.__deferredPwaPrompt = null;
+    }
+  };
+
+  // Delay slightly so the page finishes rendering
+  const timeout = setTimeout(() => {
+    tryInstallPwa();
+  }, 1000);
+
+  return () => clearTimeout(timeout);
+}, []);
+
+
   // close dropdown if clicked outside
   useEffect(() => {
     const handleClickOutside = (event) => {
