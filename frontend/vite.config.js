@@ -14,7 +14,7 @@ export default defineConfig({
     tailwindcss(),
     VitePWA({
       registerType: "autoUpdate",
-      includeAssets: ["favicon.ico", "offline.html"], // Ensures offline.html is cached
+      includeAssets: ["favicon.ico", "index.html", "logo.jpg"], // Ensures offline.html is cached
       manifest: {
         name: "Virtual Education Delivery Assistant",
         short_name: "VEDA",
@@ -30,7 +30,8 @@ export default defineConfig({
         ],
       },
       workbox: {
-        navigateFallback: "/offline.html", // FIX: Fallback to cached index.html for all navigation requests (SPA handling)
+        additionalManifestEntries: [{ url: "/student", revision: null }],
+        navigateFallback: "/index.html", // FIX: Fallback to cached index.html for all navigation requests (SPA handling)
         globPatterns: ["**/*.{js,css,html,png,svg,woff2,ico}"], // Caches build assets
         runtimeCaching: [
           {

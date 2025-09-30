@@ -20,11 +20,18 @@ export const useAuthStore = create((set, get) => ({
       // If token exists but offline → restore from localStorage
       if (!navigator.onLine) {
         const cached = localStorage.getItem("authUser");
-    
         if (cached) {
-          set({ authUser: JSON.parse(cached), isCheckingAuth: false });
-          console.log("Restored auth from localStorage while offline.");
-          return;
+          const parsed = JSON.parse(cached);
+          // Validate: if it's wrapped in {user, token}, extract user; else use as-is
+          const user = parsed.user ? parsed.user : parsed;
+          if (user && typeof user === 'object' && user.role) {
+            set({ authUser: user, isCheckingAuth: false });
+            console.log("Restored auth from localStorage while offline.");
+            return;
+          } else {
+            // Invalid data: clear and treat as unauthenticated
+            localStorage.removeItem("authUser");
+          }
         }
       }
 

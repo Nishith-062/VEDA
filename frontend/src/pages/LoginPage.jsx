@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useAuthStore } from "../store/useAuthStore.js";
 import { useNavigate } from "react-router-dom";
 import { Mail, Lock } from "lucide-react";
@@ -8,12 +8,28 @@ const LoginPage = () => {
   const { t } = useTranslation(); // for translations
   const [formData, setFormData] = useState({ email: "", password: "" });
   const [message, setMessage] = useState("");
+  const [isOnline, setIsOnline] = useState(navigator.onLine);
 
   const { login, isLoggingIn } = useAuthStore();
   const navigate = useNavigate();
 
+  useEffect(() => {
+    const goOnline = () => setIsOnline(true);
+    const goOffline = () => setIsOnline(false);
+    window.addEventListener("online", goOnline);
+    window.addEventListener("offline", goOffline);
+    return () => {
+      window.removeEventListener("online", goOnline);
+      window.removeEventListener("offline", goOffline);
+    };
+  }, []);
+
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (!isOnline) {
+      setMessage(t("noInternet"));
+      return;
+    }
     try {
       const user = await login(formData);
       if (user?.role === "Teacher") navigate("/teacher");
@@ -64,6 +80,7 @@ const LoginPage = () => {
                 }
                 className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
                 required
+                disabled={!isOnline}
               />
             </div>
 
@@ -79,15 +96,16 @@ const LoginPage = () => {
                 }
                 className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
                 required
+                disabled={!isOnline}
               />
             </div>
 
             {/* Button */}
             <button
               type="submit"
-              disabled={isLoggingIn}
+              disabled={isLoggingIn || !isOnline}
               className={`w-full py-3 rounded-lg font-semibold text-white transition ${
-                isLoggingIn
+                isLoggingIn || !isOnline
                   ? "bg-indigo-300 cursor-not-allowed"
                   : "bg-indigo-600 hover:bg-indigo-700 shadow-md"
               }`}
@@ -98,6 +116,12 @@ const LoginPage = () => {
 
           {message && (
             <p className="mt-2 text-center text-red-500 font-medium">{message}</p>
+          )}
+
+          {!isOnline && (
+            <p className="mt-2 text-center text-red-500 font-medium">
+              {t("noInternetMessage")}
+            </p>
           )}
 
           <p className="text-center text-sm text-gray-600">

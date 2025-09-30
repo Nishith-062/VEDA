@@ -154,11 +154,7 @@ function App() {
     }
   />
 
-  {/* Wildcard / Fallback */}
-  <Route
-    path="*"
-    element={<Navigate to={authUser ? `/${authUser.role.toLowerCase()}` : "/login"} replace />}
-  />
+
 </Routes>
 
       </main>
