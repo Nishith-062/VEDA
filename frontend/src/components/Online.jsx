@@ -1,7 +1,13 @@
 import { Wifi, WifiOff } from 'lucide-react'
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 
 const Online = () => {
+
+  const [online,setIsOnline]=useState(navigator.onLine)
+
+  useEffect(()=>{
+    setIsOnline(navigator.onLine)
+  },[navigator.onLine])
 
   return (
     <div>

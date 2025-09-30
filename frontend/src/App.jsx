@@ -18,6 +18,8 @@ import TeacherManageClass from "./pages/TeacherManageClass";
 import BroadcastPage from "./pages/BroadcastPage";
 import ViewerPage from "./pages/ViewerPage";
 import Navbar from "./components/navbar";
+import OfflineWatcher from "./components/OfflineWatcher";
+import OfflineDownloads from "./pages/Offline";
 function App() {
   const { authUser, checkAuth, isCheckingAuth } = useAuthStore();
   const [open, setOpen] = useState(false);
@@ -56,6 +58,8 @@ function App() {
 
       {/* Main Routes */}
       <main className="flex-grow">
+          <OfflineWatcher/>
+
 <Routes>
   {/* Default / Login Redirect */}
   <Route path="/" element={<Navigate to="/login" replace />} />
@@ -153,6 +157,20 @@ function App() {
       )
     }
   />
+
+  {/* Inside Student Routes section */}
+<Route
+  path="/offline-downloads"
+  element={
+      <OfflineDownloads />
+  }
+/>
+
+<Route 
+path="*"
+element={
+  <OfflineDownloads/>
+}/>
 
 
 </Routes>

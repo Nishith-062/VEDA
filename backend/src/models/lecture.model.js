@@ -1,5 +1,6 @@
 import mongoose from "mongoose";
 import User from "./user.model.js";
+import { type } from "os";
 const lectureSchema = new mongoose.Schema(
   {
     title: {
@@ -25,6 +26,9 @@ const lectureSchema = new mongoose.Schema(
         type: mongoose.Schema.Types.ObjectId,
         ref: "Course",
         required: true,
+    },
+    course_name:{
+      type:String
     }
   },
   { timestamps: true }

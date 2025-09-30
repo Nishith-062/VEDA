@@ -37,8 +37,8 @@ export const postLectures = (req, res) => {
           originalSize: req.file.size/(1024*1024),
           compressedSize: fs.statSync(outputPath).size/(1024*1024),
           url: result.secure_url,
-          course_id: course_id._id,
-          course_name: course_id.course_name
+          course_id: course._id,
+          course_name: course.course_name
         });
         await newLecture.save();
 
