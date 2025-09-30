@@ -10,99 +10,67 @@ const Navbar = ({ authUser }) => {
   const [dropdownOpen, setDropdownOpen] = useState(false);
 
   useEffect(() => {
-    const handleBeforeInstallPrompt = (e) => {
-      e.preventDefault(); // Stop automatic browser popup
-      setDeferredPrompt(e);
+    // If the event was already captured by the early listener, use it
+    if (window.__deferredPwaPrompt) {
+      setDeferredPrompt(window.__deferredPwaPrompt);
+      // Only show modal if app isn't already installed
+      const isStandalone =
+        window.matchMedia && window.matchMedia("(display-mode: standalone)").matches;
+      if (!isStandalone && !navigator.standalone) {
+        setShowInstallModal(true);
+      }
+    }
 
-      // Show our custom modal if app not installed
-      if (window.matchMedia("(display-mode: browser)").matches) {
+    // Listen for the custom signal when the prompt becomes available
+    const onAvailable = () => {
+      setDeferredPrompt(window.__deferredPwaPrompt);
+      const isStandalone =
+        window.matchMedia && window.matchMedia("(display-mode: standalone)").matches;
+      if (!isStandalone && !navigator.standalone) {
         setShowInstallModal(true);
       }
     };
+    const onInstalled = () => {
+      setDeferredPrompt(null);
+      setShowInstallModal(false);
+    };
 
-    window.addEventListener("beforeinstallprompt", handleBeforeInstallPrompt);
+    window.addEventListener("pwa-install-available", onAvailable);
+    window.addEventListener("pwa-installed", onInstalled);
 
     return () => {
-      window.removeEventListener(
-        "beforeinstallprompt",
-        handleBeforeInstallPrompt
-      );
+      window.removeEventListener("pwa-install-available", onAvailable);
+      window.removeEventListener("pwa-installed", onInstalled);
     };
   }, []);
 
   const handleInstall = async () => {
-    if (!deferredPrompt) return;
-    deferredPrompt.prompt();
-    const choice = await deferredPrompt.userChoice;
+    const promptEvent = deferredPrompt || window.__deferredPwaPrompt;
+    if (!promptEvent) return;
+    // Show the browser prompt
+    promptEvent.prompt();
+    const choice = await promptEvent.userChoice;
     if (choice.outcome === "accepted") {
       console.log("PWA installed");
     } else {
       console.log("PWA dismissed");
     }
+    // Clear saved event so we don't attempt to reuse it
+    window.__deferredPwaPrompt = null;
+    setDeferredPrompt(null);
     setShowInstallModal(false);
   };
 
   const handleDismiss = () => setShowInstallModal(false);
 
+  // ...existing render code (logo, user dropdown, etc.)...
+
   return (
     <nav className="sticky top-0 z-50 bg-white border-b border-gray-200 shadow-sm">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between items-center h-16">
-          {/* Left - Logo + Brand */}
-          <div className="flex items-center gap-2">
-            <img
-              src="/logo.jpg"
-              alt="VEDA"
-              className="h-9 w-9 rounded-md object-cover"
-            />
-            <span className="text-lg font-semibold text-gray-800">VEDA</span>
-          </div>
+      {/* ... your current navbar JSX ... */}
 
-          {/* Right - User Dropdown + Other items */}
-          <div className="flex items-center gap-2">
-            <Online />
-            <Languageselector />
-
-            {/* User Dropdown */}
-            <div className="relative">
-              {authUser ? (
-                <>
-                  <button
-                    onClick={() => setDropdownOpen(!dropdownOpen)}
-                    className="flex items-center gap-2 bg-gray-50 hover:bg-gray-100 text-gray-800 text-sm font-medium px-3 py-2 rounded-lg transition"
-                  >
-                    <span>{authUser.fullName}</span>
-                    <ChevronDown
-                      className={`w-4 h-4 text-gray-500 transition-transform ${
-                        dropdownOpen ? "rotate-180" : ""
-                      }`}
-                    />
-                  </button>
-
-                  {dropdownOpen && (
-                    <div className="absolute right-0 mt-2 w-44 bg-white border border-gray-200 rounded-md shadow-md py-1 flex flex-col">
-                      <button
-                        onClick={() => {
-                          useAuthStore.getState().logout();
-                          setDropdownOpen(false);
-                        }}
-                        className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                      >
-                        Logout
-                      </button>
-                    </div>
-                  )}
-                </>
-              ) : (
-                <span className="text-gray-600 text-sm">Not Logged In</span>
-              )}
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Custom Install Modal */}
-      {showInstallModal && (
+      {/* Install Modal */}
+      {showInstallModal && deferredPrompt && (
         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
           <div className="bg-white rounded-lg shadow-lg p-6 w-80 text-center">
             <h2 className="text-lg font-semibold mb-4">Install VEDA App</h2>
