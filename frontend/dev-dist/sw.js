@@ -78,11 +78,11 @@ define(['./workbox-a959eb95'], (function (workbox) { 'use strict';
    * See https://goo.gl/S9QRab
    */
   workbox.precacheAndRoute([{
-    "url": "/offline-downloads",
-    "revision": "0.a80mb0699bo"
+    "url": "/index.html",
+    "revision": "0.qem3uhc4ne8"
   }], {});
   workbox.cleanupOutdatedCaches();
-  workbox.registerRoute(new workbox.NavigationRoute(workbox.createHandlerBoundToURL("/offline-downloads"), {
+  workbox.registerRoute(new workbox.NavigationRoute(workbox.createHandlerBoundToURL("/index.html"), {
     allowlist: [/^\/$/]
   }));
   workbox.registerRoute(/^https:\/\/veda-bj5v\.onrender\.com\/api\/lectures/i, new workbox.NetworkFirst({
