@@ -26,7 +26,7 @@ export default defineConfig({
         background_color: "#ea6363ff",
         display: "standalone",
         scope: "/",
-        start_url: "/offline-downloads",
+        start_url: "/",
         icons: [
           { src: "pwa-192x192.png", sizes: "192x192", type: "image/png" },
           { src: "pwa-512x512.png", sizes: "512x512", type: "image/png" },
@@ -37,7 +37,7 @@ export default defineConfig({
       },
       workbox: {
         additionalManifestEntries: [
-    { url: "/offline-downloads", revision: null }, // 👈 add this
+    { url: "/offline-downloads", revision: 'v2' }, // 👈 add this
         ],
         // When navigation fails (offline), serve offline.html so the app can boot and read IndexedDB
         navigateFallback: "/offline-downloads",
