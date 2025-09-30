@@ -1,20 +1,17 @@
-// ...existing code...
-// Minimal SW registration wrapper using VitePWA virtual helper
+// src/serviceWorkerRegistration.js
 import { registerSW } from "virtual:pwa-register";
 
 export function registerServiceWorker() {
-  if ("serviceWorker" in navigator) {
-    // register and auto-update
-    const update = registerSW({
-      onNeedRefresh() {
-        // you can show a toast to user to reload
-        console.log("SW update available");
-      },
-      onOfflineReady() {
-        console.log("App is ready to work offline");
-      },
-    });
-    return update;
-  }
-  return null;
+  // returns a function you can call to update the SW programmatically
+  const updateSW = registerSW({
+    onNeedRefresh() {
+      // optionally prompt the user that a new version is available
+      console.log("New content available — please refresh.");
+    },
+    onOfflineReady() {
+      console.log("App ready to work offline.");
+    },
+  });
+
+  return updateSW;
 }

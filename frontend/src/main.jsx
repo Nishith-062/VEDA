@@ -7,7 +7,10 @@ import './i18n.js';
 
 import { registerServiceWorker } from './serviceWorkerRegistration.js'
 
-registerServiceWorker();
+if ('serviceWorker' in navigator) {
+  registerServiceWorker();
+}
+
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
     <BrowserRouter>

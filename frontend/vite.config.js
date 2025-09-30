@@ -3,7 +3,6 @@ import react from "@vitejs/plugin-react";
 import { VitePWA } from "vite-plugin-pwa";
 import tailwindcss from "@tailwindcss/vite";
 
-// ...existing code...
 export default defineConfig({
   server: {
     proxy: {
@@ -14,10 +13,9 @@ export default defineConfig({
     react(),
     tailwindcss(),
     VitePWA({
-        strategies: "generateSW", // not injectManifest
-
+      strategies: "generateSW",
       registerType: "autoUpdate",
-      includeAssets: ["favicon.ico", "index.html", "logo.jpg"], // cache offline page
+      includeAssets: ["favicon.ico", "index.html", "logo.jpg"],
       manifest: {
         name: "Virtual Education Delivery Assistant",
         short_name: "VEDA",
@@ -26,25 +24,24 @@ export default defineConfig({
         background_color: "#ea6363ff",
         display: "standalone",
         scope: "/",
-        start_url: "/",
+        start_url: "/",                 // <- IMPORTANT: root, not /offline-downloads
         icons: [
           { src: "pwa-192x192.png", sizes: "192x192", type: "image/png" },
           { src: "pwa-512x512.png", sizes: "512x512", type: "image/png" },
         ],
       },
-      devOptions:{
-        enabled:true
+      devOptions: {
+        enabled: true,
       },
       workbox: {
-        additionalManifestEntries: [
-    { url: "/offline-downloads", revision: 'v2' }, // 👈 add this
-        ],
-        // When navigation fails (offline), serve offline.html so the app can boot and read IndexedDB
-        navigateFallback: "/offline-downloads",
+        // Serve the app shell (index.html) for navigation requests (SPA)
+        navigateFallback: "/index.html",
+        // Keep globPatterns so index.html and assets are precached
         globPatterns: ["**/*.{js,css,html,png,svg,woff2,ico}"],
+
+        // runtime caching unchanged; keep your existing policies:
         runtimeCaching: [
           {
-            // Cache lectures list / videos API
             urlPattern: /^https:\/\/veda-bj5v\.onrender\.com\/api\/lectures/i,
             handler: "NetworkFirst",
             options: {
@@ -55,7 +52,6 @@ export default defineConfig({
             },
           },
           {
-            // Cache static resources
             urlPattern: ({ request }) =>
               request.destination === "script" ||
               request.destination === "style" ||
@@ -71,4 +67,3 @@ export default defineConfig({
     }),
   ],
 });
- // ...existing code...
