@@ -87,7 +87,7 @@ export const login = async (req,res) => {
 
 export const logout = (req,res) => {
     try {
-        res.cookie("jwt","", {maxAge:0});
+res.cookie("jwt", "", { maxAge: 0, path: "/" });
         console.log(
             "Cookie after logout:", req.cookies
         );
