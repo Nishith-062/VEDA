@@ -58,7 +58,7 @@ export default function TeacherManageClass() {
         { title, startTime, description: "" },
         { headers: { Authorization: `Bearer ${token}` } }
       );
-      setClasses([...classes, res.data]); // add new class to list
+      setClasses([...classes, res.data.class]); // add new class to list
       alert("Class scheduled successfully!");
       setTitle("");
       setStartTime("");
