@@ -20,6 +20,7 @@ import ViewerPage from "./pages/ViewerPage";
 import Navbar from "./components/navbar";
 import OfflineWatcher from "./components/OfflineWatcher";
 import OfflineDownloads from "./pages/Offline";
+import SignUp from "./pages/SignUp";
 function App() {
   const { authUser, checkAuth, isCheckingAuth } = useAuthStore();
   const [open, setOpen] = useState(false);
@@ -194,6 +195,13 @@ function App() {
       <OfflineDownloads />
   }
 />
+
+
+<Route
+path="/signup"
+element={
+  <SignUp/>
+}/>
 
 <Route 
 path="*"

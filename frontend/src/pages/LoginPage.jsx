@@ -167,6 +167,10 @@ const LoginPage = () => {
               {isLoggingIn ? t("loggingIn") : t("loginTeacherGuest")}
             </button>
 
+
+
+
+
             <button
               type="button"
               disabled={isLoggingIn || !isOnline}

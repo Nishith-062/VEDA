@@ -70,6 +70,25 @@ export const useAuthStore = create((set, get) => ({
     }
   },
 
+
+    signup:async (data) => {
+        set({ isSigningUp: true });
+            try {
+                const res = await axios.post(BASE_URL + "/api/user/signup", data, { withCredentials: true });
+                console.log(res.data);
+                
+                set({ authUser: res.data });
+            } catch (error) {
+              alert('account creation Failed or mail already existed')
+
+              console.log(data);
+              console.log(error)
+            } finally {
+                set({ isSigningUp: false });
+        }
+    },
+
+
   logout: async () => {
     try {
       await axios.post(BASE_URL + "/api/user/logout", {}, { withCredentials: true });
