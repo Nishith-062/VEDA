@@ -66,6 +66,10 @@ i18n
           uploadSuccess: "✅ Upload successful!",
           uploadFailed: "❌ Upload failed: {{error}}",
           uploadError: "❌ Upload error: {{error}}",
+          loginStudentGuest: "Login as Student Guest",
+  loginTeacherGuest: "Login as Teacher Guest",
+  loginAdminGuest: "Login as Admin Guest",
+  loggingIn: "Logging in..."
         },
       },
       hi: {
@@ -125,6 +129,11 @@ i18n
           uploadSuccess: "✅ सफलतापूर्वक अपलोड किया गया!",
           uploadFailed: "❌ अपलोड विफल: {{error}}",
           uploadError: "❌ अपलोड त्रुटि: {{error}}",
+loginStudentGuest: "स्टूडेंट गेस्ट के रूप में लॉगिन करें",
+loginTeacherGuest: "टीचर गेस्ट के रूप में लॉगिन करें",
+loginAdminGuest: "एडमिन गेस्ट के रूप में लॉगिन करें",
+loggingIn: "लॉगिन हो रहा है..."
+
         },
       },
     },

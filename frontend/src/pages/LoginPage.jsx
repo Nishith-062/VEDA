@@ -24,6 +24,34 @@ const LoginPage = () => {
     };
   }, []);
 
+
+
+  const loginAsGuest = async (role) => {
+    try {
+      if (!isOnline) {
+        setMessage(t("noInternet"));
+        return;
+      }
+
+      // Either pass real credentials that exist on your backend:
+      let creds = {};
+      if (role === "Teacher") creds = { email: "ukchoudhury@gmail.com", password: "123456" };
+      else if (role === "Student") creds = { email: "stu@gmail.com", password: "123456" };
+      else if (role === "Admin") creds = { email: "veda@gmail.com", password: "admin@123" };
+
+      const user = await login(creds); // depends on your store API
+      // Navigate based on returned role OR the requested role:
+      if (user?.role === "Teacher" || role === "Teacher") navigate("/teacher");
+      else if (user?.role === "Student" || role === "Student") navigate("/student");
+      else if (user?.role === "Admin" || role === "Admin") navigate("/admin");
+      else setMessage(t("unknownRole"));
+    } catch (error) {
+      console.error(error);
+      setMessage(t("loginFailed"));
+    }
+  };
+
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!isOnline) {
@@ -112,10 +140,53 @@ const LoginPage = () => {
             >
               {isLoggingIn ? t("loggingIn") : t("login")}
             </button>
+
+            <button
+              type="button"
+              disabled={isLoggingIn || !isOnline}
+              onClick={() => loginAsGuest("Student")}
+              className={`w-full py-3 rounded-lg font-semibold text-white transition ${
+                isLoggingIn || !isOnline
+                  ? "bg-indigo-300 cursor-not-allowed"
+                  : "bg-indigo-600 hover:bg-indigo-700 shadow-md"
+              }`}
+            >
+              {isLoggingIn ? t("loggingIn") : t("loginStudentGuest")}
+            </button>
+
+            <button
+              type="button"
+              disabled={isLoggingIn || !isOnline}
+              onClick={() => loginAsGuest("Teacher")}
+              className={`w-full py-3 rounded-lg font-semibold text-white transition ${
+                isLoggingIn || !isOnline
+                  ? "bg-indigo-300 cursor-not-allowed"
+                  : "bg-indigo-600 hover:bg-indigo-700 shadow-md"
+              }`}
+            >
+              {isLoggingIn ? t("loggingIn") : t("loginTeacherGuest")}
+            </button>
+
+            <button
+              type="button"
+              disabled={isLoggingIn || !isOnline}
+              onClick={() => loginAsGuest("Admin")}
+              className={`w-full py-3 rounded-lg font-semibold text-white transition ${
+                isLoggingIn || !isOnline
+                  ? "bg-indigo-300 cursor-not-allowed"
+                  : "bg-indigo-600 hover:bg-indigo-700 shadow-md"
+              }`}
+            >
+              {isLoggingIn ? t("loggingIn") : t("loginAdminGuest")}
+            </button>
+
+
           </form>
 
           {message && (
-            <p className="mt-2 text-center text-red-500 font-medium">{message}</p>
+            <p className="mt-2 text-center text-red-500 font-medium">
+              {message}
+            </p>
           )}
 
           {!isOnline && (
