@@ -87,7 +87,13 @@ export const login = async (req,res) => {
 
 export const logout = (req,res) => {
     try {
-res.cookie("jwt", "", { maxAge: 0, path: "/" });
+res.cookie("jwt", "", {
+    maxAge: 0,
+    httpOnly: true,
+    sameSite: "none",
+    secure: true,
+    path: "/",
+});
         console.log(
             "Cookie after logout:", req.cookies
         );
