@@ -15,7 +15,7 @@ import axios from "axios";
 import "@livekit/components-styles"; // ✅ add this
 import { useAuthStore } from "../store/useAuthStore";
 
-const BASE_URL = "http://localhost:3000/api/live-class";
+const BASE_URL = "https://veda-bj5v.onrender.com/api/live-class";
 // import { ParticipantLoop, ParticipantName } from "@livekit/components-react";
 
 // function ParticipantNamesView() {

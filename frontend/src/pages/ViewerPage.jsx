@@ -50,7 +50,7 @@ const ViewerPage = () => {
       setError("");
       try {
         const res = await axios.get(
-          `http://localhost:3000/api/live-class/${id}/join`,
+          `https://veda-bj5v.onrender.com/api/live-class/${id}/join`,
           { headers: { Authorization: `Bearer ${authToken}` } }
         );
 

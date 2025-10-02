@@ -30,7 +30,7 @@ export default function TeacherDashboard() {
 
     try {
       const response = await fetch(
-        "http://localhost:3000/api/lectures",
+        "https://veda-bj5v.onrender.com/api/lectures",
         { method: "POST", body: formData, credentials: "include" }
       );
 
