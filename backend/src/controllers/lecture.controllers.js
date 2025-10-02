@@ -21,7 +21,7 @@ export const postLectures = (req, res) => {
   if (!fs.existsSync(outputDir)) fs.mkdirSync(outputDir, { recursive: true });
 
   ffmpeg(inputPath)
-    .outputOptions(["-c:v libx264", "-preset fast", "-crf 28", "-movflags faststart"])
+    .outputOptions(["-c:v libx264", "-preset medium", "-crf 32", "-movflags faststart"])
     .on("end", async () => {
       try {
         const result = await cloudinary.uploader.upload(outputPath, {

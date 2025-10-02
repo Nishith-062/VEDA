@@ -12,7 +12,6 @@ import Languageselector from "./pages/Languageselector";
 import Online from "./components/Online";
 import Chatbot from "./components/Chatbot";
 import BroadCast from "./components/BroadCastLiveStream";
-import Viewer from "./components/Viewer";
 import StudentLiveClasses from "./pages/StudentLiveClasses";
 import TeacherManageClass from "./pages/TeacherManageClass";
 import BroadcastPage from "./pages/BroadcastPage";
@@ -134,7 +133,7 @@ function App() {
     }
   />
   <Route
-    path="/student/live-class/:classId"
+    path="/student/live-class/:id"
     element={
       authUser && authUser.role === "Student" ? (
         <ViewerPage />
@@ -215,7 +214,7 @@ element={
       </main>
 
       {/* Floating Chatbot */}
-      <Chatbot />
+      {authUser && authUser.role==="Teacher" && <Chatbot />}
 
       {/* Footer */}
       <footer className="bg-white border-t border-gray-200 shadow-sm">

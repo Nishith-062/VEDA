@@ -1,45 +1,38 @@
 import LiveClass from "../models/liveClass.model.js";
-import streamServerClient from "../lib/stream.js";
 import Course from "../models/course.model.js";
+import { Room, RoomServiceClient, AccessToken } from "livekit-server-sdk";
+
+const wsUrl = process.env.LIVEKIT_URL; // e.g. ws://localhost:7880
+const apiKey = process.env.LIVEKIT_API_KEY;
+const apiSecret = process.env.LIVEKIT_API_SECRET;
 
 // 🟢 Teacher: Schedule new class
 export const scheduleClass = async (req, res) => {
   try {
     const { title, description, startTime } = req.body;
     const faculty_id = req.user._id;
-    console.log(faculty_id);
-    
-    const course = await Course.findOne({ faculty_id: faculty_id }).select(
-      "_id"
-    );
-    console.log(course);
-    if (!course) {
-      const newCourse = new Course({
-        faculty_id: faculty_id,
-        course_name: "Default Course",});
-      await newCourse.save();
-      // console.log("New course created for faculty:", newCourse);
-    }
-          
-    
-    // console.log(course._id); // ✅ logs the id
 
-    // Generate a unique Stream Call ID
-    const streamId = `class-${faculty_id}-${Date.now()}`;
-    // console.log(streamId);
+    let course = await Course.findOne({ faculty_id }).select("_id");
+    if (!course) {
+      course = await Course.create({
+        faculty_id,
+        course_name: "Default Course",
+      });
+    }
+
+    const roomName = `class-${faculty_id}-${Date.now()}`;
 
     const newClass = await LiveClass.create({
       faculty_id,
-      course_id:course._id,
+      course_id: course._id,
       title,
       description,
       startTime,
-      streamId,
+      streamId: roomName, // use as roomName
     });
 
     res.status(201).json({ success: true, class: newClass });
   } catch (error) {
-    
     res.status(500).json({ success: false, message: error.message });
   }
 };
@@ -50,14 +43,14 @@ export const getTeacherClasses = async (req, res) => {
     res.json({ success: true, classes });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
-  } }
+  }
+};
 
-// 🟢 Teacher: Start class (generate token)
-// wherever you export the Stream client (you already have this):
-// import streamServerClient from '../lib/streamClient.js'
-
+// 🟢 Teacher: Start class
 export const startClass = async (req, res) => {
   try {
+    console.log('World');
+    
     const { id } = req.params;
     const liveClass = await LiveClass.findById(id);
     if (!liveClass) return res.status(404).json({ message: "Class not found" });
@@ -65,39 +58,50 @@ export const startClass = async (req, res) => {
     liveClass.status = "live";
     await liveClass.save();
 
-    const call = streamServerClient.video.call("livestream", liveClass.streamId);
-    
-    // ✅ Create call with proper settings
-    await call.getOrCreate({ 
-      data: { 
-        created_by_id: req.user._id.toString(),
-        settings_override: {
-          backstage: {
-            enabled: true  // Enable backstage if you need it
-          }
-        }
-      } 
+    const roomService = new RoomServiceClient(wsUrl, apiKey, apiSecret);
+
+    const opts = {
+      name: liveClass.streamId,
+      emptyTimeout: 1 * 60, // 10 minutes
+      maxParticipants: 20,
+    };
+
+    try {
+      roomService.createRoom(opts).then((room) => {
+        console.log('asfo');
+        console.log("room created", room);
+      });
+    } catch (error) {
+      if (err.message.includes("already exists")) {
+        console.log("Room already exists");
+      } else throw err;
+    }
+
+    // Generate teacher token
+    const at = new AccessToken(apiKey, apiSecret, {
+      identity: req.user.fullName.toString(),
     });
 
-    const token = streamServerClient.generateCallToken({
-      user_id: req.user._id.toString(),
-      call_cids: [`livestream:${liveClass.streamId}`],
-      role: "host",
-      validity_in_seconds: 60 * 60,
+    at.addGrant({
+      room: liveClass.streamId,
+      roomJoin: true,
+      canPublish: true,
+      canSubscribe: true,
     });
 
-    return res.json({ 
-      success: true, 
-      token, 
-      apiKey: process.env.STREAM_API_KEY, 
-      streamId: liveClass.streamId,  // ✅ Also return streamId
-      class: liveClass 
+    const token = await at.toJwt();
+
+    return res.json({
+      success: true,
+      token,
+      wsUrl,
+      roomName: liveClass.streamId,
+      class: liveClass,
     });
   } catch (error) {
-    return res.status(500).json({ success: false, message: error.message });
+    res.status(500).json({ success: false, message: error.message });
   }
 };
-
 
 // 🟢 Teacher: End class
 export const endClass = async (req, res) => {
@@ -107,9 +111,16 @@ export const endClass = async (req, res) => {
 
     if (!liveClass) return res.status(404).json({ message: "Class not found" });
 
+    const roomService = new RoomServiceClient(wsUrl, apiKey, apiSecret);
+
     liveClass.status = "ended";
     liveClass.endTime = new Date();
     await liveClass.save();
+
+    // Delete a room
+    roomService.deleteRoom(liveClass.streamId).then(() => {
+      console.log("room deleted");
+    });
 
     res.json({ success: true, class: liveClass });
   } catch (error) {
@@ -130,44 +141,40 @@ export const getClasses = async (req, res) => {
   }
 };
 
-// 🟢 Student: Join a class
+// 🟢 Student: Join class
 export const joinClass = async (req, res) => {
   try {
     const { id } = req.params;
     const liveClass = await LiveClass.findById(id);
 
     if (!liveClass) return res.status(404).json({ message: "Class not found" });
-    if (liveClass.status === "scheduled")
+    if (liveClass.status === "scheduled") {
       return res.status(403).json({ message: "Class not started yet" });
-
-    const call = streamServerClient.video.call("livestream", liveClass.streamId);
-    
-    // ✅ Ensure the call exists (don't create it, just verify)
-    try {
-      await call.get();
-    } catch (error) {
-      return res.status(404).json({ 
-        success: false, 
-        message: "Call not started by host yet" 
-      });
     }
 
-    const token = streamServerClient.generateCallToken({
-      user_id: req.user._id.toString(),
-      call_cids: [`livestream:${liveClass.streamId}`],
-      role: "viewer",
-      validity_in_seconds: 60 * 60,
+    // Generate viewer token (subscribe only)
+    const at = new AccessToken(apiKey, apiSecret, {
+      identity: req.user.fullName.toString(),
     });
+
+    at.addGrant({
+      room: liveClass.streamId,
+      roomJoin: true,
+      canPublish: false, // viewers cannot publish
+      canPublishData:true,
+      canSubscribe: true,
+    });
+
+    const token = await at.toJwt();
 
     res.json({
       success: true,
       token,
-      apiKey: process.env.STREAM_API_KEY,
-      streamId: liveClass.streamId, // ✅ Add this
+      wsUrl,
+      roomName: liveClass.streamId,
       class: liveClass,
     });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
   }
 };
-

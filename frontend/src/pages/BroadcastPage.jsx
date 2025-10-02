@@ -1,102 +1,119 @@
-import { useParams, useNavigate } from "react-router-dom";
-import BroadCastLiveStream from "../components/BroadCastLiveStream";
-import { useAuthStore } from "../store/useAuthStore";
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
+import {
+  LiveKitRoom,
+  useTracks,
+  ControlBar,
+  GridLayout,
+  ParticipantTile,
+  useParticipantContext,
+  useParticipants,
+} from "@livekit/components-react";
+import { Track } from "livekit-client";
+import { useParams } from "react-router-dom";
 import axios from "axios";
 
-export default function BroadcastPage() {
-  const API_BASE = "https://veda-bj5v.onrender.com/api/live-class";
-  const { id } = useParams();
-  const navigate = useNavigate();
-  const token = useAuthStore((state) => state.token);
-  const authUser = useAuthStore((state) => state.authUser);
+import "@livekit/components-styles"; // ✅ add this
+import { useAuthStore } from "../store/useAuthStore";
 
-  const [streamData, setStreamData] = useState(null);
-  const [error, setError] = useState("");
+const BASE_URL = "http://localhost:3000/api/live-class";
+// import { ParticipantLoop, ParticipantName } from "@livekit/components-react";
+
+// function ParticipantNamesView() {
+//   const participants = useParticipants();
+
+//   return (
+//     <div>
+//       <ParticipantLoop participants={participants}>
+//         <div
+//           style={{
+//             margin: "4px",
+//             padding: "4px 8px",
+//             display: "inline-block",
+//             border: "1px solid #ccc",
+//             borderRadius: "4px",
+//           }}
+//         >
+//           <ParticipantName />
+//         </div>
+//       </ParticipantLoop>
+//     </div>
+//   );
+// }
+
+const TracksView = () => {
+  // ✅ useTracks is inside LiveKitRoom context
+
+  const tracks = useTracks(
+    [
+      { source: Track.Source.Camera, withPlaceholder: false },
+      { source: Track.Source.ScreenShare, withPlaceholder: false },
+    ],
+    { onlySubscribed: true }
+  );
+  return (
+    <GridLayout  
+      tracks={tracks}
+      style={{ height: "calc(100vh - var(--lk-control-bar-height))" }}
+    >
+      {/* The GridLayout accepts zero or one child. The child is used
+      as a template to render all passed in tracks. */}
+      <ParticipantTile />
+    </GridLayout>
+  );
+};
+
+const BroadcastPage = () => {
+  const { token, authUser } = useAuthStore();
+  console.log(authUser._id);
+  const { id } = useParams();
+  console.log(token);
+  const [details, setDetails] = useState({
+    token: "",
+    wsUrl: "",
+    roomName: "",
+    class: "",
+  });
 
   useEffect(() => {
-    const startClass = async () => {
+    if (!token) return; // wait until token is ready
+    const fetchData = async () => {
       try {
-        // ✅ Fixed: headers should be in config object, not body
         const res = await axios.post(
-          `${API_BASE}/${id}/start`,
-          {}, // empty body
-          {
-            headers: { Authorization: `Bearer ${token}` },
-          }
+          `${BASE_URL}/${id}/start`,
+          {},
+          { headers: { Authorization: `Bearer ${token}` } }
         );
-
-        console.log("API Response:", res.data);
-
-        // ✅ Extract userId from response
-        const { token: liveToken, apiKey, streamId, userId, class: liveClass } = res.data;
-
-        setStreamData({
-          apiKey,
-          token: liveToken,
-          streamId: streamId || liveClass?.streamId, // Use streamId from response
-          userId: userId || authUser._id.toString(), // Use userId from response
+        setDetails({
+          token: res.data.token,
+          wsUrl: res.data.wsUrl,
+          roomName: res.data.roomName,
+          class: res.data.class,
         });
-      } catch (err) {
-        console.error("Error starting class:", err.response?.data || err.message);
-        setError(err.response?.data?.message || "Failed to start class");
-        setStreamData(null);
+      } catch (error) {
+        console.error("Error fetching class details:", error);
       }
     };
 
-    if (authUser?._id && token) startClass();
-  }, [authUser, token, id]);
+    fetchData();
+  }, [id, token]);
 
-  const handleEndClass = async () => {
-    try {
-      await axios.post(
-        `${API_BASE}/${id}/end`,
-        {},
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        }
-      );
-      navigate("/teacher/classes");
-    } catch (err) {
-      console.error("Failed to end class:", err);
-    }
-  };
+  console.log(details);
 
   return (
-    <div className="h-screen flex flex-col bg-gray-100">
-      <div className="bg-white shadow p-4 flex justify-between items-center">
-        <h1 className="text-2xl font-bold">Broadcasting Live Class</h1>
-        <button
-          onClick={handleEndClass}
-          className="bg-red-500 text-white px-6 py-2 rounded hover:bg-red-600"
-        >
-          End Class
-        </button>
-      </div>
-
-      {error && (
-        <div className="p-4 bg-red-100 text-red-700">
-          Error: {error}
-        </div>
-      )}
-
-      {!streamData && !error && (
-        <div className="flex-1 flex items-center justify-center">
-          <div className="text-xl">Starting broadcast...</div>
-        </div>
-      )}
-
-      {streamData && (
-        <div className="flex-1 p-4">
-          <BroadCastLiveStream
-            apiKey={streamData.apiKey}
-            token={streamData.token}
-            userId={streamData.userId}
-            classId={streamData.streamId}
-
-          />
-        </div>
-      )}
+    <div style={{ height: "70vh" }}>
+      <LiveKitRoom
+        audio
+        video
+        token={details.token}
+        serverUrl={details.wsUrl}
+        data-lk-theme="default" // optional LiveKit styling
+      >
+            <TracksView />
+            <ControlBar />
+          {/* <ParticipantNamesView /> */}
+      </LiveKitRoom>
     </div>
   );
-}
+};
+
+export default BroadcastPage;

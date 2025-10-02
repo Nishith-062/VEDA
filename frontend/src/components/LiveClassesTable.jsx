@@ -62,14 +62,14 @@ const LiveClassTable = ({ classes, loading }) => {
                         {new Date(cls.startTime).toLocaleString()}
                       </td>
                       <td className="py-2 px-4 hidden lg:table-cell">
-                        {new Date(cls.endTime).toLocaleString()}
+                        {cls.endTime?new Date(cls.endTime).toLocaleString():'N/A'}
                       </td>
                       <td className="py-2 px-4">
                         <span
                           className={`px-3 py-1 rounded-full text-sm font-semibold ${
                             cls.status === "live"
                               ? "bg-green-100 text-green-800"
-                              : "bg-gray-100 text-gray-600"
+                              : cls.status==='scheduled'?"bg-gray-100 text-gray-600":"bg-red-100 text-red-600"
                           }`}
                         >
                           {cls.status}
