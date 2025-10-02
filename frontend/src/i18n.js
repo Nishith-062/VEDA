@@ -55,7 +55,7 @@ i18n
           lectureTitle: "Lecture Title",
           lectureTitlePlaceholder: "Enter lecture title",
           videoFile: "Video File",
-          videoSelectPlaceholder: "Click to select or drag & drop your video",
+          videoSelectPlaceholder: "Click to select or drag & drop your video(only .mp4 Supported)",
           uploadVideo: "Upload Video",
           uploading: "Uploading...",
           startLiveClass: "Start a Live Class",
@@ -118,7 +118,7 @@ i18n
           lectureTitlePlaceholder: "लेक्चर का शीर्षक दर्ज करें",
           videoFile: "वीडियो फ़ाइल",
           videoSelectPlaceholder:
-            "वीडियो चुनने के लिए क्लिक करें या ड्रैग & ड्रॉप करें",
+            "वीडियो चुनने के लिए क्लिक करें या ड्रैग & ड्रॉप करें (only .mp4 Supported)",
           uploadVideo: "वीडियो अपलोड करें",
           uploading: "अपलोड हो रहा है...",
           startLiveClass: "लाइव क्लास शुरू करें",

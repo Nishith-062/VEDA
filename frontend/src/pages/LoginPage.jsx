@@ -13,6 +13,9 @@ const LoginPage = () => {
   const { login, isLoggingIn } = useAuthStore();
   const navigate = useNavigate();
 
+
+
+
   useEffect(() => {
     const goOnline = () => setIsOnline(true);
     const goOffline = () => setIsOnline(false);
@@ -24,8 +27,6 @@ const LoginPage = () => {
     };
   }, []);
 
-
-
   const loginAsGuest = async (role) => {
     try {
       if (!isOnline) {
@@ -35,14 +36,18 @@ const LoginPage = () => {
 
       // Either pass real credentials that exist on your backend:
       let creds = {};
-      if (role === "Teacher") creds = { email: "ukchoudhury@gmail.com", password: "123456" };
-      else if (role === "Student") creds = { email: "stu@gmail.com", password: "123456" };
-      else if (role === "Admin") creds = { email: "veda@gmail.com", password: "admin@123" };
+      if (role === "Teacher")
+        creds = { email: "ukchoudhury@gmail.com", password: "123456" };
+      else if (role === "Student")
+        creds = { email: "stu@gmail.com", password: "123456" };
+      else if (role === "Admin")
+        creds = { email: "veda@gmail.com", password: "admin@123" };
 
       const user = await login(creds); // depends on your store API
       // Navigate based on returned role OR the requested role:
       if (user?.role === "Teacher" || role === "Teacher") navigate("/teacher");
-      else if (user?.role === "Student" || role === "Student") navigate("/student");
+      else if (user?.role === "Student" || role === "Student")
+        navigate("/student");
       else if (user?.role === "Admin" || role === "Admin") navigate("/admin");
       else setMessage(t("unknownRole"));
     } catch (error) {
@@ -50,7 +55,6 @@ const LoginPage = () => {
       setMessage(t("loginFailed"));
     }
   };
-
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -94,6 +98,10 @@ const LoginPage = () => {
           <p className="text-center text-gray-500">
             {t("loginToContinue")} <span className="font-semibold">VEDA</span>
           </p>
+            <div className="bg-yellow-100 text-yellow-800 p-3 rounded text-center mb-4">
+              ⚠️ For the best experience, please use{" "}
+              <span className="font-semibold">Google Chrome</span>.
+            </div>
 
           <form onSubmit={handleSubmit} className="mt-6 space-y-5">
             {/* Email */}
@@ -167,10 +175,6 @@ const LoginPage = () => {
               {isLoggingIn ? t("loggingIn") : t("loginTeacherGuest")}
             </button>
 
-
-
-
-
             <button
               type="button"
               disabled={isLoggingIn || !isOnline}
@@ -183,8 +187,6 @@ const LoginPage = () => {
             >
               {isLoggingIn ? t("loggingIn") : t("loginAdminGuest")}
             </button>
-
-
           </form>
 
           {message && (

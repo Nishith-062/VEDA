@@ -1,3 +1,4 @@
+import { MessageSquareMore } from "lucide-react";
 import { useState, useRef, useEffect } from "react";
 
 function Chatbot() {
@@ -178,7 +179,7 @@ function Chatbot() {
     <div style={styles.container}>
       {!open ? (
         <button style={styles.toggleBtn} onClick={() => setOpen(true)}>
-          Chat
+         <MessageSquareMore /> Chat
         </button>
       ) : (
         <div style={styles.panel}>

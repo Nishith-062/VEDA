@@ -3,6 +3,8 @@ import { useNavigate } from "react-router-dom";
 import { Video, Upload, PlayCircle } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import "../i18n";
+import { useAuthStore } from "../store/useAuthStore";
+import axios from "axios";
 
 export default function TeacherDashboard() {
   const { t } = useTranslation();
@@ -11,6 +13,7 @@ export default function TeacherDashboard() {
   const [videoFile, setVideoFile] = useState(null);
   const [message, setMessage] = useState("");
   const [uploading, setUploading] = useState(false);
+  const { token } = useAuthStore();
 
   const handleFileChange = (e) => setVideoFile(e.target.files[0]);
 
@@ -24,30 +27,37 @@ export default function TeacherDashboard() {
     setUploading(true);
     setMessage("");
 
-    const formData = new FormData();
-    formData.append("title", title);
-    formData.append("video", videoFile);
+   const formData = new FormData();
+formData.append("title", title);
+formData.append("video", videoFile);
 
-    try {
-      const response = await fetch(
-        "https://veda-bj5v.onrender.com/api/lectures",
-        { method: "POST", body: formData, credentials: "include" }
-      );
-
-      const result = await response.json();
-
-      if (response.ok) {
-        setMessage(t("uploadSuccess"));
-        setTitle("");
-        setVideoFile(null);
-      } else {
-        setMessage(t("uploadFailed", { error: result.error || "Unknown error" }));
-      }
-    } catch (error) {
-      setMessage(t("uploadError", { error: error.message }));
-    } finally {
-      setUploading(false);
+try {
+  const response = await axios.post(
+    "https://veda-bj5v.onrender.com/api/lectures",
+    formData,
+    {
+      headers: {
+        "Content-Type": "multipart/form-data",
+        Authorization: `Bearer ${token}`, // if required
+      },
     }
+  );
+
+  if (response.data.success) {
+    setMessage(t("uploadSuccess"));
+    setTitle("");
+    setVideoFile(null);
+  } else {
+    setMessage(
+      t("uploadFailed", { error: response.data.error || "Unknown error" })
+    );
+  }
+} catch (error) {
+  setMessage(t("uploadError", { error: error.response?.data?.error || error.message }));
+} finally {
+  setUploading(false);
+}
+
   };
 
   return (
@@ -73,11 +83,15 @@ export default function TeacherDashboard() {
                 <Upload className="w-6 h-6 text-blue-500" />
                 {t("uploadLecture")}
               </h2>
-              <p className="mt-1 text-sm text-gray-500">{t("uploadLectureDesc")}</p>
+              <p className="mt-1 text-sm text-gray-500">
+                {t("uploadLectureDesc")}
+              </p>
 
               <form onSubmit={handleSubmit} className="mt-6 space-y-6">
                 <div>
-                  <label className="block mb-2 text-gray-700 font-medium">{t("lectureTitle")}</label>
+                  <label className="block mb-2 text-gray-700 font-medium">
+                    {t("lectureTitle")}
+                  </label>
                   <input
                     type="text"
                     value={title}
@@ -89,7 +103,9 @@ export default function TeacherDashboard() {
                 </div>
 
                 <div>
-                  <label className="block mb-2 text-gray-700 font-medium">{t("videoFile")}</label>
+                  <label className="block mb-2 text-gray-700 font-medium">
+                    {t("videoFile")}
+                  </label>
                   <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-blue-400 transition cursor-pointer">
                     <input
                       type="file"
@@ -99,7 +115,10 @@ export default function TeacherDashboard() {
                       className="hidden"
                       id="video-upload"
                     />
-                    <label htmlFor="video-upload" className="cursor-pointer text-gray-500">
+                    <label
+                      htmlFor="video-upload"
+                      className="cursor-pointer text-gray-500"
+                    >
                       {videoFile ? videoFile.name : t("videoSelectPlaceholder")}
                     </label>
                   </div>
@@ -109,7 +128,9 @@ export default function TeacherDashboard() {
                   type="submit"
                   disabled={uploading}
                   className={`w-full py-3 rounded-lg font-semibold text-white shadow transition ${
-                    uploading ? "bg-blue-300 cursor-not-allowed" : "bg-blue-600 hover:bg-blue-700"
+                    uploading
+                      ? "bg-blue-300 cursor-not-allowed"
+                      : "bg-blue-600 hover:bg-blue-700"
                   }`}
                 >
                   {uploading ? t("uploading") : t("uploadVideo")}
@@ -135,8 +156,12 @@ export default function TeacherDashboard() {
             <div className="bg-green-100 p-6 rounded-full mb-6">
               <PlayCircle className="w-14 h-14 text-green-600" />
             </div>
-            <h2 className="text-2xl font-semibold text-gray-800">{t("startLiveClass")}</h2>
-            <p className="mt-2 text-gray-500 text-sm">{t("startLiveClassDesc")}</p>
+            <h2 className="text-2xl font-semibold text-gray-800">
+              {t("startLiveClass")}
+            </h2>
+            <p className="mt-2 text-gray-500 text-sm">
+              {t("startLiveClassDesc")}
+            </p>
             <button
               onClick={() => navigate("/teacher/live")}
               className="mt-8 w-full py-3 rounded-lg bg-green-600 hover:bg-green-700 text-white font-semibold shadow transition"

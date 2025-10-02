@@ -9,7 +9,7 @@ import {
   useParticipants,
 } from "@livekit/components-react";
 import { Track } from "livekit-client";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import axios from "axios";
 
 import "@livekit/components-styles"; // ✅ add this
@@ -64,9 +64,11 @@ const TracksView = () => {
 
 const BroadcastPage = () => {
   const { token, authUser } = useAuthStore();
-  console.log(authUser._id);
+  // console.log(authUser._id);
   const { id } = useParams();
-  console.log(token);
+  const navigate=useNavigate()
+
+  // console.log(token);
   const [details, setDetails] = useState({
     token: "",
     wsUrl: "",
@@ -107,6 +109,7 @@ const BroadcastPage = () => {
         token={details.token}
         serverUrl={details.wsUrl}
         data-lk-theme="default" // optional LiveKit styling
+        onDisconnected={() => navigate("/teacher")} // ✅ redirect after leave
       >
             <TracksView />
             <ControlBar />

@@ -85,6 +85,10 @@ const ViewerPage = () => {
         try {
           await room.connect(streamData.wsUrl, streamData.token);
           applyStreamMode(room, streamMode);
+
+        room.on("disconnected", () => {
+          navigate("/student");
+        });
         } catch (err) {
           console.error("Failed to connect:", err);
           setError("Connection failed");

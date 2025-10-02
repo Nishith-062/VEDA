@@ -1,158 +1,203 @@
-import React, { use, useEffect } from "react";
+import React, { useEffect, useState } from "react";
+import { Loader2, Users, BookOpen, GraduationCap } from "lucide-react";
 
 const Admin = () => {
-  const [lectures, setLectures] = React.useState([]);
-
-  const Students=[
-    {name:"student",downloaded:"20MB"}
-    ,{name:"stu",downloaded:"10MB"},{name:"student2",downloaded:"1.7MB"}
-  ]
-
-  const teachers=[
-    {name:"teacher",total_classes:2,uploaded:"30MB"}
-    ,{name:"tea",total_classes:3,uploaded:"23MB"},{name:"teacher2",total_classes:4,uploaded:"12MB"}
-  ]
+  const [lectures, setLectures] = useState([]);
+  const [studentsData, setStudentsData] = useState(null);
+  const [teacherData, setTeacherData] = useState(null);
+  const [loading, setLoading] = useState(true);
 
   const fetchData = async () => {
     const response = await fetch("https://veda-bj5v.onrender.com/api/lectures");
     const data = await response.json();
-    // console.log(data);
     setLectures(data.data);
+  };
+  const Download=[20,10,17,1.7]
+function formatSecondsToMinutes(seconds) {
+  const minutes = Math.floor(seconds / 60);
+  const remainingSeconds = (seconds % 60).toFixed(2); // rounds to 2 decimals
+  return `${minutes} min ${remainingSeconds} sec`;
+}
+  const fetchStudent = async () => {
+    const response = await fetch(
+      "https://veda-bj5v.onrender.com/api/admin/student-info"
+    );
+    const data = await response.json();
+    setStudentsData(data.data);
+  };
+
+  const fetchTeacher = async () => {
+    const response = await fetch(
+      "https://veda-bj5v.onrender.com/api/admin/teacher-info"
+    );
+    const data = await response.json();
+    setTeacherData(data.data);
   };
 
   useEffect(() => {
-    fetchData();
+    const loadAll = async () => {
+      await Promise.all([fetchData(), fetchStudent(), fetchTeacher()]);
+      setLoading(false);
+    };
+    loadAll();
   }, []);
+
+  // Skeleton Loader Component
+  const SkeletonRow = ({ cols = 3 }) => (
+    <tr>
+      {Array.from({ length: cols }).map((_, i) => (
+        <td key={i} className="px-6 py-4">
+          <div className="h-4 w-24 bg-gray-200 animate-pulse rounded"></div>
+        </td>
+      ))}
+    </tr>
+  );
+
   return (
-    <div>
-      <h1 className="text-3xl font-bold text-center mb-4">Admin Dashboard</h1>
-      <div className="flex flex-col gap-4">
-        
-        <div className="overflow-x-auto">
-            <h1 className="text-center text-xl">Lecture Information</h1>
-          <table className="table-fixed min-w-full border border-gray-200 rounded-xl shadow-sm">
+    <div className="p-6">
+      <h1 className="text-3xl font-bold text-center mb-6 flex items-center justify-center gap-2">
+        <GraduationCap className="w-8 h-8 text-indigo-600" /> Admin Dashboard
+      </h1>
+
+      <div className="flex flex-col gap-6">
+        {/* Lecture Info */}
+        <div className="overflow-x-auto border rounded-xl shadow-md">
+          <h2 className="text-xl font-semibold text-center p-3 bg-gradient-to-r from-indigo-500 to-purple-500 text-white flex items-center justify-center gap-2">
+            <BookOpen className="w-5 h-5" /> Lecture Information
+          </h2>
+          <table className="table-fixed min-w-full border-collapse">
             <thead>
-              <tr className="bg-gradient-to-r from-indigo-500 to-purple-500 text-white">
-                <th className="px-6 py-3 text-left text-sm font-semibold uppercase tracking-wider">
+              <tr className="bg-gray-100">
+                <th className="px-6 py-3 text-left text-sm font-semibold uppercase">
                   S.No
                 </th>
-
-                <th className="px-6 py-3 text-left text-sm font-semibold uppercase tracking-wider">
+                <th className="px-6 py-3 text-left text-sm font-semibold uppercase">
                   Title
                 </th>
-                <th className="px-6 py-3 text-left text-sm font-semibold uppercase tracking-wider">
-                  Orignal size
+                <th className="px-6 py-3 text-left text-sm font-semibold uppercase">
+                  Original Size
                 </th>
-                <th className="px-6 py-3 text-left text-sm font-semibold uppercase tracking-wider">
+                <th className="px-6 py-3 text-left text-sm font-semibold uppercase">
                   Compressed Size
                 </th>
+                                <th className="px-6 py-3 text-left text-sm font-semibold uppercase">
+                  Duration
+                </th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-200">
-              {lectures.map((lecture, index) => (
-                <tr key={index} className="hover:bg-indigo-50 transition">
-                  <td className="px-6 py-4 text-sm text-gray-800">
-                    {index + 1}
-                  </td>
-                  <td className="px-6 py-4 text-sm text-gray-800">
-                    {lecture.title}
-                  </td>
-                  <td className="px-6 py-4 text-sm text-gray-800">
-                    {lecture.originalSize.toFixed(2)} MB
-                  </td>
-                  <td className="px-6 py-4 text-sm text-gray-800">
-                    {lecture.compressedSize.toFixed(2)} MB
-                  </td>
-                </tr>
-              ))}
+            <tbody className="divide-y">
+              {loading
+                ? Array.from({ length: 3 }).map((_, idx) => (
+                    <SkeletonRow key={idx} cols={4} />
+                  ))
+                : lectures.map((lecture, index) => (
+                    <tr key={index} className="hover:bg-indigo-50 transition">
+                      <td className="px-6 py-4">{index + 1}</td>
+                      <td className="px-6 py-4">{lecture.title}</td>
+                      <td className="px-6 py-4">
+                        {lecture.originalSize.toFixed(2)} MB
+                      </td>
+                      <td className="px-6 py-4">
+                        {lecture.compressedSize.toFixed(2)} MB
+                      </td>
+                      <td className="px-6 py-4">
+{formatSecondsToMinutes(lecture.duration) || 'N/A'}
+                      </td>
+                    </tr>
+                  ))}
             </tbody>
           </table>
         </div>
-        <div className="flex gap-4">
 
-            {/* student info */}
-            <div>
-                <h1 className="text-center text-xl">Student Information</h1>
-          <table className="table-fixed border w-2xl border-gray-200 rounded-xl shadow-sm">
-            <thead>
-              <tr className="bg-gradient-to-r from-indigo-500 to-purple-500 text-white">
-                <th className="px-6 py-3 text-left text-sm font-semibold uppercase tracking-wider">
-                  S.No
-                </th>
-
-                <th className="px-6 py-3 text-left text-sm font-semibold uppercase tracking-wider">
-                    student
-                </th>
-                <th className="px-6 py-3 text-left text-sm font-semibold uppercase tracking-wider">
+        <div className="flex flex-col md:flex-row gap-6">
+          {/* Student Info */}
+          <div className="flex-1 border rounded-xl shadow-md">
+            <h2 className="text-xl font-semibold text-center p-3 bg-gradient-to-r from-indigo-500 to-purple-500 text-white flex items-center justify-center gap-2">
+              <Users className="w-5 h-5" /> Student Information
+            </h2>
+            <table className="table-fixed min-w-full border-collapse">
+              <thead>
+                <tr className="bg-gray-100">
+                  <th className="px-6 py-3 text-left text-sm font-semibold uppercase">
+                    S.No
+                  </th>
+                  <th className="px-6 py-3 text-left text-sm font-semibold uppercase">
+                    Student
+                  </th>
+                  <th className="px-6 py-3 text-left text-sm font-semibold uppercase">
                     Downloaded
-                </th>
-
-              </tr>
-            </thead>
-            <tbody className="divide-y w-full divide-gray-200">
-                {Students.map((student,index)=>(
-                <tr key={index} className="hover:bg-indigo-50 transition">
-                  <td className="px-6 py-4 text-sm text-gray-800">
-                    {   index+1}
-                  </td>
-                  <td className="px-6 py-4 text-sm text-gray-800">
-                    {student.name}
-                  </td>
-                  <td className="px-6 py-4 text-sm text-gray-800">
-                    {student.downloaded}
-                  </td>
-
-                </tr>))}
-            </tbody>
-          </table>
-
+                  </th>
+                </tr>
+              </thead>
+              <tbody className="divide-y">
+                {loading
+                  ? Array.from({ length: 3 }).map((_, idx) => (
+                      <SkeletonRow key={idx} cols={3} />
+                    ))
+                  : studentsData?.map((student, index) => (
+                      <tr key={index} className="hover:bg-indigo-50 transition">
+                        <td className="px-6 py-4">{index + 1}</td>
+                        <td className="px-6 py-4">{student.fullName}</td>
+                        <td className="px-6 py-4">{Download[index] || "N/A"} MB</td>
+                      </tr>
+                    ))}
+              </tbody>
+            </table>
           </div>
-            {/* teacher info */}
 
-            <div className="">
-                <h1 className="text-center text-xl">Faculty Information</h1>
-          <table className="table-fixed border w-2xl border-gray-200 rounded-xl shadow-sm">
-            <thead>
-              <tr className="bg-gradient-to-r from-indigo-500 to-purple-500 text-white">
-                <th className="px-6 py-3 text-left text-sm font-semibold uppercase tracking-wider">
-                  S.No
-                </th>
 
-                <th className="px-6 py-3 text-left text-sm font-semibold uppercase tracking-wider">
-                  Title
-                </th>
-                <th className="px-6 py-3 text-left text-sm font-semibold uppercase tracking-wider">
-                    Total Classes
-                </th>
-                                <th className="px-6 py-3 text-left text-sm font-semibold uppercase tracking-wider">
-                    Uploaded
-                </th>
-
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-gray-200">
-                {teachers.map((teacher,index)=>(
-                <tr key={index} className="hover:bg-indigo-50 transition">
-                  <td className="px-6 py-4 text-sm text-gray-800">
-                    {index + 1}
-                  </td>
-                  <td className="px-6 py-4 text-sm text-gray-800">
-                    {teacher.name}  
-                  </td> 
-                  <td className="px-6 py-4 text-sm text-gray-800">
-                    {teacher.total_classes}
-                  </td>
-                  <td className="px-6 py-4 text-sm text-gray-800">
-                    {teacher.uploaded}
-                  </td>
-
-                </tr>))}
-            </tbody>
-          </table>
-            </div>
+          {/* Teacher Info */}
+          <div className="flex-1 border rounded-xl shadow-md">
+            <h2 className="text-xl font-semibold text-center p-3 bg-gradient-to-r from-indigo-500 to-purple-500 text-white flex items-center justify-center gap-2">
+              <Users className="w-5 h-5" /> Faculty Information
+            </h2>
+            <table className="table-fixed min-w-full border-collapse">
+              <thead>
+                <tr className="bg-gray-100">
+                  <th className="px-6 py-3 text-left text-sm font-semibold uppercase">
+                    S.No
+                  </th>
+                  <th className="px-6 py-3 text-left text-sm font-semibold uppercase">
+                    Name
+                  </th>
+                  <th className="px-6 py-3 text-left text-sm font-semibold uppercase">
+                    email
+                  </th>
+                  <th className="px-6 py-3 text-left text-sm font-semibold uppercase">
+                    Total Live Classes
+                  </th>
+                  <th className="px-6 py-3 text-left text-sm font-semibold uppercase">
+                    Uploaded Lectures
+                  </th>
+                </tr>
+              </thead>
+              <tbody className="divide-y">
+                {loading
+                  ? Array.from({ length: 3 }).map((_, idx) => (
+                      <SkeletonRow key={idx} cols={4} />
+                    ))
+                  : teacherData?.map((teacher, index) => (
+                      <tr key={index} className="hover:bg-indigo-50 transition">
+                        <td className="px-6 py-4">{index + 1}</td>
+                        <td className="px-6 py-4">{teacher.fullName}</td>
+                        <td className="px-6 py-4">{teacher.email}</td>
+                        <td className="px-6 py-4">{teacher.liveClassesCount}</td>
+                        <td className="px-6 py-4">{teacher.lecturesCount}</td>
+                      </tr>
+                    ))}
+              </tbody>
+            </table>
+          </div>
         </div>
-
       </div>
+
+      {/* Global Loading Indicator */}
+      {loading && (
+        <div className="flex justify-center items-center mt-6">
+          <Loader2 className="w-6 h-6 animate-spin text-indigo-600" />
+          <span className="ml-2 text-gray-600">Loading Dashboard...</span>
+        </div>
+      )}
     </div>
   );
 };
