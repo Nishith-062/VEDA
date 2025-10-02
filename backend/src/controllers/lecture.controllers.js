@@ -24,10 +24,17 @@ export const postLectures = (req, res) => {
     .outputOptions(["-c:v libx264", "-preset medium", "-crf 32", "-movflags faststart"])
     .on("end", async () => {
       try {
+          
+      ffmpeg.ffprobe(outputPath, async (err, metadata) => {
+        if (err) {
+          return res.status(500).json({ success: false, error: "Metadata extraction failed" });
+        }
+
+        const duration = metadata.format.duration; // in seconds
+
         const result = await cloudinary.uploader.upload(outputPath, {
           resource_type: "video",
-        });
-
+        });})
 
         const course = await Course.findOne({faculty_id:req.user._id}).select("_id course_name");
 
@@ -38,7 +45,8 @@ export const postLectures = (req, res) => {
           compressedSize: fs.statSync(outputPath).size/(1024*1024),
           url: result.secure_url,
           course_id: course._id,
-          course_name: course.course_name
+          course_name: course.course_name,
+          duration:duration
         });
         await newLecture.save();
 

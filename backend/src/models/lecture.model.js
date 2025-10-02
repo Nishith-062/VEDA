@@ -29,6 +29,9 @@ const lectureSchema = new mongoose.Schema(
     },
     course_name:{
       type:String
+    },
+    duration:{
+      type:Number
     }
   },
   { timestamps: true }
