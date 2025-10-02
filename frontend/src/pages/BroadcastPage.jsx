@@ -99,7 +99,20 @@ const BroadcastPage = () => {
     fetchData();
   }, [id, token]);
 
-  console.log(details);
+  // console.log(details);
+  async function Disconnect(){
+    try {
+        const res = await axios.post(
+          `${BASE_URL}/${id}/end`,
+          {},
+          { headers: { Authorization: `Bearer ${token}` } }
+        );
+
+        navigate('/teacher')
+      } catch (error) {
+        console.error("Error fetching class details:", error);
+      }
+  }
 
   return (
     <div style={{ height: "70vh" }}>
@@ -109,7 +122,7 @@ const BroadcastPage = () => {
         token={details.token}
         serverUrl={details.wsUrl}
         data-lk-theme="default" // optional LiveKit styling
-        onDisconnected={() => navigate("/teacher")} // ✅ redirect after leave
+        onDisconnected={Disconnect} // ✅ redirect after leave
       >
             <TracksView />
             <ControlBar />

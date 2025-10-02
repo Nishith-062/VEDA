@@ -39,7 +39,7 @@ export const scheduleClass = async (req, res) => {
 
 export const getTeacherClasses = async (req, res) => {
   try {
-    const classes = await LiveClass.find({ faculty_id: req.user._id });
+    const classes = await LiveClass.find({ faculty_id: req.user._id ,status: { $in: ["scheduled", "live"] },});
     res.json({ success: true, classes });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
@@ -132,7 +132,7 @@ export const endClass = async (req, res) => {
 export const getClasses = async (req, res) => {
   try {
     const classes = await LiveClass.find({
-      status: { $in: ["scheduled", "live"] },
+      
     }).populate("faculty_id", "fullName email");
 
     res.json({ success: true, classes });

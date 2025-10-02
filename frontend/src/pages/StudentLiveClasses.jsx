@@ -2,12 +2,13 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import LiveClassTable from "../components/LiveClassesTable";
 import { useAuthStore } from "../store/useAuthStore";
+import { useNavigate } from "react-router-dom";
 
 const StudentLiveClasses = () => {
   const [classes, setClasses] = useState([]);
   const [loading, setLoading] = useState(true); // new loading state
   const { token } = useAuthStore();
-
+  const navigate=useNavigate()
   useEffect(() => {
     const fetchClasses = async () => {
       try {
@@ -31,7 +32,14 @@ const StudentLiveClasses = () => {
 
   return (
     <div className="p-6 bg-gray-50 min-h-screen">
-      <h1 className="text-2xl font-bold mb-6 text-gray-800">
+  <button
+        className="bg-blue-600 p-1.5 rounded-sm cursor-pointer text-white mb-4"
+        onClick={() => {
+          navigate("/student");
+        }}
+      >
+        Back
+      </button>      <h1 className="text-2xl font-bold mb-6 text-gray-800">
         Student Live Classes
       </h1>
       <LiveClassTable classes={classes} loading={loading} />
