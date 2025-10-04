@@ -1,7 +1,7 @@
 import mongoose from 'mongoose'
 
 const notificationSchema = new mongoose.Schema({
-  userId: { type: mongoose.Schema.Types.ObjectId, ref: "User" ,unique:true}, // link to your User model
+  userId: { type: mongoose.Schema.Types.ObjectId, ref: "User" }, // link to your User model
   role: { type: String, enum: ["Student", "Teacher", "Admin"] },
   endpoint: String,
   keys: {
