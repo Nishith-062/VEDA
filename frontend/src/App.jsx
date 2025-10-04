@@ -74,6 +74,7 @@ function App() {
   if (isCheckingAuth) {
     return (
       <div className="flex items-center justify-center w-full h-screen">
+        <h1>It will take some time to load because we deployed on Vercel and Render</h1>
         <Loader className="animate-spin size-10 text-center" />
       </div>
     );

@@ -3,6 +3,7 @@ import { useAuthStore } from "../store/useAuthStore.js";
 import { useNavigate } from "react-router-dom";
 import { Mail, Lock } from "lucide-react";
 import { useTranslation } from "react-i18next";
+import { HeroSection } from "../components/ComparisonTable.jsx";
 
 const LoginPage = () => {
   const { t } = useTranslation(); // for translations
@@ -77,16 +78,7 @@ const LoginPage = () => {
     <div className="flex min-h-screen">
       {/* Left side - Image/Branding */}
       <div className="hidden lg:flex w-1/2 relative">
-        <img
-          src="https://images.unsplash.com/photo-1524178232363-1fb2b075b655?q=80&w=1170&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
-          alt={t("educationBg")}
-          className="absolute inset-0 w-full h-full object-cover"
-        />
-        <div className="absolute inset-0 bg-black/50" />
-        <div className="relative z-10 flex flex-col justify-center items-center text-center px-10 text-white">
-          <h1 className="text-4xl font-extrabold">{t("vedaTitle")}</h1>
-          <p className="mt-4 text-lg text-indigo-100">{t("vedaSubtitle")}</p>
-        </div>
+        <HeroSection/>
       </div>
 
       {/* Right side - Login form */}
