@@ -1,17 +1,15 @@
-import mongoose from 'mongoose'
+import mongoose from "mongoose";
 
 const notificationSchema = new mongoose.Schema({
-  userId: { type: mongoose.Schema.Types.ObjectId, ref: "User" }, // link to your User model
+  userId: { type: mongoose.Schema.Types.ObjectId, ref: "User" }, // link to User
   role: { type: String, enum: ["Student", "Teacher", "Admin"] },
-  endpoint: String,
+  endpoint: { type: String, unique: true }, // unique per device
   keys: {
     p256dh: String,
     auth: String,
   },
 });
 
-const Notifications=mongoose.model('notification',notificationSchema)
+const Notifications = mongoose.model("Notification", notificationSchema);
 
-export default Notifications
-
-
+export default Notifications;
