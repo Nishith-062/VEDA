@@ -30,9 +30,16 @@ self.addEventListener("push", (event) => {
     icon: "/logo.png", // place a logo.png in public/
   };
 
-  event.waitUntil(
-    self.registration.showNotification(payload.title, options)
-  );
+event.waitUntil((async () => {
+  try {
+    console.log("📨 Showing notification:", payload);
+    await self.registration.showNotification(payload.title, options);
+  } catch (err) {
+    console.error("❌ showNotification failed:", err);
+  }
+})());
+
+
 });
 
 // ✅ Runtime caching: API (NetworkFirst)
