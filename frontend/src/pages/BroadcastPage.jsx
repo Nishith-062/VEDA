@@ -51,7 +51,7 @@ const TracksView = () => {
     { onlySubscribed: true }
   );
   return (
-    <GridLayout  
+    <GridLayout
       tracks={tracks}
       style={{ height: "calc(100vh - var(--lk-control-bar-height))" }}
     >
@@ -66,7 +66,7 @@ const BroadcastPage = () => {
   const { token, authUser } = useAuthStore();
   // console.log(authUser._id);
   const { id } = useParams();
-  const navigate=useNavigate()
+  const navigate = useNavigate();
 
   // console.log(token);
   const [details, setDetails] = useState({
@@ -78,6 +78,7 @@ const BroadcastPage = () => {
 
   useEffect(() => {
     if (!token) return; // wait until token is ready
+
     const fetchData = async () => {
       try {
         const res = await axios.post(
@@ -85,12 +86,15 @@ const BroadcastPage = () => {
           {},
           { headers: { Authorization: `Bearer ${token}` } }
         );
+
         setDetails({
           token: res.data.token,
           wsUrl: res.data.wsUrl,
           roomName: res.data.roomName,
           class: res.data.class,
         });
+
+        // ✅ call notifications AFTER class is started
       } catch (error) {
         console.error("Error fetching class details:", error);
       }
@@ -99,19 +103,35 @@ const BroadcastPage = () => {
     fetchData();
   }, [id, token]);
 
-  // console.log(details);
-  async function Disconnect(){
-    try {
+  useEffect(() => {
+    async function pushNotification() {
+      try {
         const res = await axios.post(
-          `${BASE_URL}/${id}/end`,
+          "https://veda-bj5v.onrender.com/api/notifications/notify",
           {},
           { headers: { Authorization: `Bearer ${token}` } }
         );
-
-        navigate('/teacher')
+        console.log(res.data);
       } catch (error) {
         console.error("Error fetching class details:", error);
       }
+    }
+    pushNotification();
+  }, [details.token, token]);
+
+  // console.log(details);
+  async function Disconnect() {
+    try {
+      const res = await axios.post(
+        `${BASE_URL}/${id}/end`,
+        {},
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+
+      navigate("/teacher");
+    } catch (error) {
+      console.error("Error fetching class details:", error);
+    }
   }
 
   return (
@@ -124,9 +144,9 @@ const BroadcastPage = () => {
         data-lk-theme="default" // optional LiveKit styling
         onDisconnected={Disconnect} // ✅ redirect after leave
       >
-            <TracksView />
-            <ControlBar />
-          {/* <ParticipantNamesView /> */}
+        <TracksView />
+        <ControlBar />
+        {/* <ParticipantNamesView /> */}
       </LiveKitRoom>
     </div>
   );

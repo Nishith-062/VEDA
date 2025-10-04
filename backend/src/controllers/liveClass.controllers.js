@@ -49,7 +49,7 @@ export const getTeacherClasses = async (req, res) => {
 // 🟢 Teacher: Start class
 export const startClass = async (req, res) => {
   try {
-    console.log('World');
+    // console.log('World');
     
     const { id } = req.params;
     const liveClass = await LiveClass.findById(id);
@@ -68,7 +68,7 @@ export const startClass = async (req, res) => {
 
     try {
       roomService.createRoom(opts).then((room) => {
-        console.log('asfo');
+        // console.log('asfo');
         console.log("room created", room);
       });
     } catch (error) {

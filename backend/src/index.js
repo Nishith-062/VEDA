@@ -7,6 +7,7 @@ import DbConnect from "./lib/db.js";
 import userRoutes from "./routes/user.routes.js";
 import liveRoutes from "./routes/liveClass.routes.js";
 import adminRoutes from './routes/admin.routes.js'
+import notificationSubscriptionRoutes from './routes/subscribeNotification.routes.js'
 
 dotenv.config();
 const app = express();
@@ -27,6 +28,7 @@ app.use("/api/user", userRoutes);
 app.use("/api", lectureRoutes);
 app.use('/api/live-class',liveRoutes);
 app.use('/api/admin',adminRoutes)
+app.use('/api/notifications',notificationSubscriptionRoutes)
 
 DbConnect().then(() => {
   app.listen(PORT, () => {

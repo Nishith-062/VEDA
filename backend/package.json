@@ -25,6 +25,7 @@
     "jsonwebtoken": "^9.0.2",
     "livekit-server-sdk": "^2.13.3",
     "mongoose": "^8.18.2",
-    "multer": "^2.0.2"
+    "multer": "^2.0.2",
+    "web-push": "^3.6.7"
   }
 }

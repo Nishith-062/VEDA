@@ -37,6 +37,9 @@ export default function TeacherManageClass() {
     if (authUser?._id) fetchClasses();
   }, [authUser, token]);
 
+
+
+
   // ✅ Schedule new class
   const handleSchedule = async () => {
     if (!title || !startTime) {
