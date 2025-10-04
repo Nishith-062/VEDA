@@ -10,23 +10,42 @@ router.post("/subscribe", async (req, res) => {
   try {
     const { userId, role, endpoint, keys } = req.body;
 
-    // Check if endpoint already exists
-    const existing = await Notifications.findOne({ endpoint });
-    
-    if (!existing) {
-      const subscription = new Notifications({ userId, role, endpoint, keys });
-      await subscription.save();
+    if (!userId || !endpoint || !keys) {
+      return res.status(400).json({ message: "Missing required fields" });
     }
+
+    // Check if this exact endpoint already exists
+    const existing = await Notifications.findOne({ endpoint });
+
+    if (existing) {
+      // Update userId and keys in case they changed
+      existing.userId = userId;
+      existing.role = role;
+      existing.keys = keys;
+      await existing.save();
+      return res.status(200).json({ message: "Subscription updated successfully" });
+    }
+
+    // Otherwise, create a new subscription
+    const subscription = new Notifications({ userId, role, endpoint, keys });
+    await subscription.save();
 
     return res.status(200).json({ message: "Subscribed successfully" });
   } catch (error) {
     console.error("❌ Subscribe error:", error);
+
+    // Handle duplicate key error just in case
+    if (error.code === 11000) {
+      return res.status(409).json({ message: "Subscription already exists" });
+    }
+
     return res.status(500).json({
       message: "Not able to subscribe notifications",
       error: error.message,
     });
   }
 });
+
 
 // Send notification to all subscribers
 router.post("/notify", protectRoute, async (req, res) => {
