@@ -2,12 +2,13 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { useAuthStore } from "../store/useAuthStore";
 import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 
 export default function TeacherManageClass() {
   const navigate = useNavigate();
   const authUser = useAuthStore((state) => state.authUser);
   const token = useAuthStore((state) => state.token);
-
+  const {t}=useTranslation()
   const [title, setTitle] = useState("");
   const [startTime, setStartTime] = useState("");
   const [classes, setClasses] = useState([]); 
@@ -95,15 +96,15 @@ export default function TeacherManageClass() {
         Back
       </button>
 
-      <h1 className="text-3xl font-bold mb-6">Manage Your Live Classes</h1>
+      <h1 className="text-3xl font-bold mb-6">{t("manageLiveClasses")}</h1>
 
       {/* Schedule New Class */}
       <div className="bg-white border rounded-xl shadow p-6 mb-8">
-        <h2 className="text-xl font-semibold mb-4">Schedule New Class</h2>
+        <h2 className="text-xl font-semibold mb-4">{t("scheduleNewClass")}</h2>
         <div className="space-y-4">
           <input
             type="text"
-            placeholder="Class Title"
+            placeholder={t("classTitle")}
             value={title}
             onChange={(e) => setTitle(e.target.value)}
             className="w-full px-4 py-2 border rounded-lg"
@@ -121,18 +122,18 @@ export default function TeacherManageClass() {
               loading ? "bg-gray-400" : "bg-green-600 hover:bg-green-700"
             }`}
           >
-            {loading ? "Scheduling..." : "Schedule Class"}
+            {loading ? t("scheduling") : t("scheduleClass")}
           </button>
         </div>
       </div>
 
       {/* Scheduled Classes List */}
       <div className="bg-white border rounded-xl shadow p-6 mb-8">
-        <h2 className="text-xl font-semibold mb-4">Your Scheduled Classes</h2>
+        <h2 className="text-xl font-semibold mb-4">{t("yourScheduledClasses")}</h2>
         {loadingClasses ? (
           <SkeletonList /> // ✅ show skeleton
         ) : classes.length === 0 ? (
-          <p className="text-gray-500">No classes scheduled yet.</p>
+          <p className="text-gray-500">{t("noClassesScheduled")}</p>
         ) : (
           <ul className="space-y-3">
             {classes.map((cls) => (
@@ -147,7 +148,7 @@ export default function TeacherManageClass() {
                   </p>
                 </div>
                 {cls.status === "liv" ? (
-                  <span className="text-red-600 font-semibold">Live</span>
+                  <span className="text-red-600 font-semibold">{t("live")}</span>
                 ) : (
                   <button
                     onClick={() =>
@@ -155,7 +156,7 @@ export default function TeacherManageClass() {
                     }
                     className="px-4 py-2 bg-green-600 text-white rounded"
                   >
-                    Start Live
+                    {t("startLive")}
                   </button>
                 )}
               </li>
