@@ -12,6 +12,7 @@ router.post("/subscribe", async (req, res) => {
 
     // Check if endpoint already exists
     const existing = await Notifications.findOne({ endpoint });
+    
     if (!existing) {
       const subscription = new Notifications({ userId, role, endpoint, keys });
       await subscription.save();
