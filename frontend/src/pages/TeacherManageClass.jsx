@@ -16,7 +16,7 @@ export default function TeacherManageClass() {
   const [loading, setLoading] = useState(false);
   const [loadingClasses, setLoadingClasses] = useState(true); // ✅ skeleton toggle
 
-  const API_BASE = "http://localhost:3000/api/live-class";
+  const API_BASE = "https://veda-bj5v.onrender.com/api/live-class";
 
   // ✅ Fetch teacher’s classes
   useEffect(() => {

@@ -1,7 +1,7 @@
 import { create } from "zustand";
 import axios from "axios";
 
-const BASE_URL = "http://localhost:3000";
+const BASE_URL = "https://veda-bj5v.onrender.com";
 
 export const useAuthStore = create((set, get) => ({
   authUser: null,

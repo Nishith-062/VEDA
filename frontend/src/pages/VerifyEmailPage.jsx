@@ -11,7 +11,7 @@ const VerifyEmailPage = () => {
   useEffect(() => {
     const verifyEmail = async () => {
       try {
-        const res = await axios.get(`http://localhost:3000/api/user/verify/${token}`, {
+        const res = await axios.get(`https://veda-bj5v.onrender.com/api/user/verify/${token}`, {
           withCredentials: true, // 🔑 important for cookies (JWT)
         });
         console.log(res.data);
