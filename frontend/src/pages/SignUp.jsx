@@ -1,17 +1,16 @@
 import React, { useState } from "react";
 import { useAuthStore } from "../store/useAuthStore";
-import { useNavigate } from "react-router-dom";
 
 const SignUp = () => {
   const { signup, isSigningUp } = useAuthStore();
-  const navigate = useNavigate();
   const [formData, setFormData] = useState({
     fullName: "",
     email: "",
     password: "",
     role: "Student", // default role
-    course_name: "", // course name, only for teachers
+    course_name: "",
   });
+  const [message, setMessage] = useState(""); // For showing success or error messages
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -24,18 +23,33 @@ const SignUp = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setMessage(""); // Reset message
     if (formData.role === "Teacher" && !formData.course_name.trim()) {
-      alert("Please enter your course name");
+      setMessage("Please enter your course name.");
       return;
     }
-    await signup(formData);
-    navigate("/login");
+
+    try {
+      const res = await signup(formData); // your store should return message from backend
+      setMessage(
+        res?.message || "Account created! Check your email to verify your account."
+      );
+    } catch (err) {
+      console.error(err);
+      setMessage("Signup failed. Email may already exist.");
+    }
   };
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-100">
       <div className="bg-white p-8 rounded-lg shadow-lg w-full max-w-md">
         <h2 className="text-2xl font-bold mb-6 text-center">Create Account</h2>
+
+        {message && (
+          <div className="bg-blue-100 text-blue-800 p-3 rounded mb-4 text-center">
+            {message}
+          </div>
+        )}
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
@@ -92,7 +106,6 @@ const SignUp = () => {
             </select>
           </div>
 
-          {/* Show course input only if role is Teacher */}
           {formData.role === "Teacher" && (
             <div>
               <label className="block text-gray-700 mb-1">Course Name</label>

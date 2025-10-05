@@ -20,6 +20,7 @@ import Navbar from "./components/navbar";
 import OfflineWatcher from "./components/OfflineWatcher";
 import OfflineDownloads from "./pages/Offline";
 import SignUp from "./pages/SignUp";
+import VerifyEmailPage from "./pages/VerifyEmailPage";
 function App() {
   const { authUser, checkAuth, isCheckingAuth } = useAuthStore();
   const [open, setOpen] = useState(false);
@@ -202,6 +203,9 @@ path="/signup"
 element={
   <SignUp/>
 }/>
+
+        <Route path="/verify/:token" element={<VerifyEmailPage />} />
+
 
 <Route 
 path="*"

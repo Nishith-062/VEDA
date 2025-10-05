@@ -4,26 +4,37 @@ const userSchema = new mongoose.Schema(
   {
     role: {
       type: String,
-      enum: ['Teacher', 'Student','Admin'], // allowed values
-      required: true
+      enum: ["Teacher", "Student", "Admin"],
+      required: true,
     },
     email: {
       type: String,
       required: true,
       unique: true,
-      trim: true, // optional: removes whitespace
-      lowercase: true // optional: stores email in lowercase
+      trim: true,
+      lowercase: true,
     },
     fullName: {
       type: String,
       required: true,
-      trim: true
+      trim: true,
     },
     password: {
       type: String,
       required: true,
-      minlength: 6
-    }
+      minlength: 6,
+    },
+    // 🟢 New fields
+    isVerified: {
+      type: Boolean,
+      default: false,
+    },
+    verificationToken: {
+      type: String,
+      default: null,
+    },
+        verificationTokenExpires: Date,
+
   },
   { timestamps: true }
 );

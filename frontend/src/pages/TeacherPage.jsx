@@ -33,7 +33,7 @@ formData.append("video", videoFile);
 
 try {
   const response = await axios.post(
-    "https://veda-bj5v.onrender.com/api/lectures",
+    "http://localhost:3000/api/lectures",
     formData,
     {
       headers: {

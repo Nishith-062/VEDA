@@ -86,7 +86,7 @@ async function subscribeToNotifications(authUser, token) {
 
   // Step 4: Send to backend
   await axios.post(
-    "https://veda-bj5v.onrender.com/api/notifications/subscribe",
+    "http://localhost:3000/api/notifications/subscribe",
     {
       ...subscription.toJSON(),
       role: "Student", // ✅ match schema enum
@@ -117,7 +117,7 @@ function urlBase64ToUint8Array(base64String) {
       try {
         let backendVideos = [];
         if (isOnline) {
-          const res = await axios.get("https://veda-bj5v.onrender.com/api/lectures");
+          const res = await axios.get("http://localhost:3000/api/lectures");
           backendVideos = (res.data.data || []).map((v) => ({
             id: v._id || v.id,
             title: v.title,

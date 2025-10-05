@@ -8,7 +8,7 @@ const Admin = () => {
   const [loading, setLoading] = useState(true);
 
   const fetchData = async () => {
-    const response = await fetch("https://veda-bj5v.onrender.com/api/lectures");
+    const response = await fetch("http://localhost:3000/api/lectures");
     const data = await response.json();
     setLectures(data.data);
   };
@@ -20,7 +20,7 @@ function formatSecondsToMinutes(seconds) {
 }
   const fetchStudent = async () => {
     const response = await fetch(
-      "https://veda-bj5v.onrender.com/api/admin/student-info"
+      "http://localhost:3000/api/admin/student-info"
     );
     const data = await response.json();
     setStudentsData(data.data);
@@ -28,7 +28,7 @@ function formatSecondsToMinutes(seconds) {
 
   const fetchTeacher = async () => {
     const response = await fetch(
-      "https://veda-bj5v.onrender.com/api/admin/teacher-info"
+      "http://localhost:3000/api/admin/teacher-info"
     );
     const data = await response.json();
     setTeacherData(data.data);

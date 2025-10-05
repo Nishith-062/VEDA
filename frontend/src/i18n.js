@@ -14,7 +14,7 @@ i18n
         translation: {
           notLoggedIn: "Not Logged In",
           unknownRole: "Unknown role ❌",
-          loginFailed: "Login failed ❌",
+          loginFailed: "Invalid email or password. Please try again. ",
           educationBg: "Education background",
           vedaTitle: "Virtual Education Delivery Assistant",
           vedaSubtitle:

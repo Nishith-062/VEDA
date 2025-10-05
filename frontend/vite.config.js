@@ -6,7 +6,7 @@ import tailwindcss from "@tailwindcss/vite";
 export default defineConfig({
   server: {
     proxy: {
-      "/api": "https://veda-bj5v.onrender.com",
+      "/api": "http://localhost:3000",
     },
   },
   plugins: [
