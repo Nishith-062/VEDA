@@ -8,7 +8,7 @@ import userRoutes from "./routes/user.routes.js";
 import liveRoutes from "./routes/liveClass.routes.js";
 import adminRoutes from './routes/admin.routes.js'
 import notificationSubscriptionRoutes from './routes/subscribeNotification.routes.js'
-
+import path from 'path'
 dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -18,12 +18,18 @@ app.use(cors({
   credentials: true,
 }));
 
+app.use(cors({
+  origin: "http://localhost:5173", // Vite dev server
+  methods: ["GET", "POST", "PUT", "DELETE"],
+  credentials: true
+}));
 
 app.use(express.json());
 app.use(cookieParser());
 
 // your routes after cors
 
+app.use("/uploads", express.static(path.join(process.cwd(), "uploads")));
 app.use("/api/user", userRoutes);
 app.use("/api", lectureRoutes);
 app.use('/api/live-class',liveRoutes);

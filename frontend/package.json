@@ -21,7 +21,7 @@
     "idb": "^8.0.3",
     "js-cookie": "^3.0.5",
     "jwt-decode": "^4.0.0",
-    "livekit-client": "^2.15.7",
+    "livekit-client": "^2.15.8",
     "lucide-react": "^0.544.0",
     "react": "^19.1.1",
     "react-dom": "^19.1.1",
