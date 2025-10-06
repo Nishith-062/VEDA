@@ -1,4 +1,4 @@
-import { MessageSquareMore } from "lucide-react";
+import { MessageSquareMore, X, Send, Sparkles, User, Bot, Minimize2 } from "lucide-react";
 import { useState, useRef, useEffect } from "react";
 
 function Chatbot() {
@@ -6,12 +6,19 @@ function Chatbot() {
   const [messages, setMessages] = useState([
     {
       role: "bot",
-      text:
-        "Hi! You can ask things like: 'Where is language change?', 'How to start live stream?', 'How to upload?'.",
+      text: "Hi! I'm your virtual assistant. I can help you with:",
+      suggestions: [
+        "Language settings",
+        "Live streaming",
+        "Upload materials",
+        "Login & logout"
+      ]
     },
   ]);
   const [input, setInput] = useState("");
+  const [isTyping, setIsTyping] = useState(false);
   const inputRef = useRef(null);
+  const messagesEndRef = useRef(null);
 
   useEffect(() => {
     if (open && inputRef.current) {
@@ -19,204 +26,221 @@ function Chatbot() {
     }
   }, [open]);
 
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [messages]);
+
   const handleSend = () => {
     const text = input.trim();
     if (!text) return;
     const userMsg = { role: "user", text };
 
-    // Simple rule-based replies
-    const lower = text.toLowerCase();
-
-    const rules = [
-      {
-        test: (s) =>
-          s.includes("language") && (s.includes("change") || s.includes("switch") || s.includes("where")),
-        reply:
-          "The language change option is in the top-right corner of the navbar.",
-      },
-      {
-        test: (s) => s.includes("start") && (s.includes("live") || s.includes("stream")),
-        reply:
-          "Teachers can start a live stream by navigating to the Teacher page and using the 'Live' option (e.g., /teacher → Live).",
-      },
-      {
-        test: (s) => (s.includes("join") || s.includes("watch")) && (s.includes("live") || s.includes("class")),
-        reply:
-          "Students can join a live session from the Student page via the 'Live' option (e.g., /student → Live).",
-      },
-      {
-        test: (s) => s.includes("upload") || s.includes("add") || s.includes("submit"),
-        reply:
-          "To upload materials/lectures, use the upload option in the relevant page section (Teacher page typically has upload controls).",
-      },
-      {
-        test: (s) => s.includes("login") || s.includes("sign in"),
-        reply:
-          "Go to the Login page (/login). After login, you'll be redirected based on your role (Student/Teacher/Admin).",
-      },
-      {
-        test: (s) => s.includes("logout") || s.includes("log out"),
-        reply:
-          "Open the user dropdown in the top-right of the navbar and click Logout.",
-      },
-      {
-        test: (s) => s.includes("admin"),
-        reply:
-          "Admins can access the Admin page at /admin after logging in with an Admin account.",
-      },
-      {
-        test: (s) => s.includes("help") || s.includes("support") || s.includes("contact"),
-        reply:
-          "For help, check the footer links (Contact/Privacy/Terms) or reach out to your project admin.",
-      },
-    ];
-
-    let reply =
-      "I'm here to help with quick tips like language change, starting/joining live, uploading, and login/logout.";
-    const found = rules.find((r) => r.test(lower));
-    if (found) reply = found.reply;
-
-    setMessages((prev) => [...prev, userMsg, { role: "bot", text: reply }]);
+    setMessages((prev) => [...prev, userMsg]);
     setInput("");
+    setIsTyping(true);
+
+    // Simulate typing delay
+    setTimeout(() => {
+      const lower = text.toLowerCase();
+
+      const rules = [
+        {
+          test: (s) =>
+            s.includes("language") && (s.includes("change") || s.includes("switch") || s.includes("where") || s.includes("setting")),
+          reply:
+            "🌐 You can change the language from the top-right corner of the navbar. Look for the language selector icon!",
+        },
+        {
+          test: (s) => s.includes("start") && (s.includes("live") || s.includes("stream")),
+          reply:
+            "📹 Teachers can start a live stream by:\n1. Navigate to the Teacher page\n2. Click on the 'Live' option\n3. Configure your stream settings\n4. Click 'Start Streaming'",
+        },
+        {
+          test: (s) => (s.includes("join") || s.includes("watch")) && (s.includes("live") || s.includes("class") || s.includes("stream")),
+          reply:
+            "👥 Students can join live sessions from:\n• Student page → Live section\n• Check the schedule for upcoming streams\n• Click 'Join' when the class is live",
+        },
+        {
+          test: (s) => s.includes("upload") || s.includes("add") || s.includes("submit"),
+          reply:
+            "📤 To upload materials:\n• Go to the Teacher page\n• Find the upload section\n• Select your files\n• Add descriptions and click Upload\n\nSupported formats: PDF, PPT, DOC, images",
+        },
+        {
+          test: (s) => s.includes("login") || s.includes("sign in"),
+          reply:
+            "🔐 Login steps:\n1. Visit the Login page (/login)\n2. Enter your credentials\n3. You'll be redirected based on your role:\n   • Students → Student Dashboard\n   • Teachers → Teacher Dashboard\n   • Admins → Admin Panel",
+        },
+        {
+          test: (s) => s.includes("logout") || s.includes("log out") || s.includes("sign out"),
+          reply:
+            "👋 To logout:\n• Click your profile icon in the top-right\n• Select 'Logout' from the dropdown\n• You'll be redirected to the home page",
+        },
+        {
+          test: (s) => s.includes("admin") || s.includes("administration"),
+          reply:
+            "⚙️ Admin access:\n• Login with Admin credentials\n• Access the Admin panel at /admin\n• Manage users, content, and system settings\n\nNote: Admin privileges required",
+        },
+        {
+          test: (s) => s.includes("help") || s.includes("support") || s.includes("contact"),
+          reply:
+            "💬 Need more help?\n• Check footer links for Contact info\n• Review Privacy Policy and Terms\n• Reach out to your system administrator\n• Email: support@example.com",
+        },
+        {
+          test: (s) => s.includes("hello") || s.includes("hi") || s.includes("hey"),
+          reply:
+            "👋 Hello! How can I assist you today? Feel free to ask about language settings, live streaming, uploads, or account management!",
+        },
+        {
+          test: (s) => s.includes("thank") || s.includes("thanks"),
+          reply:
+            "You're welcome! 😊 If you need anything else, just ask. I'm here to help!",
+        },
+      ];
+
+      let reply = "I can help you with:\n• Language settings 🌐\n• Live streaming 📹\n• Uploading materials 📤\n• Account management 🔐\n\nWhat would you like to know?";
+      const found = rules.find((r) => r.test(lower));
+      if (found) reply = found.reply;
+
+      setIsTyping(false);
+      setMessages((prev) => [...prev, { role: "bot", text: reply }]);
+    }, 800);
   };
 
   const handleKeyDown = (e) => {
-    if (e.key === "Enter") {
+    if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
       handleSend();
     }
   };
 
-  // Inline styles to avoid touching global CSS
-  const styles = {
-    container: {
-      position: "fixed",
-      right: "20px",
-      bottom: "20px",
-      zIndex: 1000,
-      fontFamily:
-        "ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, Noto Sans, Helvetica Neue, Arial",
-    },
-    toggleBtn: {
-      background: "#2563eb", // blue-600
-      color: "white",
-      border: "none",
-      borderRadius: "9999px",
-      padding: "10px 14px",
-      cursor: "pointer",
-      boxShadow: "0 4px 12px rgba(0,0,0,0.15)",
-      fontWeight: 600,
-    },
-    panel: {
-      width: "300px",
-      height: "360px",
-      background: "#ffffff",
-      borderRadius: "12px",
-      boxShadow: "0 12px 24px rgba(0,0,0,0.18)",
-      overflow: "hidden",
-      display: "flex",
-      flexDirection: "column",
-    },
-    header: {
-      padding: "10px 12px",
-      background: "#f8fafc",
-      borderBottom: "1px solid #e5e7eb",
-      display: "flex",
-      justifyContent: "space-between",
-      alignItems: "center",
-      fontWeight: 600,
-    },
-    body: {
-      flex: 1,
-      padding: "10px",
-      overflowY: "auto",
-      background: "#ffffff",
-    },
-    msgUser: {
-      alignSelf: "flex-end",
-      background: "#e0f2fe",
-      color: "#0c4a6e",
-      padding: "8px 10px",
-      borderRadius: "10px",
-      margin: "6px 0",
-      maxWidth: "80%",
-    },
-    msgBot: {
-      alignSelf: "flex-start",
-      background: "#f1f5f9",
-      color: "#0f172a",
-      padding: "8px 10px",
-      borderRadius: "10px",
-      margin: "6px 0",
-      maxWidth: "80%",
-    },
-    footer: {
-      borderTop: "1px solid #e5e7eb",
-      padding: "8px",
-      display: "flex",
-      gap: "8px",
-      background: "#f8fafc",
-    },
-    input: {
-      flex: 1,
-      border: "1px solid #e5e7eb",
-      borderRadius: "8px",
-      padding: "8px 10px",
-      outline: "none",
-    },
-    sendBtn: {
-      background: "#10b981", // emerald-500
-      color: "white",
-      border: "none",
-      borderRadius: "8px",
-      padding: "8px 12px",
-      cursor: "pointer",
-      fontWeight: 600,
-    },
+  const handleSuggestionClick = (suggestion) => {
+    setInput(suggestion);
+    inputRef.current?.focus();
   };
 
   return (
-    <div style={styles.container}>
+    <div className="fixed right-6 bottom-6 z-50 font-sans">
       {!open ? (
-        <button style={styles.toggleBtn} onClick={() => setOpen(true)}>
-         <MessageSquareMore /> Chat
+        <button
+          onClick={() => setOpen(true)}
+          className="group relative bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white rounded-full px-5 py-3 shadow-2xl hover:shadow-purple-500/50 transition-all duration-300 flex items-center gap-2 font-semibold"
+        >
+          <MessageSquareMore className="w-5 h-5" />
+          <span>Chat</span>
+          <div className="absolute -top-1 -right-1 w-3 h-3 bg-green-500 rounded-full border-2 border-white animate-pulse"></div>
         </button>
       ) : (
-        <div style={styles.panel}>
-          <div style={styles.header}>
-            <span>Help Bot</span>
-            <button
-              onClick={() => setOpen(false)}
-              style={{
-                background: "transparent",
-                border: "none",
-                cursor: "pointer",
-                fontSize: 18,
-              }}
-              aria-label="Close chatbot"
-            >
-              ×
-            </button>
-          </div>
-          <div style={styles.body}>
-            <div style={{ display: "flex", flexDirection: "column" }}>
-              {messages.map((m, idx) => (
-                <div key={idx} style={m.role === "user" ? styles.msgUser : styles.msgBot}>
-                  {m.text}
+        <div className="w-96 h-[550px] bg-white rounded-2xl shadow-2xl flex flex-col overflow-hidden border border-gray-200 animate-in slide-in-from-bottom-5 duration-300">
+          {/* Header */}
+          <div className="bg-gradient-to-r from-blue-600 to-purple-600 text-white p-4 flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="relative">
+                <div className="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center backdrop-blur-sm">
+                  <Sparkles className="w-5 h-5" />
                 </div>
-              ))}
+                <div className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-green-400 rounded-full border-2 border-white"></div>
+              </div>
+              <div>
+                <h3 className="font-bold text-lg">Help Assistant</h3>
+                <p className="text-xs text-blue-100">Online • Ready to help</p>
+              </div>
+            </div>
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => setOpen(false)}
+                className="p-1.5 hover:bg-white/20 rounded-lg transition-colors"
+                aria-label="Minimize"
+              >
+                <Minimize2 className="w-4 h-4" />
+              </button>
+              <button
+                onClick={() => setOpen(false)}
+                className="p-1.5 hover:bg-white/20 rounded-lg transition-colors"
+                aria-label="Close"
+              >
+                <X className="w-5 h-5" />
+              </button>
             </div>
           </div>
-          <div style={styles.footer}>
-            <input
-              ref={inputRef}
-              style={styles.input}
-              value={input}
-              placeholder="Type your question..."
-              onChange={(e) => setInput(e.target.value)}
-              onKeyDown={handleKeyDown}
-            />
-            <button style={styles.sendBtn} onClick={handleSend}>Send</button>
+
+          {/* Messages */}
+          <div className="flex-1 overflow-y-auto p-4 bg-gradient-to-b from-gray-50 to-white space-y-4">
+            {messages.map((m, idx) => (
+              <div key={idx} className={`flex gap-3 ${m.role === "user" ? "flex-row-reverse" : ""}`}>
+                <div className={`flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center ${
+                  m.role === "user" 
+                    ? "bg-gradient-to-br from-blue-500 to-blue-600" 
+                    : "bg-gradient-to-br from-purple-500 to-pink-500"
+                }`}>
+                  {m.role === "user" ? (
+                    <User className="w-4 h-4 text-white" />
+                  ) : (
+                    <Bot className="w-4 h-4 text-white" />
+                  )}
+                </div>
+                <div className={`flex flex-col gap-2 max-w-[75%]`}>
+                  <div className={`rounded-2xl px-4 py-3 ${
+                    m.role === "user"
+                      ? "bg-gradient-to-br from-blue-500 to-blue-600 text-white rounded-tr-sm"
+                      : "bg-white text-gray-800 shadow-md border border-gray-100 rounded-tl-sm"
+                  }`}>
+                    <p className="text-sm leading-relaxed whitespace-pre-line">{m.text}</p>
+                  </div>
+                  {m.suggestions && (
+                    <div className="flex flex-wrap gap-2">
+                      {m.suggestions.map((suggestion, i) => (
+                        <button
+                          key={i}
+                          onClick={() => handleSuggestionClick(suggestion)}
+                          className="text-xs px-3 py-1.5 bg-white hover:bg-blue-50 text-blue-600 rounded-full border border-blue-200 hover:border-blue-300 transition-colors shadow-sm"
+                        >
+                          {suggestion}
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </div>
+            ))}
+            {isTyping && (
+              <div className="flex gap-3">
+                <div className="flex-shrink-0 w-8 h-8 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center">
+                  <Bot className="w-4 h-4 text-white" />
+                </div>
+                <div className="bg-white rounded-2xl rounded-tl-sm px-4 py-3 shadow-md border border-gray-100">
+                  <div className="flex gap-1">
+                    <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: "0ms" }}></div>
+                    <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: "150ms" }}></div>
+                    <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: "300ms" }}></div>
+                  </div>
+                </div>
+              </div>
+            )}
+            <div ref={messagesEndRef} />
+          </div>
+
+          {/* Input */}
+          <div className="p-4 bg-white border-t border-gray-200">
+            <div className="flex gap-2">
+              <input
+                ref={inputRef}
+                value={input}
+                onChange={(e) => setInput(e.target.value)}
+                onKeyDown={handleKeyDown}
+                placeholder="Type your question..."
+                className="flex-1 px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm transition-all"
+              />
+              <button
+                onClick={handleSend}
+                disabled={!input.trim()}
+                className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 disabled:from-gray-300 disabled:to-gray-400 text-white rounded-xl px-4 py-3 transition-all duration-200 shadow-lg hover:shadow-xl disabled:shadow-none disabled:cursor-not-allowed"
+              >
+                <Send className="w-5 h-5" />
+              </button>
+            </div>
+            <p className="text-xs text-gray-400 mt-2 text-center">
+              Press Enter to send • Shift+Enter for new line
+            </p>
           </div>
         </div>
       )}
