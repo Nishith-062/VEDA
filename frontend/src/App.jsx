@@ -22,7 +22,6 @@ import OfflineDownloads from "./pages/Offline";
 import SignUp from "./pages/SignUp";
 import VerifyEmailPage from "./pages/VerifyEmailPage";
 import TeacherSlideSync from "./pages/TeacherSlideSync";
-import VerifyEmailPage from "./pages/VerifyEmailPage";
 import { Toaster } from "react-hot-toast";
 function App() {
   const { authUser, checkAuth, isCheckingAuth } = useAuthStore();
