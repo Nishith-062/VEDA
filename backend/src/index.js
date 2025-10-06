@@ -18,11 +18,11 @@ app.use(cors({
   credentials: true,
 }));
 
-app.use(cors({
-  origin: "http://localhost:5173", // Vite dev server
-  methods: ["GET", "POST", "PUT", "DELETE"],
-  credentials: true
-}));
+// app.use(cors({
+//   origin: "http://localhost:5173", // Vite dev server
+//   methods: ["GET", "POST", "PUT", "DELETE"],
+//   credentials: true
+// }));
 
 app.use(express.json());
 app.use(cookieParser());
