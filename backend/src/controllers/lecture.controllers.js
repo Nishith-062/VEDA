@@ -6,6 +6,8 @@ import { fileURLToPath } from "url";
 import cloudinary from "../lib/coudinary.js";
 import Lecture from "../models/lecture.model.js";
 import Course from "../models/course.model.js";
+import multer from "multer";
+import lectureModel from "../models/LectureSlideSyncModel.js";
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
@@ -108,8 +110,53 @@ export const getLectures=async(req,res)=>{
 }
 
 
+// upload lecture video
 
+// Ensure uploads folder exists
+const uploadPath = path.join(process.cwd(), 'slideuploads');
+if (!fs.existsSync(uploadPath)) fs.mkdirSync(uploadPath, { recursive: true });
 
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => cb(null, uploadPath),
+  filename: (req, file, cb) => cb(null, Date.now() + '-' + file.originalname)
+});
+
+const upload = multer({ storage });
+export const uploadSlide = [
+  upload.fields([{ name: "audio", maxCount: 1 }, { name: "slides", maxCount: 50 }]),
+  async (req, res) => {
+    try {
+      console.log("Audio files:", req.files.audio);
+      console.log("Slides files:", req.files.slides);
+
+      const { title, timestamps } = req.body;
+      if (!title || !req.files.audio || !req.files.slides || !timestamps) {
+        return res.status(400).json({ message: "All fields required" });
+      }
+
+      const parsedTimestamps = JSON.parse(timestamps);
+
+      const slides = req.files.slides.map((slide, i) => ({
+        slideNumber: i + 1,
+        slideUrl: `/uploads/${slide.filename}`,
+        startTime: parsedTimestamps[i] || 0,
+      }));
+
+      const lecture = new lectureModel({
+        title,
+        audio: `/uploads/${req.files.audio[0].filename}`,
+        slides
+      });
+
+      await lecture.save();
+
+      res.status(201).json({ message: "Lecture uploaded successfully" });
+    } catch (err) {
+      console.error(err);
+      res.status(500).json({ message: "Server error" });
+    }
+  }
+];
 
 
 

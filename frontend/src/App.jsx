@@ -21,6 +21,7 @@ import OfflineWatcher from "./components/OfflineWatcher";
 import OfflineDownloads from "./pages/Offline";
 import SignUp from "./pages/SignUp";
 import VerifyEmailPage from "./pages/VerifyEmailPage";
+import TeacherSlideSync from "./pages/TeacherSlideSync";
 function App() {
   const { authUser, checkAuth, isCheckingAuth } = useAuthStore();
   const [open, setOpen] = useState(false);
@@ -176,7 +177,16 @@ function App() {
       )
     }
   />
-
+  <Route
+    path="/teacher/slideaudio"
+    element={
+      authUser && authUser.role === "Teacher" ? (
+        <TeacherSlideSync />
+      ) : (
+        <Navigate to="/login" replace />
+      )
+    }
+  />
   {/* Admin Routes */}
   <Route
     path="/admin"

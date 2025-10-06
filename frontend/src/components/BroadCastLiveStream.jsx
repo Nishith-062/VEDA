@@ -1,8 +1,10 @@
 import React from 'react'
 
-const BroadCastLiveStream = () => {
+function BroadCastLiveStream() {
   return (
-    <div>BroadCastLiveStream</div>
+    <div>
+      <h1>This is Live BroaDCast</h1>
+    </div>
   )
 }
 
