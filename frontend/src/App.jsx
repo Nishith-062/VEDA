@@ -21,6 +21,7 @@ import OfflineWatcher from "./components/OfflineWatcher";
 import OfflineDownloads from "./pages/Offline";
 import SignUp from "./pages/SignUp";
 import VerifyEmailPage from "./pages/VerifyEmailPage";
+import { Toaster } from "react-hot-toast";
 function App() {
   const { authUser, checkAuth, isCheckingAuth } = useAuthStore();
   const [open, setOpen] = useState(false);
@@ -83,6 +84,12 @@ function App() {
 
   return (
     <div className="min-h-screen flex flex-col bg-gray-50">
+
+
+      <Toaster
+  position="top-center"
+  reverseOrder={false}
+/>
       {/* Navbar */}
       <Navbar authUser={authUser} />
 

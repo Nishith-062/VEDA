@@ -3,15 +3,17 @@ import axios from "axios";
 import { useAuthStore } from "../store/useAuthStore";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
+import toast from "react-hot-toast";
+import { FileQuestionMark } from "lucide-react";
 
 export default function TeacherManageClass() {
   const navigate = useNavigate();
   const authUser = useAuthStore((state) => state.authUser);
   const token = useAuthStore((state) => state.token);
-  const {t}=useTranslation()
+  const { t } = useTranslation();
   const [title, setTitle] = useState("");
   const [startTime, setStartTime] = useState("");
-  const [classes, setClasses] = useState([]); 
+  const [classes, setClasses] = useState([]);
   const [activeClass, setActiveClass] = useState(null);
   const [loading, setLoading] = useState(false);
   const [loadingClasses, setLoadingClasses] = useState(true); // ✅ skeleton toggle
@@ -28,7 +30,10 @@ export default function TeacherManageClass() {
 
         setClasses(Array.isArray(res.data.classes) ? res.data.classes : []);
       } catch (err) {
-        console.error("Error fetching classes:", err.response?.data || err.message);
+        console.error(
+          "Error fetching classes:",
+          err.response?.data || err.message
+        );
         setClasses([]);
       } finally {
         setLoadingClasses(false); // ✅ stop skeleton
@@ -38,13 +43,17 @@ export default function TeacherManageClass() {
     if (authUser?._id) fetchClasses();
   }, [authUser, token]);
 
-
-
-
   // ✅ Schedule new class
   const handleSchedule = async () => {
     if (!title || !startTime) {
-      alert("Please provide both title and start time");
+      toast((t) => (
+
+        <span className="flex justify-center items-center">
+          <FileQuestionMark className="size-10 text-red-600" />
+          <div>Please provide both title and start time</div>
+          <button className="bg-white hover:bg-gray-100 text-gray-800 font-semibold py-2 px-4 border border-gray-400 rounded shadow" onClick={() => toast.dismiss(t.id)}>Dismiss</button>
+        </span>
+      ));
       return;
     }
 
@@ -56,12 +65,17 @@ export default function TeacherManageClass() {
         { headers: { Authorization: `Bearer ${token}` } }
       );
       setClasses([...classes, res.data.class]); // add new class to list
-      alert("Class scheduled successfully!");
+      toast.success("Class scheduled successfully!");
       setTitle("");
       setStartTime("");
     } catch (err) {
-      console.error("Error scheduling class:", err.response?.data || err.message);
-      alert("Error scheduling class: " + (err.response?.data?.error || err.message));
+      console.error(
+        "Error scheduling class:",
+        err.response?.data || err.message
+      );
+      toast.error(
+        "Error scheduling class: " + (err.response?.data?.error || err.message)
+      );
     } finally {
       setLoading(false);
     }
@@ -129,7 +143,9 @@ export default function TeacherManageClass() {
 
       {/* Scheduled Classes List */}
       <div className="bg-white border rounded-xl shadow p-6 mb-8">
-        <h2 className="text-xl font-semibold mb-4">{t("yourScheduledClasses")}</h2>
+        <h2 className="text-xl font-semibold mb-4">
+          {t("yourScheduledClasses")}
+        </h2>
         {loadingClasses ? (
           <SkeletonList /> // ✅ show skeleton
         ) : classes.length === 0 ? (
@@ -148,7 +164,9 @@ export default function TeacherManageClass() {
                   </p>
                 </div>
                 {cls.status === "liv" ? (
-                  <span className="text-red-600 font-semibold">{t("live")}</span>
+                  <span className="text-red-600 font-semibold">
+                    {t("live")}
+                  </span>
                 ) : (
                   <button
                     onClick={() =>
