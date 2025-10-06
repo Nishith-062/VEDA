@@ -6,12 +6,12 @@ function Chatbot() {
   const [messages, setMessages] = useState([
     {
       role: "bot",
-      text: "Hi! I'm your virtual assistant. I can help you with:",
+      text: "Hi! I'm your virtual assistant. I can help you with / मैं आपकी मदद कर सकता हूँ:",
       suggestions: [
-        "Language settings",
-        "Live streaming",
-        "Upload materials",
-        "Login & logout"
+        "Language settings / भाषा सेटिंग्स",
+        "Live streaming / लाइव स्ट्रीमिंग",
+        "Upload materials / सामग्री अपलोड करें",
+        "Login & logout / लॉगिन और लॉगआउट"
       ]
     },
   ]);
@@ -20,21 +20,66 @@ function Chatbot() {
   const inputRef = useRef(null);
   const messagesEndRef = useRef(null);
 
+  // Auto focus input when chat opens
   useEffect(() => {
-    if (open && inputRef.current) {
-      inputRef.current.focus();
-    }
+    if (open && inputRef.current) inputRef.current.focus();
   }, [open]);
 
+  // Scroll to bottom on new message
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
+  // Multilingual rule definitions
+  const rules = [
+    {
+      keywords: ["language", "change", "switch", "भाषा", "बदलें"],
+      reply: "🌐 English: Change language from top-right in navbar.\n🌐 हिंदी: भाषा बदलने के लिए नेवबार के ऊपर-दाएं कोने में विकल्प चुनें।",
+    },
+    {
+      keywords: ["start", "live", "stream", "शुरू", "लाइव"],
+      reply: "📹 English: Go to Teacher page → Live → Configure → Start Streaming.\n📹 हिंदी: शिक्षक पृष्ठ → लाइव → सेटिंग्स करें → स्ट्रीम शुरू करें।",
+    },
+    {
+      keywords: ["join", "watch", "class", "live", "शामिल", "देखें"],
+      reply: "👥 English: Students join live sessions via Student page → Live section.\n👥 हिंदी: छात्र लाइव सत्र में Student पृष्ठ → लाइव सेक्शन से शामिल हो सकते हैं।",
+    },
+    {
+      keywords: ["upload", "add", "submit", "अपलोड", "जमा करें"],
+      reply: "📤 English: Upload materials from Teacher page → Upload section.\n📤 हिंदी: सामग्री अपलोड करने के लिए शिक्षक पृष्ठ → अपलोड सेक्शन पर जाएं।",
+    },
+    {
+      keywords: ["login", "sign in", "log in", "लॉगिन"],
+      reply: "🔐 English: Visit /login → Enter credentials → Redirected based on role.\n🔐 हिंदी: /login पर जाएं → क्रेडेंशियल दर्ज करें → रोल के अनुसार रीडायरेक्ट।",
+    },
+    {
+      keywords: ["logout", "log out", "sign out", "लॉगआउट"],
+      reply: "👋 English: Click profile → Logout.\n👋 हिंदी: प्रोफ़ाइल पर क्लिक करें → लॉगआउट।",
+    },
+    {
+      keywords: ["admin", "administration", "प्रशासन"],
+      reply: "⚙️ English: Login with Admin credentials → Admin panel.\n⚙️ हिंदी: एडमिन क्रेडेंशियल से लॉगिन करें → एडमिन पैनल।",
+    },
+    {
+      keywords: ["help", "support", "contact", "सहायता"],
+      reply: "💬 English: Check Contact info or email support@example.com.\n💬 हिंदी: संपर्क जानकारी देखें या support@example.com पर ईमेल करें।",
+    },
+    {
+      keywords: ["hello", "hi", "hey", "नमस्ते", "हाय"],
+      reply: "👋 English: Hello! Ask about language, live streaming, uploads, or account.\n👋 हिंदी: नमस्ते! भाषा, लाइव स्ट्रीमिंग, अपलोड या अकाउंट के बारे में पूछें।",
+    },
+    {
+      keywords: ["thank", "thanks", "धन्यवाद"],
+      reply: "You're welcome! 😊 / आपका स्वागत है! 😊",
+    },
+  ];
+
   const handleSend = () => {
     const text = input.trim();
     if (!text) return;
-    const userMsg = { role: "user", text };
 
+    // Add user message
+    const userMsg = { role: "user", text };
     setMessages((prev) => [...prev, userMsg]);
     setInput("");
     setIsTyping(true);
@@ -42,64 +87,10 @@ function Chatbot() {
     // Simulate typing delay
     setTimeout(() => {
       const lower = text.toLowerCase();
-
-      const rules = [
-        {
-          test: (s) =>
-            s.includes("language") && (s.includes("change") || s.includes("switch") || s.includes("where") || s.includes("setting")),
-          reply:
-            "🌐 You can change the language from the top-right corner of the navbar. Look for the language selector icon!",
-        },
-        {
-          test: (s) => s.includes("start") && (s.includes("live") || s.includes("stream")),
-          reply:
-            "📹 Teachers can start a live stream by:\n1. Navigate to the Teacher page\n2. Click on the 'Live' option\n3. Configure your stream settings\n4. Click 'Start Streaming'",
-        },
-        {
-          test: (s) => (s.includes("join") || s.includes("watch")) && (s.includes("live") || s.includes("class") || s.includes("stream")),
-          reply:
-            "👥 Students can join live sessions from:\n• Student page → Live section\n• Check the schedule for upcoming streams\n• Click 'Join' when the class is live",
-        },
-        {
-          test: (s) => s.includes("upload") || s.includes("add") || s.includes("submit"),
-          reply:
-            "📤 To upload materials:\n• Go to the Teacher page\n• Find the upload section\n• Select your files\n• Add descriptions and click Upload\n\nSupported formats: PDF, PPT, DOC, images",
-        },
-        {
-          test: (s) => s.includes("login") || s.includes("sign in"),
-          reply:
-            "🔐 Login steps:\n1. Visit the Login page (/login)\n2. Enter your credentials\n3. You'll be redirected based on your role:\n   • Students → Student Dashboard\n   • Teachers → Teacher Dashboard\n   • Admins → Admin Panel",
-        },
-        {
-          test: (s) => s.includes("logout") || s.includes("log out") || s.includes("sign out"),
-          reply:
-            "👋 To logout:\n• Click your profile icon in the top-right\n• Select 'Logout' from the dropdown\n• You'll be redirected to the home page",
-        },
-        {
-          test: (s) => s.includes("admin") || s.includes("administration"),
-          reply:
-            "⚙️ Admin access:\n• Login with Admin credentials\n• Access the Admin panel at /admin\n• Manage users, content, and system settings\n\nNote: Admin privileges required",
-        },
-        {
-          test: (s) => s.includes("help") || s.includes("support") || s.includes("contact"),
-          reply:
-            "💬 Need more help?\n• Check footer links for Contact info\n• Review Privacy Policy and Terms\n• Reach out to your system administrator\n• Email: support@example.com",
-        },
-        {
-          test: (s) => s.includes("hello") || s.includes("hi") || s.includes("hey"),
-          reply:
-            "👋 Hello! How can I assist you today? Feel free to ask about language settings, live streaming, uploads, or account management!",
-        },
-        {
-          test: (s) => s.includes("thank") || s.includes("thanks"),
-          reply:
-            "You're welcome! 😊 If you need anything else, just ask. I'm here to help!",
-        },
-      ];
-
-      let reply = "I can help you with:\n• Language settings 🌐\n• Live streaming 📹\n• Uploading materials 📤\n• Account management 🔐\n\nWhat would you like to know?";
-      const found = rules.find((r) => r.test(lower));
-      if (found) reply = found.reply;
+      const found = rules.find((r) => r.keywords.some((kw) => lower.includes(kw)));
+      const reply = found
+        ? found.reply
+        : "I can help you with / मैं आपकी मदद कर सकता हूँ:\n• Language settings / भाषा सेटिंग्स\n• Live streaming / लाइव स्ट्रीमिंग\n• Upload materials / सामग्री अपलोड करें\n• Account management / अकाउंट मैनेजमेंट";
 
       setIsTyping(false);
       setMessages((prev) => [...prev, { role: "bot", text: reply }]);
@@ -172,13 +163,9 @@ function Chatbot() {
                     ? "bg-gradient-to-br from-blue-500 to-blue-600" 
                     : "bg-gradient-to-br from-purple-500 to-pink-500"
                 }`}>
-                  {m.role === "user" ? (
-                    <User className="w-4 h-4 text-white" />
-                  ) : (
-                    <Bot className="w-4 h-4 text-white" />
-                  )}
+                  {m.role === "user" ? <User className="w-4 h-4 text-white" /> : <Bot className="w-4 h-4 text-white" />}
                 </div>
-                <div className={`flex flex-col gap-2 max-w-[75%]`}>
+                <div className="flex flex-col gap-2 max-w-[75%]">
                   <div className={`rounded-2xl px-4 py-3 ${
                     m.role === "user"
                       ? "bg-gradient-to-br from-blue-500 to-blue-600 text-white rounded-tr-sm"
@@ -188,13 +175,13 @@ function Chatbot() {
                   </div>
                   {m.suggestions && (
                     <div className="flex flex-wrap gap-2">
-                      {m.suggestions.map((suggestion, i) => (
+                      {m.suggestions.map((s, i) => (
                         <button
                           key={i}
-                          onClick={() => handleSuggestionClick(suggestion)}
+                          onClick={() => handleSuggestionClick(s)}
                           className="text-xs px-3 py-1.5 bg-white hover:bg-blue-50 text-blue-600 rounded-full border border-blue-200 hover:border-blue-300 transition-colors shadow-sm"
                         >
-                          {suggestion}
+                          {s}
                         </button>
                       ))}
                     </div>
@@ -227,7 +214,7 @@ function Chatbot() {
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
                 onKeyDown={handleKeyDown}
-                placeholder="Type your question..."
+                placeholder="Type your question... / अपना प्रश्न टाइप करें..."
                 className="flex-1 px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm transition-all"
               />
               <button
@@ -239,7 +226,7 @@ function Chatbot() {
               </button>
             </div>
             <p className="text-xs text-gray-400 mt-2 text-center">
-              Press Enter to send • Shift+Enter for new line
+              Press Enter to send • Shift+Enter for new line / भेजने के लिए Enter • नई लाइन के लिए Shift+Enter
             </p>
           </div>
         </div>

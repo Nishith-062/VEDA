@@ -1,4 +1,4 @@
-import { Navigate, Route, Routes } from "react-router-dom";
+import { Navigate, Route, Routes, useLocation } from "react-router-dom";
 import "./App.css";
 import Student from "./pages/Student";
 import TeacherPage from "./pages/TeacherPage";
@@ -28,41 +28,51 @@ function App() {
   const { authUser, checkAuth, isCheckingAuth } = useAuthStore();
   const [open, setOpen] = useState(false);
   const dropdownRef = useRef(null);
+  const location = useLocation();
 
   const { t } = useTranslation();
+  const hideNavFooterRoutes = [
+    "/teacher/class/:id/broadcast",
+    "/student/live-class/:id"
+  ];
+
+  // Check if current route matches any route in hideNavFooterRoutes
+  const shouldHideNavFooter = hideNavFooterRoutes.some(routePattern => {
+    const regex = new RegExp(routePattern.replace(":id", "[^/]+"));
+    return regex.test(location.pathname);
+  });
 
   useEffect(() => {
     checkAuth();
   }, []);
 
   useEffect(() => {
-  const tryInstallPwa = async () => {
-    const deferredPrompt = window.__deferredPwaPrompt;
-    if (deferredPrompt) {
-      // Show the install prompt
-      deferredPrompt.prompt();
+    const tryInstallPwa = async () => {
+      const deferredPrompt = window.__deferredPwaPrompt;
+      if (deferredPrompt) {
+        // Show the install prompt
+        deferredPrompt.prompt();
 
-      // Wait for the user choice
-      const choice = await deferredPrompt.userChoice;
-      if (choice.outcome === "accepted") {
-        console.log("PWA installed ✅");
-      } else {
-        console.log("PWA dismissed ❌");
+        // Wait for the user choice
+        const choice = await deferredPrompt.userChoice;
+        if (choice.outcome === "accepted") {
+          console.log("PWA installed ✅");
+        } else {
+          console.log("PWA dismissed ❌");
+        }
+
+        // Clear the saved prompt
+        window.__deferredPwaPrompt = null;
       }
+    };
 
-      // Clear the saved prompt
-      window.__deferredPwaPrompt = null;
-    }
-  };
+    // Delay slightly so the page finishes rendering
+    const timeout = setTimeout(() => {
+      tryInstallPwa();
+    }, 1000);
 
-  // Delay slightly so the page finishes rendering
-  const timeout = setTimeout(() => {
-    tryInstallPwa();
-  }, 1000);
-
-  return () => clearTimeout(timeout);
-}, []);
-
+    return () => clearTimeout(timeout);
+  }, []);
 
   // close dropdown if clicked outside
   useEffect(() => {
@@ -75,169 +85,143 @@ function App() {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-if (isCheckingAuth) {
-  return (
-    <LoadingScreen/>
-  );
-}
-
+  if (isCheckingAuth) {
+    return <LoadingScreen />;
+  }
 
   return (
     <div className="min-h-screen flex flex-col bg-gray-50">
-
-
-      <Toaster
-  position="top-center"
-  reverseOrder={false}
-/>
+      <Toaster position="top-center" reverseOrder={false} />
       {/* Navbar */}
-      <Navbar authUser={authUser} />
-
+      {!shouldHideNavFooter && <Navbar authUser={authUser} />}
 
       {/* Main Routes */}
       <main className="flex-grow">
-          <OfflineWatcher/>
+        <OfflineWatcher />
 
-<Routes>
-  {/* Default / Login Redirect */}
-  <Route path="/" element={<Navigate to="/login" replace />} />
-  <Route
-    path="/login"
-    element={
-      authUser ? (
-        authUser.role === "Teacher" ? (
-          <Navigate to="/teacher" replace />
-        ) : authUser.role === "Admin" ? (
-          <Navigate to="/admin" replace />
-        ) : authUser.role === "Student" ? (
-          <Navigate to="/student" replace />
-        ) : (
-          <Navigate to="/login" replace />
-        )
-      ) : (
-        <LoginPage />
-      )
-    }
-  />
+        <Routes>
+          {/* Default / Login Redirect */}
+          <Route path="/" element={<Navigate to="/login" replace />} />
+          <Route
+            path="/login"
+            element={
+              authUser ? (
+                authUser.role === "Teacher" ? (
+                  <Navigate to="/teacher" replace />
+                ) : authUser.role === "Admin" ? (
+                  <Navigate to="/admin" replace />
+                ) : authUser.role === "Student" ? (
+                  <Navigate to="/student" replace />
+                ) : (
+                  <Navigate to="/login" replace />
+                )
+              ) : (
+                <LoginPage />
+              )
+            }
+          />
 
-  {/* Student Routes */}
-  <Route
-    path="/student"
-    element={
-      authUser && authUser.role === "Student" ? (
-        <Student />
-      ) : (
-        <Navigate to="/login" replace />
-      )
-    }
-  />
-  <Route
-    path="/student/live"
-    element={
-      authUser && authUser.role === "Student" ? (
-        <StudentLiveClasses />
-      ) : (
-        <Navigate to="/login" replace />
-      )
-    }
-  />
-  <Route
-    path="/student/live-class/:id"
-    element={
-      authUser && authUser.role === "Student" ? (
-        <ViewerPage />
-      ) : (
-        <Navigate to="/login" replace />
-      )
-    }
-  />
+          {/* Student Routes */}
+          <Route
+            path="/student"
+            element={
+              authUser && authUser.role === "Student" ? (
+                <Student />
+              ) : (
+                <Navigate to="/login" replace />
+              )
+            }
+          />
+          <Route
+            path="/student/live"
+            element={
+              authUser && authUser.role === "Student" ? (
+                <StudentLiveClasses />
+              ) : (
+                <Navigate to="/login" replace />
+              )
+            }
+          />
+          <Route
+            path="/student/live-class/:id"
+            element={
+              authUser && authUser.role === "Student" ? (
+                <ViewerPage />
+              ) : (
+                <Navigate to="/login" replace />
+              )
+            }
+          />
 
-  {/* Teacher Routes */}
-  <Route
-    path="/teacher"
-    element={
-      authUser && authUser.role === "Teacher" ? (
-        <TeacherPage />
-      ) : (
-        <Navigate to="/login" replace />
-      )
-    }
-  />
-  <Route
-    path="/teacher/live"
-    element={
-      authUser && authUser.role === "Teacher" ? (
-        <TeacherManageClass />
-      ) : (
-        <Navigate to="/login" replace />
-      )
-    }
-  />
-  <Route
-    path="/teacher/class/:id/broadcast"
-    element={
-      authUser && authUser.role === "Teacher" ? (
-        <BroadcastPage />
-      ) : (
-        <Navigate to="/login" replace />
-      )
-    }
-  />
-  <Route
-    path="/teacher/slideaudio"
-    element={
-      authUser && authUser.role === "Teacher" ? (
-        <TeacherSlideSync />
-      ) : (
-        <Navigate to="/login" replace />
-      )
-    }
-  />
-  {/* Admin Routes */}
-  <Route
-    path="/admin"
-    element={
-      authUser && authUser.role === "Admin" ? (
-        <Admin />
-      ) : (
-        <Navigate to="/login" replace />
-      )
-    }
-  />
+          {/* Teacher Routes */}
+          <Route
+            path="/teacher"
+            element={
+              authUser && authUser.role === "Teacher" ? (
+                <TeacherPage />
+              ) : (
+                <Navigate to="/login" replace />
+              )
+            }
+          />
+          <Route
+            path="/teacher/live"
+            element={
+              authUser && authUser.role === "Teacher" ? (
+                <TeacherManageClass />
+              ) : (
+                <Navigate to="/login" replace />
+              )
+            }
+          />
+          <Route
+            path="/teacher/class/:id/broadcast"
+            element={
+              authUser && authUser.role === "Teacher" ? (
+                <BroadcastPage />
+              ) : (
+                <Navigate to="/login" replace />
+              )
+            }
+          />
+          <Route
+            path="/teacher/slideaudio"
+            element={
+              authUser && authUser.role === "Teacher" ? (
+                <TeacherSlideSync />
+              ) : (
+                <Navigate to="/login" replace />
+              )
+            }
+          />
+          {/* Admin Routes */}
+          <Route
+            path="/admin"
+            element={
+              authUser && authUser.role === "Admin" ? (
+                <Admin />
+              ) : (
+                <Navigate to="/login" replace />
+              )
+            }
+          />
 
-  {/* Inside Student Routes section */}
-<Route
-  path="/offline-downloads"
-  element={
-      <OfflineDownloads />
-  }
-/>
+          {/* Inside Student Routes section */}
+          <Route path="/offline-downloads" element={<OfflineDownloads />} />
 
+          <Route path="/signup" element={<SignUp />} />
 
-<Route
-path="/signup"
-element={
-  <SignUp/>
-}/>
+          <Route path="/verify/:token" element={<VerifyEmailPage />} />
 
-        <Route path="/verify/:token" element={<VerifyEmailPage />} />
-
-
-<Route 
-path="*"
-element={
-  <OfflineDownloads/>
-}/>
-
-
-</Routes>
-
+          <Route path="*" element={<OfflineDownloads />} />
+        </Routes>
       </main>
 
       {/* Floating Chatbot */}
-      {authUser && authUser.role==="Teacher" && <Chatbot />}
+      {authUser && authUser.role === "Teacher" && <Chatbot />}
 
       {/* Footer */}
+       {!shouldHideNavFooter &&
       <footer className="bg-white border-t border-gray-200 shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 flex flex-col md:flex-row justify-between items-center gap-4">
           <p className="text-sm text-gray-500">
@@ -255,7 +239,7 @@ element={
             </a>
           </div>
         </div>
-      </footer>
+      </footer>}
     </div>
   );
 }

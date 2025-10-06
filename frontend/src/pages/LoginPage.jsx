@@ -162,7 +162,7 @@ const LoginPage = () => {
                     : "bg-indigo-600 hover:bg-indigo-700 shadow-md"
                 }`}
               >
-                {isLoggingIn ? t("loggingIn") : `Login as ${role} Guest`}
+                {isLoggingIn ? t("loggingIn") : t(`login${role}Guest`)}
               </button>
             ))}
           </form>

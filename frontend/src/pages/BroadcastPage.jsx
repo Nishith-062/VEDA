@@ -135,7 +135,7 @@ const BroadcastPage = () => {
   }
 
   return (
-    <div style={{ height: "70vh" }}>
+    <div style={{ height: "100vh" }}>
       <LiveKitRoom
         audio
         video
