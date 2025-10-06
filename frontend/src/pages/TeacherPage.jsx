@@ -168,6 +168,12 @@ try {
             >
               {t("goLiveNow")}
             </button>
+            <button
+            onClick={()=> navigate("/teacher/slideaudio")}
+            className="mt-8 w-full py-3 rounded-lg bg-blue-500 hover:bg-blue-700 text-white font-semibold shadow transition"
+            >
+               Upload Slide + audio lecture
+            </button>
           </div>
         </div>
       </div>

@@ -20,6 +20,7 @@ import Navbar from "./components/navbar";
 import OfflineWatcher from "./components/OfflineWatcher";
 import OfflineDownloads from "./pages/Offline";
 import SignUp from "./pages/SignUp";
+import TeacherSlideSync from "./pages/TeacherSlideSync";
 import VerifyEmailPage from "./pages/VerifyEmailPage";
 import { Toaster } from "react-hot-toast";
 function App() {
@@ -183,7 +184,16 @@ function App() {
       )
     }
   />
-
+  <Route
+    path="/teacher/slideaudio"
+    element={
+      authUser && authUser.role === "Teacher" ? (
+        <TeacherSlideSync />
+      ) : (
+        <Navigate to="/login" replace />
+      )
+    }
+  />
   {/* Admin Routes */}
   <Route
     path="/admin"
