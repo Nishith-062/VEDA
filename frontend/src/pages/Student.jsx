@@ -12,6 +12,7 @@ import { addVideo, getAllVideos } from "../lib/videoDB";
 import VideoThumbnail from "../components/VideoThumbnail.jsx";
 import ThumbnailSkeleton from "../components/ThumbnailSkeleton.jsx";
 import { useAuthStore } from "../store/useAuthStore.js";
+import toast from "react-hot-toast";
 // Skeleton loader for thumbnails
 
 export default function Student() {
@@ -46,70 +47,98 @@ export default function Student() {
     };
   }, []);
 
-
-
-
-useEffect(() => {
-  if (authUser?.role === "Student" && token) {
-    (async () => {
-      try {
-        await subscribeToNotifications(authUser, token);
-      } catch (err) {
-        console.error("Notification subscription failed:", err);
-      }
-    })();
-  }
-}, [authUser, token]);
-
-
-async function subscribeToNotifications(authUser, token) {
-  // Step 1: Ask for notification permission
-  const permission = await Notification.requestPermission();
-  if (permission !== "granted") {
-    alert("You need to allow notifications!");
-    return;
-  }
-
-  // Step 2: Get service worker
-  const reg = await navigator.serviceWorker.ready;
-  console.log(import.meta.env.VITE_VAPID_PUBLIC_KEY);
-  
-  // Step 3: Subscribe to push
-  const subscription = await reg.pushManager.subscribe({
-    userVisibleOnly: true,
-    applicationServerKey: urlBase64ToUint8Array(
-      import.meta.env.VITE_VAPID_PUBLIC_KEY
-    ),
-  });
-
-  console.log("New subscription:", subscription);
-
-  // Step 4: Send to backend
-  await axios.post(
-    "https://veda-bj5v.onrender.com/api/notifications/subscribe",
-    {
-      ...subscription.toJSON(),
-      role: "Student", // ✅ match schema enum
-      userId: authUser._id,
-    },
-    {
-      headers: token ? { Authorization: `Bearer ${token}` } : {},
+  useEffect(() => {
+    if (authUser?.role === "Student" && token) {
+      (async () => {
+        try {
+          await subscribeToNotifications(authUser, token);
+        } catch (err) {
+          console.error("Notification subscription failed:", err);
+        }
+      })();
     }
-  );
-}
+  }, [authUser, token]);
 
-// helper function
-function urlBase64ToUint8Array(base64String) {
-  const padding = "=".repeat((4 - (base64String.length % 4)) % 4);
-  const base64 = (base64String + padding)
-    .replace(/-/g, "+")
-    .replace(/_/g, "/");
+  async function subscribeToNotifications(authUser, token) {
+    // Step 1: Ask for notification permission
+    const permission = await Notification.requestPermission();
+    if (permission !== "granted") {
+      toast.custom((t) => (
+        <div
+          className={`${
+            t.visible ? "animate-custom-enter" : "animate-custom-leave"
+          } max-w-md w-full bg-white shadow-lg rounded-lg pointer-events-auto flex ring-1 ring-black ring-opacity-5`}
+        >
+          <div className="flex-1 w-0 p-4">
+            <div className="flex items-start">
+              <div className="flex-shrink-0 pt-0.5">
+                <img
+                  className="h-10 w-10 rounded-full"
+                  src="https://cdn-icons-png.flaticon.com/512/1827/1827392.png"
+                  alt="Notification Icon"
+                />
+              </div>
+              <div className="ml-3 flex-1">
+                <p className="text-sm font-medium text-gray-900">
+                  Notifications Required
+                </p>
+                <p className="mt-1 text-sm text-gray-500">
+                  You need to allow notifications!
+                </p>
+              </div>
+            </div>
+          </div>
+          <div className="flex border-l border-gray-200">
+            <button
+              onClick={() => toast.dismiss(t.id)}
+              className="w-full border border-transparent rounded-none rounded-r-lg p-4 flex items-center justify-center text-sm font-medium text-indigo-600 hover:text-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            >
+              Close
+            </button>
+          </div>
+        </div>
+      ));
+      return;
+    }
 
-  const rawData = atob(base64);
-  return Uint8Array.from([...rawData].map((char) => char.charCodeAt(0)));
-}
+    // Step 2: Get service worker
+    const reg = await navigator.serviceWorker.ready;
+    console.log(import.meta.env.VITE_VAPID_PUBLIC_KEY);
 
+    // Step 3: Subscribe to push
+    const subscription = await reg.pushManager.subscribe({
+      userVisibleOnly: true,
+      applicationServerKey: urlBase64ToUint8Array(
+        import.meta.env.VITE_VAPID_PUBLIC_KEY
+      ),
+    });
 
+    console.log("New subscription:", subscription);
+
+    // Step 4: Send to backend
+    await axios.post(
+      "https://veda-bj5v.onrender.com/api/notifications/subscribe",
+      {
+        ...subscription.toJSON(),
+        role: "Student", // ✅ match schema enum
+        userId: authUser._id,
+      },
+      {
+        headers: token ? { Authorization: `Bearer ${token}` } : {},
+      }
+    );
+  }
+
+  // helper function
+  function urlBase64ToUint8Array(base64String) {
+    const padding = "=".repeat((4 - (base64String.length % 4)) % 4);
+    const base64 = (base64String + padding)
+      .replace(/-/g, "+")
+      .replace(/_/g, "/");
+
+    const rawData = atob(base64);
+    return Uint8Array.from([...rawData].map((char) => char.charCodeAt(0)));
+  }
 
   // Load videos
   useEffect(() => {
@@ -117,7 +146,9 @@ function urlBase64ToUint8Array(base64String) {
       try {
         let backendVideos = [];
         if (isOnline) {
-          const res = await axios.get("https://veda-bj5v.onrender.com/api/lectures");
+          const res = await axios.get(
+            "https://veda-bj5v.onrender.com/api/lectures"
+          );
           backendVideos = (res.data.data || []).map((v) => ({
             id: v._id || v.id,
             title: v.title,

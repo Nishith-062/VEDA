@@ -74,14 +74,47 @@ function App() {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  if (isCheckingAuth) {
-    return (
-      <div className="flex items-center justify-center w-full h-screen">
-        <h1>It will take some time to load because we deployed on Vercel and Render</h1>
-        <Loader className="animate-spin size-10 text-center" />
+if (isCheckingAuth) {
+  return (
+    <div className="flex flex-col items-center justify-center w-full h-screen bg-gray-50 text-gray-800">
+      {/* App Logo or Name */}
+      <h1 className="text-2xl font-bold mb-4">Welcome to VEDA 🚀</h1>
+      
+      {/* Loader */}
+      <Loader className="animate-spin size-10 text-blue-500 mb-6" />
+
+      {/* Intro Message */}
+      <p className="mb-6 text-center max-w-md">
+        It may take a moment to load because we are deployed on <b>Vercel</b> and <b>Render</b>.
+        In the meantime, here’s why learners ❤️ VEDA:
+      </p>
+
+      {/* Quick Feature Highlights */}
+      <div className="grid grid-cols-2 gap-4 text-sm max-w-lg">
+        <div className="p-3 bg-white rounded shadow text-center">
+          🎧 <b>Audio First</b>
+          <p>90% less data than video</p>
+        </div>
+        <div className="p-3 bg-white rounded shadow text-center">
+          📶 <b>Adaptive Bitrate</b>
+          <p>No buffering on weak networks</p>
+        </div>
+        <div className="p-3 bg-white rounded shadow text-center">
+          📲 <b>PWA Support</b>
+          <p>Install like an app</p>
+        </div>
+        <div className="p-3 bg-white rounded shadow text-center">
+          🌐 <b>Hindi UI</b>
+          <p>Learn in your own language</p>
+        </div>
       </div>
-    );
-  }
+
+      {/* Small Footer */}
+      <p className="mt-6 text-xs text-gray-500">Loading your experience...</p>
+    </div>
+  );
+}
+
 
   return (
     <div className="min-h-screen flex flex-col bg-gray-50">
