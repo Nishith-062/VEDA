@@ -3,7 +3,8 @@ import express from "express";
 import multer from "multer";
 import path from "path";
 import { fileURLToPath } from "url";
-import { getLectures, postLectures, uploadSlide } from "../controllers/lecture.controllers.js";
+import { getLectures, postLectures } from "../controllers/lecture.controllers.js";
+import { getSlideLectures, uploadSlide } from "../controllers/lecture.controllers.js";
 import { protectRoute } from "../middleware/auth.middleware.js";
 const storage = multer.diskStorage({
   destination: './uploads',
@@ -20,5 +21,6 @@ const __dirname = path.dirname(__filename);
 router.post('/lectures',protectRoute,upload.single("video"),postLectures)
 router.get('/lectures',getLectures)
 router.post('/lectures/upload',uploadSlide)
+router.get('/Audiolectures',getSlideLectures)
 
 export default router

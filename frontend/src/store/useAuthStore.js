@@ -1,6 +1,6 @@
 import { create } from "zustand";
 import axios from "axios";
-
+import toast, { Toaster } from 'react-hot-toast';
 const BASE_URL = "https://veda-bj5v.onrender.com";
 
 export const useAuthStore = create((set, get) => ({
@@ -81,7 +81,7 @@ export const useAuthStore = create((set, get) => ({
 
       return res.data;
     } catch (error) {
-      alert("Account creation failed or email already exists.");
+      toast.error("Account creation failed or email already exists.");
       console.error("Signup error:", error);
       throw error;
     } finally {

@@ -160,5 +160,22 @@ export const uploadSlide = [
 
 
 
+// get audioSlide Lectures
+export const getSlideLectures=async(req,res)=>{
+    try{
+     const Slectures=await lectureModel.find().sort({createdAt:-1}).select("_id title")
+    // consoling the lectures
+    //  console.log(Slectures);
+     res.json(Slectures)
+    }catch(e){
+      console.log(e);
+      res.status(500).json({message:"Server Error"})
+    }
+}
+
+
+
+
+
 
 
