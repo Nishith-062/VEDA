@@ -2,7 +2,7 @@ import axios from "axios";
 import React, { useState, useEffect, useRef } from "react";
 import { useParams } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
-const backendUrl = "http://localhost:3000"; // your backend
+const backendUrl = "https://veda-bj5v.onrender.com"; // your backend
 
 export default function AudioLecturePlayer() {
   const navigate=useNavigate();
