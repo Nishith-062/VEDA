@@ -23,7 +23,7 @@ export default function TeacherSlideSync() {
 
     try {
       const res = await axios.post(
-        "http://localhost:3000/api/lectures/upload",
+        "https://veda-bj5v.onrender.com/api/lectures/upload",
         formData
       );
       alert("Lecture uploaded successfully!");
