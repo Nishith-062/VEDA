@@ -18,7 +18,7 @@ import AudioLecturePlayer from "./AudioLecturePlayer.jsx";
 import { addLecture } from "../lib/videoDB";
 // Skeleton loader for t
 // humbnails
-const backendUrl = "https://veda-bj5v.onrender.com";
+const backendUrl = "http://localhost:3000";
 
 export default function Student() {
   const navigate = useNavigate();
@@ -195,7 +195,7 @@ export default function Student() {
     const FetchAudioLectures = async () => {
       try {
         const res = await axios.get(
-          "https://veda-bj5v.onrender.com/api/lectures/AudioLectures"
+          "http://localhost:3000/api/lectures/AudioLectures"
         );
         console.log(res.data.message);
         console.log(res.data.data);
