@@ -1,6 +1,6 @@
-import axios from "axios";
 import React, { useState, useEffect, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
+import { getLectureById } from "../lib/videoDB";
 
 export default function AudioLecturePlayer({ lecture: propLecture }) {
   const navigate = useNavigate();
@@ -11,13 +11,25 @@ export default function AudioLecturePlayer({ lecture: propLecture }) {
 
   const slides = lecture?.slides || [];
 
-  // Fetch lecture if no prop is provided (page view)
+  // Fetch lecture from IndexedDB if no prop is provided
   useEffect(() => {
     if (!propLecture && id) {
       const fetchLecture = async () => {
         try {
-          const res = await axios.get(`/api/lectures/audio/${id}`);
-          setLecture(res.data.data);
+          // Try local DB first
+          const localLecture = await getLectureById(id);
+          if (localLecture) {
+            // Convert blobs to object URLs
+            const audioUrl = URL.createObjectURL(localLecture.audio);
+            const slidesWithUrls = (localLecture.slides || []).map((s) => ({
+              ...s,
+              slideUrl: URL.createObjectURL(s.blob),
+            }));
+            setLecture({ ...localLecture, audio: audioUrl, slides: slidesWithUrls });
+            return;
+          }
+
+          // If online, you could fetch from backend here (optional)
         } catch (err) {
           console.error("Error fetching lecture:", err);
         }
@@ -58,7 +70,7 @@ export default function AudioLecturePlayer({ lecture: propLecture }) {
       {slides.length > 0 ? (
         <div className="flex justify-center mb-4">
           <img
-            src={slides[currentSlideIndex]?.slideUrl} // Cloudinary URL is absolute
+            src={slides[currentSlideIndex]?.slideUrl}
             alt={`Slide ${currentSlideIndex + 1}`}
             className="w-full max-w-3xl h-auto rounded-lg shadow-md border"
           />
@@ -71,7 +83,7 @@ export default function AudioLecturePlayer({ lecture: propLecture }) {
         <audio
           ref={audioRef}
           controls
-          src={lecture.audio} // Cloudinary URL is absolute
+          src={lecture.audio}
           className="w-full mt-4"
           onTimeUpdate={handleTimeUpdate}
         />
