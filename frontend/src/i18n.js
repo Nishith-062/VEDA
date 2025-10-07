@@ -74,7 +74,7 @@ i18n
           vedaTitle: "Built for Bharat ",
           vedaSubtitle:
             "A lightweight, offline-first classroom platform that works even on 2G.",
-          audioFirst: "Audio First",
+          audioFirst: "Audio First + Slide Synchronization",
           audioFirstDesc: "90% less data than video",
           adaptiveBitrate: "Adaptive Bitrate",
           adaptiveBitrateDesc: "No buffering on weak networks",
@@ -102,7 +102,7 @@ i18n
           zoomNotSupported: "Not supported",
           zoomHDVideo: "HD video",
           zoomEnglishOnly: "English only",
-          vedaAudioFirst: "Audio-first (25MB/hr)",
+          vedaAudioFirst: "Audio-first + Slide Synchronization",
           vedaFullOffline: "Full offline playback",
           vedaAudioOnly: "Audio Only",
           vedaHindiLocal: "Hindi + local support",
@@ -114,7 +114,14 @@ i18n
       startLive: "Start Live",
       classTitle: "Class Title",
       scheduleClass: "Schedule Class",
-      scheduling: "Scheduling..."
+      scheduling: "Scheduling...",
+      audioFirstLectures: "Audio-First + Slide Synchronization Lectures",
+      audioSlideTitle: "Audio + Slide Lectures",
+  audioSlideDescription: "Create voice-guided lectures where your recorded audio automatically syncs with your slides — like a personal classroom presentation.",
+  audioSlideHowItWorksAlert: "This feature lets you record your voice and sync slides automatically!",
+  howItWorks: "How it works?",
+  uploadLecture: "Upload Lecture"
+
         },
       },
       hi: {
@@ -180,7 +187,7 @@ i18n
           loggingIn: "लॉगिन हो रहा है...",
           vedaTitle: "भारत के लिए बनाया गया ",
           vedaSubtitle: "एक हल्का, ऑफ़लाइन-फर्स्ट क्लासरूम प्लेटफ़ॉर्म जो 2G पर भी चलता है।",
-          audioFirst: "ऑडियो फर्स्ट",
+          audioFirst: "ऑडियो-प्राथमिकता और स्लाइड समन्वयन",
           audioFirstDesc: "वीडियो की तुलना में 90% कम डेटा",
           adaptiveBitrate: "एडैप्टिव बिटरेट",
           adaptiveBitrateDesc: "कमज़ोर नेटवर्क पर भी बफ़रिंग नहीं",
@@ -208,7 +215,7 @@ i18n
           zoomNotSupported: "समर्थित नहीं",
           zoomHDVideo: "HD वीडियो",
           zoomEnglishOnly: "केवल अंग्रेज़ी",
-          vedaAudioFirst: "ऑडियो-फर्स्ट (25MB/घंटा)",
+          vedaAudioFirst: "ऑडियो-प्राथमिकता और स्लाइड समन्वयन",
           vedaFullOffline: "पूर्ण ऑफ़लाइन प्लेबैक",
           vedaAudioOnly: "सिर्फ ऑडियो",
           vedaHindiLocal: "हिंदी + स्थानीय सपोर्ट",
@@ -220,7 +227,14 @@ i18n
       startLive: "लाइव शुरू करें",
       classTitle: "क्लास का शीर्षक",
       scheduleClass: "क्लास शेड्यूल करें",
-      scheduling: "शेड्यूल हो रहा है..."
+      scheduling: "शेड्यूल हो रहा है...",
+      audioFirstLectures: "ऑडियो-प्राथमिकता और स्लाइड समन्वयन व्याख्यान",
+        audioSlideTitle: "ऑडियो + स्लाइड व्याख्यान",
+  audioSlideDescription: "ऐसे वॉयस-गाइडेड व्याख्यान बनाएं जिनमें आपकी रिकॉर्ड की गई आवाज़ अपने आप स्लाइड्स के साथ सिंक हो जाती है — जैसे कि एक वास्तविक कक्षा प्रस्तुति।",
+  audioSlideHowItWorksAlert: "यह फीचर आपको अपनी आवाज़ रिकॉर्ड करने और स्लाइड्स को अपने आप सिंक करने की सुविधा देता है!",
+  howItWorks: "यह कैसे काम करता है?",
+  uploadLecture: "व्याख्यान अपलोड करें"
+
         },
       },
     },

@@ -1,110 +1,157 @@
 import React, { useEffect, useMemo, useState } from "react";
-import { getAllVideos } from "../lib/videoDB";
+import { getAllVideos, getAllLectures } from "../lib/videoDB";
 import { useNavigate } from "react-router-dom";
+import { CheckCircle } from "lucide-react";
 
-function makeBlobFromStored(blobLike) {
-  // Accepts:
-  // - Blob -> returns as-is
-  // - data:* string -> return as-is (usable as src)
-  // - Uint8Array / ArrayBuffer -> wrap into Blob (assume video/mp4 if unknown)
+function makeBlobFromStored(blobLike, type = "video/mp4") {
   if (!blobLike) return null;
-  if (typeof blobLike === "string" && blobLike.startsWith("data:")) return blobLike;
   if (blobLike instanceof Blob) return blobLike;
-  if (blobLike instanceof ArrayBuffer) return new Blob([blobLike], { type: "video/mp4" });
-  if (ArrayBuffer.isView(blobLike)) return new Blob([blobLike.buffer || blobLike], { type: "video/mp4" });
+  if (typeof blobLike === "string" && blobLike.startsWith("data:")) {
+    const arr = blobLike.split(",");
+    const mime = arr[0].match(/:(.*?);/)[1];
+    const bstr = atob(arr[1]);
+    let n = bstr.length;
+    const u8arr = new Uint8Array(n);
+    while (n--) u8arr[n] = bstr.charCodeAt(n);
+    return new Blob([u8arr], { type: mime || type });
+  }
+  if (blobLike instanceof ArrayBuffer) return new Blob([blobLike], { type });
+  if (ArrayBuffer.isView(blobLike)) return new Blob([blobLike.buffer], { type });
   return null;
 }
 
-const OfflineDownloads = () => {
+export default function OfflineDownloads() {
   const [videos, setVideos] = useState([]);
+  const [audioLectures, setAudioLectures] = useState([]);
   const navigate = useNavigate();
 
+  // Load offline videos
   useEffect(() => {
-    let cancelled = false;
     (async () => {
       try {
-        const data = (await getAllVideos()) || [];
-        if (!cancelled) setVideos(data);
+        const vids = (await getAllVideos()) || [];
+        setVideos(vids);
       } catch (err) {
-        console.error("Failed to read local videos", err);
-        if (!cancelled) setVideos([]);
+        console.error("❌ Failed to read local videos", err);
       }
     })();
-    return () => {
-      cancelled = true;
-    };
   }, []);
 
-  // Map videos -> stable srcs (object URLs or data URLs). Revoke on unmount
+  // Load offline audio lectures
+  useEffect(() => {
+    (async () => {
+      try {
+        const lectures = (await getAllLectures()) || [];
+        setAudioLectures(lectures);
+      } catch (err) {
+        console.error("❌ Failed to read local audio lectures", err);
+      }
+    })();
+  }, []);
+
+  // Create object URLs for video blobs
   const videoSrcs = useMemo(() => {
-    const created = []; // { id, url, revokeFn }
-    for (const v of videos) {
-      const b = makeBlobFromStored(v.blob);
-      if (!b) {
-        created.push({ id: v.id, url: null, revoke: () => {} });
-        continue;
-      }
-      if (typeof b === "string") {
-        created.push({ id: v.id, url: b, revoke: () => {} });
-      } else {
-        const url = URL.createObjectURL(b);
-        created.push({ id: v.id, url, revoke: () => URL.revokeObjectURL(url) });
-      }
-    }
-    return created;
-    // Recompute whenever videos array identity changes
+    return videos.map((v) => {
+      const blob = makeBlobFromStored(v.blob);
+      if (!blob) return { id: v.id, url: null, revoke: () => {} };
+      const url = URL.createObjectURL(blob);
+      return { id: v.id, url, revoke: () => URL.revokeObjectURL(url) };
+    });
   }, [videos]);
 
-  // Revoke object URLs when component unmounts or videos change
+  // Cleanup URLs on unmount
   useEffect(() => {
     return () => {
-      for (const item of videoSrcs) {
-        if (item.revoke) item.revoke();
-      }
+      videoSrcs.forEach((v) => v.revoke && v.revoke());
     };
   }, [videoSrcs]);
 
+  const totalCount = videos.length + audioLectures.length;
+
   return (
-    <div className="p-4">
-      <h1 className="text-xl font-bold">Offline Downloads</h1>
+    <div className="p-6 bg-gray-50 min-h-screen">
+      <div className="flex items-center justify-between mb-6">
+        <h1 className="text-xl font-bold flex items-center gap-2">
+          <CheckCircle className="w-5 h-5 text-green-600" />
+          Offline Library
+        </h1>
+        <span className="text-sm text-gray-500">
+          {totalCount} lecture{totalCount !== 1 ? "s" : ""}
+        </span>
+      </div>
 
       {!navigator.onLine && (
-        <div className="mt-2 mb-3 text-sm text-yellow-300">
-          You are offline — showing saved videos only.
+        <div className="mb-4 text-yellow-600 text-sm font-medium">
+          ⚠️ You are offline — showing saved lectures only.
         </div>
       )}
 
-      {navigator.onLine && (
-        <button
-          className="bg-blue-600 p-1.5 rounded-sm cursor-pointer text-white mb-4"
-          onClick={() => navigate("/login")}
-        >
-          Home
-        </button>
-      )}
+      {navigator.onLine && ( <button className="bg-blue-600 p-1.5 rounded-sm cursor-pointer text-white mb-4" onClick={() => navigate("/login")} > Home </button> )}
 
-      {videos.length === 0 ? (
-        <p>No saved videos.</p>
+      {totalCount === 0 ? (
+        <p className="text-gray-500 text-center mt-10">
+          No offline lectures found.
+        </p>
       ) : (
-        <div className="grid gap-4 mt-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          {/* Offline Videos */}
           {videos.map((video) => {
             const srcObj = videoSrcs.find((s) => s.id === video.id);
-            const src = srcObj ? srcObj.url : null;
+            const src = srcObj?.url;
             return (
-              <div key={video.id} className="border p-3 rounded-lg">
-                <h2>{video.title || "Untitled"}</h2>
+              <div
+                key={video.id}
+                className="bg-white border rounded-2xl p-4 shadow-sm flex flex-col"
+              >
+                <h2 className="font-semibold text-gray-800 line-clamp-2 mb-3">
+                  {video.title || "Untitled Video"}
+                </h2>
                 {src ? (
-                  <video controls className="w-full mt-2 rounded" src={src} />
+                  <video
+                    controls
+                    className="w-full rounded-lg border border-gray-200"
+                    src={src}
+                  />
                 ) : (
-                  <div className="mt-2 text-sm text-gray-400">Corrupt or unsupported video data</div>
+                  <div className="text-sm text-gray-400 mt-2">
+                    ⚠️ Missing or invalid video data
+                  </div>
                 )}
               </div>
             );
           })}
+
+          {/* Offline Audio + Slide Lectures */}
+          {audioLectures.map((lecture) => (
+            <div
+              key={lecture.id || lecture._id}
+              className="bg-white border rounded-2xl p-4 shadow-sm flex flex-col"
+            >
+              {lecture.slides?.[0]?.blob && (
+                <img
+                  src={URL.createObjectURL(lecture.slides[0].blob)}
+                  alt="Slide"
+                  className="w-full h-40 object-cover rounded-lg mb-3"
+                  onLoad={(e) =>
+                    URL.revokeObjectURL(e.currentTarget.src) // clean after render
+                  }
+                />
+              )}
+              <h3 className="font-semibold text-gray-800 line-clamp-2 mb-4">
+                {lecture.title || "Untitled Lecture"}
+              </h3>
+              <button
+                onClick={() =>
+                  navigate(`/student/Audiolecture/${lecture.id || lecture._id}`)
+                }
+                className="bg-indigo-600 hover:bg-indigo-700 text-white py-2 rounded-full shadow-sm transition"
+              >
+                Listen
+              </button>
+            </div>
+          ))}
         </div>
       )}
     </div>
   );
-};
-
-export default OfflineDownloads;
+}

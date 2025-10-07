@@ -5,6 +5,7 @@ import { useTranslation } from "react-i18next";
 import "../i18n";
 import { useAuthStore } from "../store/useAuthStore";
 import axios from "axios";
+import toast from "react-hot-toast";
 
 export default function TeacherDashboard() {
   const { t } = useTranslation();
@@ -27,37 +28,40 @@ export default function TeacherDashboard() {
     setUploading(true);
     setMessage("");
 
-   const formData = new FormData();
-formData.append("title", title);
-formData.append("video", videoFile);
+    const formData = new FormData();
+    formData.append("title", title);
+    formData.append("video", videoFile);
 
-try {
-  const response = await axios.post(
-    "https://veda-bj5v.onrender.com/api/lectures",
-    formData,
-    {
-      headers: {
-        "Content-Type": "multipart/form-data",
-        Authorization: `Bearer ${token}`, // if required
-      },
+    try {
+      const response = await axios.post(
+        "https://veda-bj5v.onrender.com/api/lectures",
+        formData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+            Authorization: `Bearer ${token}`, // if required
+          },
+        }
+      );
+
+      if (response.data.success) {
+        setMessage(t("uploadSuccess"));
+        setTitle("");
+        setVideoFile(null);
+      } else {
+        setMessage(
+          t("uploadFailed", { error: response.data.error || "Unknown error" })
+        );
+      }
+    } catch (error) {
+      setMessage(
+        t("uploadError", {
+          error: error.response?.data?.error || error.message,
+        })
+      );
+    } finally {
+      setUploading(false);
     }
-  );
-
-  if (response.data.success) {
-    setMessage(t("uploadSuccess"));
-    setTitle("");
-    setVideoFile(null);
-  } else {
-    setMessage(
-      t("uploadFailed", { error: response.data.error || "Unknown error" })
-    );
-  }
-} catch (error) {
-  setMessage(t("uploadError", { error: error.response?.data?.error || error.message }));
-} finally {
-  setUploading(false);
-}
-
   };
 
   return (
@@ -72,9 +76,36 @@ try {
           <p className="mt-3 text-lg text-gray-600">{t("teacherSubtitle")}</p>
         </div>
       </div>
-
       {/* Content */}
       <div className="max-w-6xl mx-auto px-6 py-12 space-y-12">
+        <div className="bg-white border rounded-2xl shadow-lg p-8 flex flex-col items-center text-center hover:shadow-xl transition">
+          <div className="bg-blue-100 p-6 rounded-full mb-4">
+            <Video className="w-10 h-10 text-blue-600" />
+          </div>
+          <h2 className="text-2xl font-semibold text-gray-800 mb-2">
+            {t("audioSlideTitle")}
+          </h2>
+          <p className="text-gray-600 mb-4 text-sm">
+            {t("audioSlideDescription")}
+          </p>
+
+          <div className="flex gap-3">
+            <button
+              onClick={() => navigate("/teacher/slideaudio")}
+              className="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2 rounded-lg font-semibold shadow transition"
+            >
+              {t("uploadLecture")}
+            </button>
+
+            <button
+              onClick={() => toast.success(t("audioSlideHowItWorksAlert"))}
+              className="border border-blue-600 text-blue-600 hover:bg-blue-50 px-5 py-2 rounded-lg font-semibold transition"
+            >
+              {t("howItWorks")}
+            </button>
+          </div>
+        </div>
+
         <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
           {/* Upload Video Section */}
           <div className="bg-white border rounded-xl shadow-lg p-8 flex flex-col justify-between">
@@ -168,12 +199,12 @@ try {
             >
               {t("goLiveNow")}
             </button>
-            <button
+            {/* <button
             onClick={()=> navigate("/teacher/slideaudio")}
             className="mt-8 w-full py-3 rounded-lg bg-blue-500 hover:bg-blue-700 text-white font-semibold shadow transition"
             >
                Upload Slide + audio lecture
-            </button>
+            </button> */}
           </div>
         </div>
       </div>
