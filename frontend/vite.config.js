@@ -4,6 +4,7 @@ import { VitePWA } from "vite-plugin-pwa";
 import tailwindcss from "@tailwindcss/vite";
 
 export default defineConfig({
+    base: "/", // ensure correct base path
   server: {
     proxy: {
       "/api": "https://veda-bj5v.onrender.com",
@@ -38,6 +39,7 @@ export default defineConfig({
       },
       devOptions: {
         enabled: true,
+        type:'module'
       }
     }),
   ],
