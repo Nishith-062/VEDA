@@ -13,8 +13,18 @@ dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+// app.use(cors({
+//   origin: true, // allow any origin
+//   credentials: true,
+// }));
+
 app.use(cors({
-  origin: true, // allow any origin
+  origin: [
+    "https://veda-gamma.vercel.app",
+    "http://localhost:5173",
+        "http://localhost:4173"
+
+  ],
   credentials: true,
 }));
 
