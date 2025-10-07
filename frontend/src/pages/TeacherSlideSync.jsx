@@ -10,34 +10,49 @@ export default function TeacherSlideSync() {
   const [timestamps, setTimestamps] = useState("");
   const [loading, setLoading] = useState(false);
 
-  const handleUpload = async (e) => {
-    e.preventDefault();
-    if (!slides || slides.length === 0) return;
+const handleUpload = async (e) => {
+  e.preventDefault();
+  if (!slides || slides.length === 0) return;
 
-    setLoading(true);
-    const formData = new FormData();
-    formData.append("title", title);
-    formData.append("audio", audio);
-    slides.forEach((file) => formData.append("slides", file));
-    formData.append("timestamps", timestamps);
+  setLoading(true);
 
-    try {
-      const res = await axios.post(
-        "https://veda-bj5v.onrender.com/api/lectures/upload",
-        formData
-      );
-      alert("Lecture uploaded successfully!");
-      setTitle("");
-      setAudio(null);
-      setSlides([]);
-      setTimestamps("");
-    } catch (err) {
-      console.error(err);
-      alert("Upload failed");
-    } finally {
-      setLoading(false);
+  // Parse timestamps string into array
+  let parsedTimestamps;
+  try {
+    parsedTimestamps = JSON.parse(timestamps);
+    if (!Array.isArray(parsedTimestamps)) {
+      throw new Error("Timestamps must be an array");
     }
-  };
+  } catch (err) {
+    alert("Invalid timestamps format! Example: [0, 11, '1:08', '1:25']");
+    setLoading(false);
+    return;
+  }
+
+  const formData = new FormData();
+  formData.append("title", title);
+  formData.append("audio", audio);
+  slides.forEach((file) => formData.append("slides", file));
+  formData.append("timestamps", JSON.stringify(parsedTimestamps));
+
+  try {
+    const res = await axios.post(
+      "https://veda-bj5v.onrender.com/api/lectures/upload",
+      formData
+    );
+    alert("Lecture uploaded successfully!");
+    setTitle("");
+    setAudio(null);
+    setSlides([]);
+    setTimestamps("");
+  } catch (err) {
+    console.error(err);
+    alert("Upload failed");
+  } finally {
+    setLoading(false);
+  }
+};
+
 
   return (
     <div className="max-w-3xl mx-auto p-6">

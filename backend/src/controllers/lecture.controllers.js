@@ -9,10 +9,13 @@ import Course from "../models/course.model.js";
 import multer from "multer";
 import lectureModel from "../models/LectureSlideSyncModel.js";
 import mongoose from "mongoose";
+import sharp from "sharp";
+import streamifier from "streamifier";
+
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// helper to get video duration
+// === Helper to get video duration ===
 const getDuration = (filePath) =>
   new Promise((resolve, reject) => {
     ffmpeg.ffprobe(filePath, (err, metadata) => {
@@ -21,12 +24,11 @@ const getDuration = (filePath) =>
     });
   });
 
+// === Video Upload and Compression ===
 export const postLectures = async (req, res) => {
   try {
     if (!req.file)
-      return res
-        .status(400)
-        .json({ success: false, error: "No file uploaded" });
+      return res.status(400).json({ success: false, error: "No file uploaded" });
 
     const inputPath = req.file.path;
     const fileName = `${Date.now()}_compressed.mp4`;
@@ -35,34 +37,20 @@ export const postLectures = async (req, res) => {
 
     if (!fs.existsSync(outputDir)) fs.mkdirSync(outputDir, { recursive: true });
 
-    // compress video
     ffmpeg(inputPath)
-      .outputOptions([
-        "-c:v libx264",
-        "-preset medium",
-        "-crf 32",
-        "-movflags faststart",
-      ])
+      .outputOptions(["-c:v libx264", "-preset medium", "-crf 32", "-movflags faststart"])
       .save(outputPath)
       .on("end", async () => {
         try {
-          // get duration
           const duration = await getDuration(outputPath);
 
-          // upload to Cloudinary
           const result = await cloudinary.uploader.upload(outputPath, {
             resource_type: "video",
           });
 
-          // find course for faculty
-          const course = await Course.findOne({
-            faculty_id: req.user._id,
-          }).select("_id course_name");
-          if (!course) {
-            throw new Error("Course not found for faculty");
-          }
+          const course = await Course.findOne({ faculty_id: req.user._id }).select("_id course_name");
+          if (!course) throw new Error("Course not found for faculty");
 
-          // save lecture
           const newLecture = new Lecture({
             faculty_id: req.user._id,
             title: req.body.title,
@@ -76,73 +64,59 @@ export const postLectures = async (req, res) => {
 
           await newLecture.save();
 
-          // cleanup temp files
-          fs.unlinkSync(outputPath);
-          fs.unlinkSync(req.file.path);
+          // Cleanup
+          fs.existsSync(outputPath) && fs.unlinkSync(outputPath);
+          fs.existsSync(req.file.path) && fs.unlinkSync(req.file.path);
 
-          return res
-            .status(200)
-            .json({ success: true, url: result.secure_url });
+          res.status(200).json({ success: true, url: result.secure_url });
         } catch (err) {
-          if (fs.existsSync(outputPath)) fs.unlinkSync(outputPath);
-          if (fs.existsSync(req.file.path)) fs.unlinkSync(req.file.path);
-          return res.status(500).json({ success: false, error: err.message });
+          fs.existsSync(outputPath) && fs.unlinkSync(outputPath);
+          fs.existsSync(req.file.path) && fs.unlinkSync(req.file.path);
+          res.status(500).json({ success: false, error: err.message });
         }
       })
       .on("error", (err) => {
-        if (fs.existsSync(outputPath)) fs.unlinkSync(outputPath);
-        if (!res.headersSent)
-          return res
-            .status(500)
-            .json({
-              success: false,
-              error: "Compression failed: " + err.message,
-            });
+        fs.existsSync(outputPath) && fs.unlinkSync(outputPath);
+        !res.headersSent &&
+          res.status(500).json({ success: false, error: "Compression failed: " + err.message });
       });
   } catch (err) {
-    console.log(err);
-    if (req.file?.path && fs.existsSync(req.file.path))
-      fs.unlinkSync(req.file.path);
-    return res.status(500).json({ success: false, error: err.message });
+    console.error(err);
+    fs.existsSync(req.file?.path) && fs.unlinkSync(req.file.path);
+    res.status(500).json({ success: false, error: err.message });
   }
 };
 
+// === Fetch All Video Lectures ===
 export const getLectures = async (req, res) => {
   try {
     const videos = await Lecture.find();
-    // console.log(videos);
-    return res.status(200).json({ success: true, data: videos });
-  } catch (error) {
-    return res.status(400).json({ err: error });
+    res.status(200).json({ success: true, data: videos });
+  } catch (err) {
+    res.status(500).json({ success: false, error: err.message });
   }
 };
 
-// upload lecture video
-
-// Ensure uploads folder exists
-
-// === Multer memory storage (so we don’t save locally) ===
+// === Multer Memory Storage for Slides & Audio ===
 const storage = multer.memoryStorage();
 const upload = multer({ storage });
 
-// === Helper: upload buffer to Cloudinary ===
+// === Helper: Upload Buffer to Cloudinary ===
 const uploadToCloudinary = (buffer, folder, resourceType = "image") => {
   return new Promise((resolve, reject) => {
     const uploadStream = cloudinary.uploader.upload_stream(
-      {
-        folder,
-        resource_type: resourceType,
-      },
+      { folder, resource_type: resourceType },
       (error, result) => {
-        if (error) reject(error);
-        else resolve(result.secure_url);
+        if (error) return reject(error);
+        resolve(result.secure_url);
       }
     );
     streamifier.createReadStream(buffer).pipe(uploadStream);
   });
 };
 
-// === Main Upload Function ===
+// === Upload Slides + Audio ===
+// === Upload Slides + Audio Controller ===
 export const uploadSlide = [
   upload.fields([
     { name: "audio", maxCount: 1 },
@@ -152,33 +126,46 @@ export const uploadSlide = [
     try {
       const { title, timestamps } = req.body;
 
-      if (!title || !req.files.audio || !req.files.slides || !timestamps) {
+      if (!title || !req.files.audio || !req.files.slides || !timestamps)
         return res.status(400).json({ message: "All fields are required" });
-      }
 
+      // Parse timestamps and convert MM:SS or H:MM:SS to seconds
       const parsedTimestamps = JSON.parse(timestamps);
+      const timeStringToSeconds = (timeStr) => {
+        if (typeof timeStr === "number") return timeStr;
+        const parts = timeStr.split(":").map(Number);
+        if (parts.some(isNaN)) return 0; // fallback
+        if (parts.length === 3) return parts[0] * 3600 + parts[1] * 60 + parts[2];
+        if (parts.length === 2) return parts[0] * 60 + parts[1];
+        return parts[0];
+      };
+
       const slides = [];
 
-      // === Convert and Upload Slides to WebP on Cloudinary ===
+      // Convert slides to WebP and upload
       for (let i = 0; i < req.files.slides.length; i++) {
         const slideFile = req.files.slides[i];
-        const webpBuffer = await sharp(slideFile.buffer)
-          .webp({ quality: 80 })
-          .toBuffer();
+        let webpBuffer;
+        try {
+          webpBuffer = await sharp(slideFile.buffer).webp({ quality: 80 }).toBuffer();
+        } catch (err) {
+          console.warn(`Slide ${i + 1} conversion failed, skipping.`, err.message);
+          continue; // skip this slide if conversion fails
+        }
 
         const cloudUrl = await uploadToCloudinary(webpBuffer, "veda/slides");
         slides.push({
           slideNumber: i + 1,
           slideUrl: cloudUrl,
-          startTime: parsedTimestamps[i] || 0,
+          startTime: timeStringToSeconds(parsedTimestamps[i] || 0), // convert to number
         });
       }
 
-      // === Upload Audio File ===
+      // Upload audio
       const audioFile = req.files.audio[0];
       const audioUrl = await uploadToCloudinary(audioFile.buffer, "veda/audio", "auto");
 
-      // === Save Lecture in MongoDB ===
+      // Save lecture to DB
       const lecture = new lectureModel({
         title,
         audio: audioUrl,
@@ -198,14 +185,12 @@ export const uploadSlide = [
   },
 ];
 
-// === Fetch All Lectures ===
+
+// === Fetch All Audio Lectures ===
 export const getAudioLectures = async (req, res) => {
   try {
     const lectures = await lectureModel.find();
-    return res.status(200).json({
-      message: "Successfully retrieved audio lectures",
-      data: lectures,
-    });
+    res.status(200).json({ message: "Successfully retrieved audio lectures", data: lectures });
   } catch (err) {
     console.error("🔥 Fetch Error:", err);
     res.status(500).json({ message: "Server error", error: err.message });
@@ -216,20 +201,13 @@ export const getAudioLectures = async (req, res) => {
 export const getAudioLecturesById = async (req, res) => {
   try {
     const { id } = req.params;
-
-    if (!mongoose.Types.ObjectId.isValid(id)) {
+    if (!mongoose.Types.ObjectId.isValid(id))
       return res.status(400).json({ message: "Invalid lecture ID" });
-    }
 
     const lecture = await lectureModel.findById(id);
-    if (!lecture) {
-      return res.status(404).json({ message: "Lecture not found" });
-    }
+    if (!lecture) return res.status(404).json({ message: "Lecture not found" });
 
-    return res.status(200).json({
-      message: "Successfully fetched lecture by ID",
-      data: lecture,
-    });
+    res.status(200).json({ message: "Successfully fetched lecture by ID", data: lecture });
   } catch (err) {
     console.error("🔥 Fetch by ID Error:", err);
     res.status(500).json({ message: "Server error", error: err.message });
