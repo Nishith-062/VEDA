@@ -234,11 +234,14 @@ export default function Student() {
 
         {/* Audio Lectures (Online) */}
         <FetchStudentAudioLectures
-          selectedAudioLecture={selectedAudioLecture}
-          AudioLectureloading={AudioLectureloading}
-          handleOfflineDownload={handleOfflineDownload}
-          AudioLectures={AudioLectures}
-        />
+  selectedAudioLecture={selectedAudioLecture}
+  AudioLectureloading={AudioLectureloading}
+  handleOfflineDownload={handleOfflineDownload}
+  AudioLectures={AudioLectures}
+  offlineLectures={offlineLectures}     // <-- pass offline lectures
+  downloading={downloading}             // <-- pass downloading state
+/>
+
 
         {/* Combined Offline Section */}
         <section>

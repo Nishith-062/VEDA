@@ -86,6 +86,8 @@ export default function OfflineDownloads() {
         </div>
       )}
 
+      {navigator.onLine && ( <button className="bg-blue-600 p-1.5 rounded-sm cursor-pointer text-white mb-4" onClick={() => navigate("/login")} > Home </button> )}
+
       {totalCount === 0 ? (
         <p className="text-gray-500 text-center mt-10">
           No offline lectures found.
