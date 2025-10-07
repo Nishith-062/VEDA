@@ -120,15 +120,29 @@ export const getLectures = async (req, res) => {
 // upload lecture video
 
 // Ensure uploads folder exists
-const uploadPath = path.join(process.cwd(), "slideuploads");
-if (!fs.existsSync(uploadPath)) fs.mkdirSync(uploadPath, { recursive: true });
 
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => cb(null, uploadPath),
-  filename: (req, file, cb) => cb(null, Date.now() + "-" + file.originalname),
-});
-
+// === Multer memory storage (so we don’t save locally) ===
+const storage = multer.memoryStorage();
 const upload = multer({ storage });
+
+// === Helper: upload buffer to Cloudinary ===
+const uploadToCloudinary = (buffer, folder, resourceType = "image") => {
+  return new Promise((resolve, reject) => {
+    const uploadStream = cloudinary.uploader.upload_stream(
+      {
+        folder,
+        resource_type: resourceType,
+      },
+      (error, result) => {
+        if (error) reject(error);
+        else resolve(result.secure_url);
+      }
+    );
+    streamifier.createReadStream(buffer).pipe(uploadStream);
+  });
+};
+
+// === Main Upload Function ===
 export const uploadSlide = [
   upload.fields([
     { name: "audio", maxCount: 1 },
@@ -136,88 +150,88 @@ export const uploadSlide = [
   ]),
   async (req, res) => {
     try {
-      console.log("Audio files:", req.files.audio);
-      console.log("Slides files:", req.files.slides);
-
       const { title, timestamps } = req.body;
+
       if (!title || !req.files.audio || !req.files.slides || !timestamps) {
-        return res.status(400).json({ message: "All fields required" });
+        return res.status(400).json({ message: "All fields are required" });
       }
 
       const parsedTimestamps = JSON.parse(timestamps);
+      const slides = [];
 
-      const slides = req.files.slides.map((slide, i) => ({
-        slideNumber: i + 1,
-        slideUrl: `/slideuploads/${slide.filename}`,
-        startTime: parsedTimestamps[i] || 0,
-      }));
+      // === Convert and Upload Slides to WebP on Cloudinary ===
+      for (let i = 0; i < req.files.slides.length; i++) {
+        const slideFile = req.files.slides[i];
+        const webpBuffer = await sharp(slideFile.buffer)
+          .webp({ quality: 80 })
+          .toBuffer();
 
+        const cloudUrl = await uploadToCloudinary(webpBuffer, "veda/slides");
+        slides.push({
+          slideNumber: i + 1,
+          slideUrl: cloudUrl,
+          startTime: parsedTimestamps[i] || 0,
+        });
+      }
+
+      // === Upload Audio File ===
+      const audioFile = req.files.audio[0];
+      const audioUrl = await uploadToCloudinary(audioFile.buffer, "veda/audio", "auto");
+
+      // === Save Lecture in MongoDB ===
       const lecture = new lectureModel({
         title,
-        audio: `/slideuploads/${req.files.audio[0].filename}`,
+        audio: audioUrl,
         slides,
       });
 
       await lecture.save();
 
-      res.status(201).json({ message: "Lecture uploaded successfully" });
+      res.status(201).json({
+        message: "Lecture uploaded successfully",
+        data: lecture,
+      });
     } catch (err) {
-      console.error(err);
-      res.status(500).json({ message: "Server error" });
+      console.error("🔥 Cloud Upload Error:", err);
+      res.status(500).json({ message: "Server error", error: err.message });
     }
   },
 ];
 
-// get slide lecture
+// === Fetch All Lectures ===
 export const getAudioLectures = async (req, res) => {
   try {
-    const S_lecture = await lectureModel.find();
-    console.log("Successfully fetched the audio Lectures");
-    return res
-      .status(200)
-      .send({
-        message: "Successfully Retrieved Audio Lectures",
-        data: S_lecture,
-      });
-  } catch (e) {
-    console.log("Error in fetching the Lectures ", e);
-    return res.status(500).json({ message: "Server Error" });
+    const lectures = await lectureModel.find();
+    return res.status(200).json({
+      message: "Successfully retrieved audio lectures",
+      data: lectures,
+    });
+  } catch (err) {
+    console.error("🔥 Fetch Error:", err);
+    res.status(500).json({ message: "Server error", error: err.message });
   }
 };
 
+// === Fetch Lecture by ID ===
 export const getAudioLecturesById = async (req, res) => {
   try {
     const { id } = req.params;
-    console.log("📩 Received ID:", id);
 
     if (!mongoose.Types.ObjectId.isValid(id)) {
-      console.log("❌ Invalid MongoDB ID");
-      return res.status(400).json({
-        message: "Please Verify the Lecture Id",
-      });
+      return res.status(400).json({ message: "Invalid lecture ID" });
     }
 
     const lecture = await lectureModel.findById(id);
-    console.log("🧩 Found Lecture:", lecture);
-
     if (!lecture) {
-      return res.status(404).json({
-        message: "Lecture not found",
-      });
+      return res.status(404).json({ message: "Lecture not found" });
     }
 
-    console.log("✅ Successfully fetched lecture by ID");
     return res.status(200).json({
-      message: "Successfully fetched Lectures By Id",
+      message: "Successfully fetched lecture by ID",
       data: lecture,
     });
-  } catch (e) {
-    console.error("🔥 Error in Fetching Audio Lectures:", e);
-    return res.status(500).json({
-      message: "Server Error",
-      error: e.message,
-    });
+  } catch (err) {
+    console.error("🔥 Fetch by ID Error:", err);
+    res.status(500).json({ message: "Server error", error: err.message });
   }
 };
-
-
