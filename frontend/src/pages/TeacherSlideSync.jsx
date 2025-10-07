@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
+import toast from "react-hot-toast";
 
 export default function TeacherSlideSync() {
     const navigate=useNavigate();
@@ -24,7 +25,7 @@ const handleUpload = async (e) => {
       throw new Error("Timestamps must be an array");
     }
   } catch (err) {
-    alert("Invalid timestamps format! Example: [0, 11, '1:08', '1:25']");
+    toast.error("Invalid timestamps format! Example: [0, 11, '1:08', '1:25']");
     setLoading(false);
     return;
   }
@@ -40,14 +41,14 @@ const handleUpload = async (e) => {
       "https://veda-bj5v.onrender.com/api/lectures/upload",
       formData
     );
-    alert("Lecture uploaded successfully!");
+    toast.success("Lecture uploaded successfully!");
     setTitle("");
     setAudio(null);
     setSlides([]);
     setTimestamps("");
   } catch (err) {
     console.error(err);
-    alert("Upload failed");
+    toast.error("Upload failed");
   } finally {
     setLoading(false);
   }

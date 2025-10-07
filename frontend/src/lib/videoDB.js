@@ -1,3 +1,5 @@
+import toast from "react-hot-toast";
+
 // lib/videoDB.js
 const DB_NAME = "VideoDB";
 const STORE_NAME = "videos";
@@ -83,7 +85,7 @@ export async function checkStorageQuota() {
       console.log(`💾 Storage usage: ${percent}% (${usage} / ${quota} bytes)`);
 
       if (percent > 90) {
-        alert("⚠️ Storage almost full — please delete some downloads to continue.");
+        toast.error("⚠️ Storage almost full — please delete some downloads to continue.");
         return false;
       }
     } catch (err) {

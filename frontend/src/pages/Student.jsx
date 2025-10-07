@@ -9,6 +9,7 @@ import AudioLecturePlayer from "./AudioLecturePlayer.jsx";
 import { useAuthStore } from "../store/useAuthStore.js";
 import { addVideo, getAllVideos, addLecture } from "../lib/videoDB";
 import toast from "react-hot-toast";
+import { showNotificationAlert } from "../components/showNotificationAlert.jsx";
 
 const backendUrl = "https://veda-bj5v.onrender.com";
 
@@ -66,7 +67,7 @@ export default function Student() {
 
   async function subscribeToNotifications(authUser, token) {
     const permission = await Notification.requestPermission();
-    if (permission !== "granted") return alert("You need to allow notifications!");
+    if (permission !== "granted") return showNotificationAlert();
 
     const reg = await navigator.serviceWorker.ready;
     const subscription = await reg.pushManager.subscribe({
