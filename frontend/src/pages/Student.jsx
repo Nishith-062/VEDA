@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
-import { useNavigate } from "react-router-dom";
+import { data, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { useTranslation } from "react-i18next";
 import {
@@ -14,6 +14,11 @@ import ThumbnailSkeleton from "../components/ThumbnailSkeleton.jsx";
 import { useAuthStore } from "../store/useAuthStore.js";
 import toast from "react-hot-toast";
 // Skeleton loader for thumbnails
+import AudioLecturePlayer from "./AudioLecturePlayer.jsx";
+import { addLecture } from "../lib/videoDB";
+// Skeleton loader for t
+// humbnails
+const backendUrl = "https://veda-bj5v.onrender.com";
 
 export default function Student() {
   const navigate = useNavigate();
@@ -26,7 +31,9 @@ export default function Student() {
   const [downloading, setDownloading] = useState({});
   const [downloadedIds, setDownloadedIds] = useState(new Set());
   const createdObjectUrlsRef = useRef(new Set());
-
+  const [AudioLectures, setAudioLectures] = useState([]);
+  const [AudioLectureloading, setAudioLectureloading] = useState(true);
+  const [selectedAudioLecture, setSelectedAudioLecture] = useState(null);
   // Cleanup object URLs
   useEffect(() => {
     return () => {
@@ -63,41 +70,7 @@ export default function Student() {
     // Step 1: Ask for notification permission
     const permission = await Notification.requestPermission();
     if (permission !== "granted") {
-      toast.custom((t) => (
-        <div
-          className={`${
-            t.visible ? "animate-custom-enter" : "animate-custom-leave"
-          } max-w-md w-full bg-white shadow-lg rounded-lg pointer-events-auto flex ring-1 ring-black ring-opacity-5`}
-        >
-          <div className="flex-1 w-0 p-4">
-            <div className="flex items-start">
-              <div className="flex-shrink-0 pt-0.5">
-                <img
-                  className="h-10 w-10 rounded-full"
-                  src="https://cdn-icons-png.flaticon.com/512/1827/1827392.png"
-                  alt="Notification Icon"
-                />
-              </div>
-              <div className="ml-3 flex-1">
-                <p className="text-sm font-medium text-gray-900">
-                  Notifications Required
-                </p>
-                <p className="mt-1 text-sm text-gray-500">
-                  You need to allow notifications!
-                </p>
-              </div>
-            </div>
-          </div>
-          <div className="flex border-l border-gray-200">
-            <button
-              onClick={() => toast.dismiss(t.id)}
-              className="w-full border border-transparent rounded-none rounded-r-lg p-4 flex items-center justify-center text-sm font-medium text-indigo-600 hover:text-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500"
-            >
-              Close
-            </button>
-          </div>
-        </div>
-      ));
+      alert("You need to allow notifications!");
       return;
     }
 
@@ -217,6 +190,63 @@ export default function Student() {
   }
   const { t } = useTranslation();
 
+  // Api Call for AudioLecture
+  useEffect(() => {
+    const FetchAudioLectures = async () => {
+      try {
+        const res = await axios.get(
+          "https://veda-bj5v.onrender.com/api/lectures/AudioLectures"
+        );
+        console.log(res.data.message);
+        console.log(res.data.data);
+        setAudioLectures(res.data.data);
+      } catch (e) {
+        console.log("Error in Fetching Auion Lectures", e);
+      } finally {
+        setAudioLectureloading(false);
+      }
+    };
+    FetchAudioLectures();
+  }, []);
+
+// handle Offline Download
+const handleOfflineDownload=async(lecture)=>{
+    try {
+    setDownloading((prev) => ({ ...prev, [lecture._id]: true }));
+
+    // 1️⃣ Download audio
+    const audioRes = await axios.get(`${backendUrl}${lecture.audio}`, { responseType: "blob" });
+
+    // 2️⃣ Download slides
+    const slideBlobs = await Promise.all(
+      lecture.slides.map(async (slide) => {
+        const res = await axios.get(`${backendUrl}${slide.slideUrl}`, { responseType: "blob" });
+        return { blob: res.data, startTime: slide.startTime };
+      })
+    );
+
+    // 3️⃣ Save lecture offline in IndexedDB
+    const lectureObj = {
+      id: lecture._id,
+      title: lecture.title,
+      audio: audioRes.data,
+      slides: slideBlobs,
+    };
+
+    await addLecture(lectureObj);
+    alert("Successfully Saved Audio Lecture Offline")
+    // 4️⃣ Update local state for offline use
+    // setOfflineVideos((prev) => [...prev, lectureObj]);
+    // setDownloadedIds((prev) => new Set(prev).add(lecture._id));
+  } catch (err) {
+    console.error("Download lecture failed:", err);
+  } finally {
+    setDownloading((prev) => ({ ...prev, [lecture._id]: false }));
+  }
+}
+
+
+
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Hero Section */}
@@ -253,6 +283,69 @@ export default function Student() {
             Upcoming Live Classes
           </button>
         </div>
+        {/* Audio + SLides Lectures */}
+        <section>
+          <div className="flex items-center justify-between mb-6">
+            <h2 className="text-xl font-semibold text-gray-750 flex items-center gap-2">
+              <VideoIcon className="w-5 h-5 text-blue-600" />
+              Audio+Slide Lectures
+            </h2>
+            <span></span>
+          </div>
+          {AudioLectureloading ? (
+            <div className="text-center py-10 bg-white border rounded-2xl shadow-sm">
+              <p>Loading Audio Lectures</p>
+            </div>
+          ) : AudioLectures.length == 0 ? (
+            <p>No Videos Uploaded</p>
+          ) : (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 p-3">
+              {AudioLectures.map((lecture) => (
+                <div
+                  key={lecture._id}
+                  className="bg-white border rounded-2xl p-1 shadow-sm flex flex-col"
+                >
+                  {/* First slide of Lecture */}
+                  {lecture.slides && lecture.slides.length > 0 && (
+                    <img
+                      src={`${backendUrl}${lecture.slides[0].slideUrl}`}
+                      alt="First Slide"
+                      className="w-full h-40 "
+                    />
+                  )}
+                  {console.log(lecture.slides[0].slideUrl)}
+                  <h3 className="font-medium text-gray-800 mb-2 p-4">
+                    {lecture.title}
+                  </h3>
+
+                  {selectedAudioLecture && (
+                    <AudioLecturePlayer lecture={selectedAudioLecture} />
+                  )}
+                  {/* <button 
+                  className="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800"
+                  onClick={()=>setSelectedAudioLecture(lecture)}>Watch</button> */}
+                  <div className="flex gap-3 mt-4 px-4">
+                    <button
+                      onClick={() => navigate(`/student/Audiolecture/${lecture._id}`)}
+                      className="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white py-2 m-3 rounded-full font-medium shadow-sm transition"
+                    >
+                      Watch
+                    </button>
+                    <button
+                      onClick={()=>{handleOfflineDownload(lecture)}
+                      }
+                      className="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-700 py-2 m-3 rounded-full font-medium shadow-sm transition flex items-center justify-center gap-2"
+                    
+                    >
+                      <Download className="w-4 h-4" />
+                      Download
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </section>
 
         {/* Downloaded Videos Section */}
         <section>

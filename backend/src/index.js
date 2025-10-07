@@ -29,7 +29,7 @@ app.use(cookieParser());
 
 // your routes after cors
 
-app.use("/uploads", express.static(path.join(process.cwd(), "uploads")));
+app.use("/slideuploads", express.static(path.join(process.cwd(), "slideuploads")));
 app.use("/api/user", userRoutes);
 app.use("/api", lectureRoutes);
 app.use('/api/live-class',liveRoutes);

@@ -24,6 +24,7 @@ import VerifyEmailPage from "./pages/VerifyEmailPage";
 import TeacherSlideSync from "./pages/TeacherSlideSync";
 import { Toaster } from "react-hot-toast";
 import LoadingScreen from "./components/LoadingScreen";
+import AudioLecturePlayer from "./pages/AudioLecturePlayer";
 function App() {
   const { authUser, checkAuth, isCheckingAuth } = useAuthStore();
   const [open, setOpen] = useState(false);
@@ -152,6 +153,47 @@ function App() {
               )
             }
           />
+  {/* Student Routes */}
+  <Route
+    path="/student"
+    element={
+      authUser && authUser.role === "Student" ? (
+        <Student />
+      ) : (
+        <Navigate to="/login" replace />
+      )
+    }
+  />
+  <Route
+    path="/student/live"
+    element={
+      authUser && authUser.role === "Student" ? (
+        <StudentLiveClasses />
+      ) : (
+        <Navigate to="/login" replace />
+      )
+    }
+  />
+  <Route
+    path="/student/live-class/:id"
+    element={
+      authUser && authUser.role === "Student" ? (
+        <ViewerPage />
+      ) : (
+        <Navigate to="/login" replace />
+      )
+    }
+  />
+   <Route
+    path="/student/Audiolecture/:id"
+    element={
+      authUser && authUser.role === "Student" ? (
+        <AudioLecturePlayer />
+      ) : (
+        <Navigate to="/login" replace />
+      )
+    }
+  />
 
           {/* Teacher Routes */}
           <Route

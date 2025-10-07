@@ -6,6 +6,7 @@ import { fileURLToPath } from "url";
 import { getLectures, postLectures } from "../controllers/lecture.controllers.js";
 import { getSlideLectures, uploadSlide } from "../controllers/lecture.controllers.js";
 import { protectRoute } from "../middleware/auth.middleware.js";
+import { getAudioLectures ,getAudioLecturesById} from "../controllers/lecture.controllers.js";
 const storage = multer.diskStorage({
   destination: './uploads',
   filename: (req, file, cb) => cb(null, Date.now() + '-' + file.originalname)
@@ -22,5 +23,8 @@ router.post('/lectures',protectRoute,upload.single("video"),postLectures)
 router.get('/lectures',getLectures)
 router.post('/lectures/upload',uploadSlide)
 router.get('/Audiolectures',getSlideLectures)
+router.get('/lectures/AudioLectures',getAudioLectures);
+router.get('/lectures/AudioLecturesById/:id',getAudioLecturesById);
 
 export default router
+
