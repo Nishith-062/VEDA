@@ -2,41 +2,87 @@ import React, { useState } from "react";
 import { useAuthStore } from "../store/useAuthStore";
 
 const SignUp = () => {
-  const { signup, isSigningUp } = useAuthStore();
+  const { signup, resendVerificationEmail, isSigningUp } = useAuthStore();
   const [formData, setFormData] = useState({
     fullName: "",
     email: "",
     password: "",
-    role: "Student", // default role
+    role: "Student",
     course_name: "",
+    description: "",
   });
-  const [message, setMessage] = useState(""); // For showing success or error messages
+
+  const [message, setMessage] = useState(""); // success/error
+  const [isError, setIsError] = useState(false); 
+  const [showResend, setShowResend] = useState(false); // show resend button for unverified users
 
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({
       ...prev,
       [name]: value,
-      ...(name === "role" && value !== "Teacher" ? { course_name: "" } : {}),
+      ...(name === "role" && value !== "Teacher" ? { course_name: "", description: "" } : {}),
     }));
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setMessage(""); // Reset message
+    setMessage("");
+    setIsError(false);
+    setShowResend(false);
+
+    // Teacher must provide course_name
     if (formData.role === "Teacher" && !formData.course_name.trim()) {
       setMessage("Please enter your course name.");
+      setIsError(true);
       return;
     }
 
     try {
-      const res = await signup(formData); // your store should return message from backend
-      setMessage(
-        res?.message || "Account created! Check your email to verify your account."
-      );
+      const res = await signup(formData); // call backend
+
+      if (res?.message) {
+        setMessage(res.message);
+        setIsError(false);
+      } else {
+        setMessage("Account created! Check your email to verify your account.");
+        setIsError(false);
+      }
     } catch (err) {
       console.error(err);
-      setMessage("Signup failed. Email may already exist.");
+
+      // Backend returns structured message
+      const backendMessage = err?.response?.data?.message;
+
+      if (backendMessage?.includes("already exists") && backendMessage?.includes("not verified")) {
+        setMessage(
+          "Email exists but not verified. You can check the verification email."
+        );
+        setIsError(true);
+        setShowResend(true); // show resend button
+      } else {
+        setMessage(
+          backendMessage ||
+            "Signup failed. Please check your email address or try again."
+        );
+        setIsError(true);
+      }
+    }
+  };
+
+  const handleResend = async () => {
+    try {
+      const res = await resendVerificationEmail(formData.email);
+      setMessage(res?.message || "Verification email resent. Check your inbox.");
+      setIsError(false);
+      setShowResend(false);
+    } catch (err) {
+      console.error(err);
+      setMessage(
+        err?.response?.data?.message ||
+          "Failed to resend verification email. Try again later."
+      );
+      setIsError(true);
     }
   };
 
@@ -46,7 +92,11 @@ const SignUp = () => {
         <h2 className="text-2xl font-bold mb-6 text-center">Create Account</h2>
 
         {message && (
-          <div className="bg-blue-100 text-blue-800 p-3 rounded mb-4 text-center">
+          <div
+            className={`p-3 rounded mb-4 text-center ${
+              isError ? "bg-red-100 text-red-700" : "bg-green-100 text-green-700"
+            }`}
+          >
             {message}
           </div>
         )}
@@ -107,18 +157,31 @@ const SignUp = () => {
           </div>
 
           {formData.role === "Teacher" && (
-            <div>
-              <label className="block text-gray-700 mb-1">Course Name</label>
-              <input
-                type="text"
-                name="course_name"
-                value={formData.course_name}
-                onChange={handleChange}
-                placeholder="Enter your course name"
-                className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
-                required
-              />
-            </div>
+            <>
+              <div>
+                <label className="block text-gray-700 mb-1">Course Name</label>
+                <input
+                  type="text"
+                  name="course_name"
+                  value={formData.course_name}
+                  onChange={handleChange}
+                  placeholder="Enter your course name"
+                  className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
+                  required
+                />
+              </div>
+
+              <div>
+                <label className="block text-gray-700 mb-1">Course Description</label>
+                <textarea
+                  name="description"
+                  value={formData.description}
+                  onChange={handleChange}
+                  placeholder="Optional description"
+                  className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
+                />
+              </div>
+            </>
           )}
 
           <button
@@ -133,6 +196,15 @@ const SignUp = () => {
             {isSigningUp ? "Signing Up..." : "Sign Up"}
           </button>
         </form>
+
+        {showResend && (
+          <button
+            onClick={handleResend}
+            className="w-full mt-3 py-2 rounded-lg font-semibold bg-yellow-500 hover:bg-yellow-600 text-white"
+          >
+            Resend Verification Email
+          </button>
+        )}
 
         <p className="text-center text-gray-500 mt-4">
           Already have an account?{" "}

@@ -5,21 +5,25 @@ import bcrypt from "bcryptjs";
 import crypto from "crypto";
 import { sendVerificationEmail } from "../lib/sendEmail.js";
 
+
 export const signup = async (req, res) => {
-  const { role, fullName, email, password, course_name, description } =
-    req.body;
+  const { role, fullName, email, password, course_name, description } = req.body;
+
+  // 1️⃣ Validate input
+  if (!role || !fullName || !email || !password)
+    return res.status(400).json({ message: "All fields are required" });
 
   try {
-    if (!fullName || !email || !password)
-      return res.status(400).json({ message: "All fields are required" });
-
+    // 2️⃣ Check if user already exists
     const existingUser = await User.findOne({ email });
     if (existingUser)
       return res.status(400).json({ message: "Email already exists" });
 
+    // 3️⃣ Hash password
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(password, salt);
 
+    // 4️⃣ Create user object (not saved yet)
     const verificationToken = crypto.randomBytes(32).toString("hex");
     const verificationTokenExpires = Date.now() + 15 * 60 * 1000; // 15 mins
 
@@ -28,31 +32,46 @@ export const signup = async (req, res) => {
       fullName,
       email,
       password: hashedPassword,
+      isVerified: false, // user is unverified by default
       verificationToken,
       verificationTokenExpires,
     });
+
+    // 5️⃣ Try sending verification email
+try {
+  await sendVerificationEmail(email, verificationToken);
+} catch (err) {
+  console.error("Failed to send verification email:", err);
+  return res.status(500).json({
+    message: "Failed to send verification email. Please check your email address and try again."
+  });
+}
+
+
+    // 6️⃣ Save user after successful email
     await newUser.save();
+    console.log("New user created:", newUser.email);
 
-    // ✅ send mail
-    await sendVerificationEmail(email, verificationToken);
-
+    // 7️⃣ If teacher, create course
     if (role === "Teacher" && course_name) {
       const newCourse = new Course({
         faculty_id: newUser._id,
         course_name,
-        description,
+        description: description || "",
       });
       await newCourse.save();
     }
 
+    // 8️⃣ Respond to client
     res.status(201).json({
       message: "Account created! Check your email for verification link.",
     });
   } catch (error) {
-    console.log("Error in signup:", error);
+    console.error("Error in signup:", error);
     res.status(500).json({ message: "Internal Server Error" });
   }
 };
+
 
 export const login = async (req, res) => {
   const { email, password } = req.body;
