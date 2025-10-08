@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { useAuthStore } from "../store/useAuthStore";
 
 const SignUp = () => {
-  const { signup, resendVerificationEmail, isSigningUp } = useAuthStore();
+  const { signup, isSigningUp } = useAuthStore();
   const [formData, setFormData] = useState({
     fullName: "",
     email: "",
@@ -14,7 +14,6 @@ const SignUp = () => {
 
   const [message, setMessage] = useState(""); // success/error
   const [isError, setIsError] = useState(false); 
-  const [showResend, setShowResend] = useState(false); // show resend button for unverified users
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -29,7 +28,6 @@ const SignUp = () => {
     e.preventDefault();
     setMessage("");
     setIsError(false);
-    setShowResend(false);
 
     // Teacher must provide course_name
     if (formData.role === "Teacher" && !formData.course_name.trim()) {
@@ -51,38 +49,19 @@ const SignUp = () => {
     } catch (err) {
       console.error(err);
 
-      // Backend returns structured message
       const backendMessage = err?.response?.data?.message;
 
       if (backendMessage?.includes("already exists") && backendMessage?.includes("not verified")) {
         setMessage(
-          "Email exists but not verified. You can check the verification email."
+          "Email exists but not verified. Please check your inbox and verify your email."
         );
         setIsError(true);
-        setShowResend(true); // show resend button
       } else {
         setMessage(
-          backendMessage ||
-            "Signup failed. Please check your email address or try again."
+          backendMessage || "Signup failed. Please check your email address or try again."
         );
         setIsError(true);
       }
-    }
-  };
-
-  const handleResend = async () => {
-    try {
-      const res = await resendVerificationEmail(formData.email);
-      setMessage(res?.message || "Verification email resent. Check your inbox.");
-      setIsError(false);
-      setShowResend(false);
-    } catch (err) {
-      console.error(err);
-      setMessage(
-        err?.response?.data?.message ||
-          "Failed to resend verification email. Try again later."
-      );
-      setIsError(true);
     }
   };
 
@@ -196,15 +175,6 @@ const SignUp = () => {
             {isSigningUp ? "Signing Up..." : "Sign Up"}
           </button>
         </form>
-
-        {showResend && (
-          <button
-            onClick={handleResend}
-            className="w-full mt-3 py-2 rounded-lg font-semibold bg-yellow-500 hover:bg-yellow-600 text-white"
-          >
-            Resend Verification Email
-          </button>
-        )}
 
         <p className="text-center text-gray-500 mt-4">
           Already have an account?{" "}
