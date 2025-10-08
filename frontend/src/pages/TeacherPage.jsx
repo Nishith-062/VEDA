@@ -105,84 +105,64 @@ export default function TeacherDashboard() {
               {t("howItWorks")}
             </button>
           </div>
-          {isOpen && (
-            <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-              <div className="bg-white rounded-2xl p-4 max-w-lg mx-4 relative shadow-xl">
-                <h3 className="text-xl font-semibold mb-3 text-center">
-                  {t("audioSlideTitle")} - How It Works
-                </h3>
+      {isOpen && (
+  <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
+    <div className="bg-white rounded-2xl p-4 max-w-lg mx-4 relative shadow-xl">
+      <h3 className="text-xl font-semibold mb-3 text-center">
+        {t("audioSlideTitle")} - {t("howItWorks")}
+      </h3>
 
-                <p className="text-gray-700 mb-4 text-center text-sm">
-                  Upload a lecture audio and sync it with slides so students can
-                  follow along while listening.
-                </p>
+      <p className="text-gray-700 mb-4 text-center text-sm">
+        {t("audioSlideDescription")} 
+        {/* Example translation key: "Upload a lecture audio and sync it with slides so students can follow along while listening." */}
+      </p>
 
-                {/* Input explanations */}
-                <div className="space-y-2">
-                  <div className="bg-gray-50 p-2 rounded-md border-l-4 border-blue-600">
-                    <h4 className="font-semibold text-gray-800 text-sm">
-                      Title
-                    </h4>
-                    <p className="text-gray-600 text-xs">
-                      Enter the lecture title to identify your lecture.
-                    </p>
-                  </div>
+      {/* Input explanations */}
+      <div className="space-y-2">
+        <div className="bg-gray-50 p-2 rounded-md border-l-4 border-blue-600">
+          <h4 className="font-semibold text-gray-800 text-sm">{t("titleLabel")}</h4>
+          <p className="text-gray-600 text-xs">{t("titleDescription")}</p>
+        </div>
 
-                  <div className="bg-gray-50 p-2 rounded-md border-l-4 border-blue-600">
-                    <h4 className="font-semibold text-gray-800 text-sm">
-                      Audio File
-                    </h4>
-                    <p className="text-gray-600 text-xs">
-                      Upload the lecture audio file here.
-                    </p>
-                  </div>
+        <div className="bg-gray-50 p-2 rounded-md border-l-4 border-blue-600">
+          <h4 className="font-semibold text-gray-800 text-sm">{t("audioFileLabel")}</h4>
+          <p className="text-gray-600 text-xs">{t("audioFileDescription")}</p>
+        </div>
 
-                  <div className="bg-gray-50 p-2 rounded-md border-l-4 border-blue-600">
-                    <h4 className="font-semibold text-gray-800 text-sm">
-                      Slides
-                    </h4>
-                    <p className="text-gray-600 text-xs">
-                      Upload slides in the order they appear in your lecture.
-                    </p>
-                  </div>
+        <div className="bg-gray-50 p-2 rounded-md border-l-4 border-blue-600">
+          <h4 className="font-semibold text-gray-800 text-sm">{t("slidesLabel")}</h4>
+          <p className="text-gray-600 text-xs">{t("slidesDescription")}</p>
+        </div>
 
-                  <div className="bg-gray-50 p-2 rounded-md border-l-4 border-blue-600">
-                    <h4 className="font-semibold text-gray-800 text-sm">
-                      Timestamps
-                    </h4>
-                    <p className="text-gray-600 text-xs">
-                      Specify timestamps (in seconds). Example: [0, 45, 120].
-                    </p>
-                  </div>
+        <div className="bg-gray-50 p-2 rounded-md border-l-4 border-blue-600">
+          <h4 className="font-semibold text-gray-800 text-sm">{t("timestampsLabel")}</h4>
+          <p className="text-gray-600 text-xs">{t("timestampsDescription")}</p>
+        </div>
 
-                  <div className="bg-gray-50 p-2 rounded-md border-l-4 border-blue-600">
-                    <h4 className="font-semibold text-gray-800 text-sm">
-                      Upload Lecture
-                    </h4>
-                    <p className="text-gray-600 text-xs">
-                      Click this button to save your lecture after filling all
-                      fields.
-                    </p>
-                  </div>
-                </div>
+        <div className="bg-gray-50 p-2 rounded-md border-l-4 border-blue-600">
+          <h4 className="font-semibold text-gray-800 text-sm">{t("uploadLectureLabel")}</h4>
+          <p className="text-gray-600 text-xs">{t("uploadLectureDescription")}</p>
+        </div>
+      </div>
 
-                {/* Close buttons */}
-                <button
-                  onClick={() => setIsOpen(false)}
-                  className="absolute top-2 right-2 text-red-500 text-xl hover:text-gray-700 font-bold"
-                >
-                  ×
-                </button>
+      {/* Close buttons */}
+      <button
+        onClick={() => setIsOpen(false)}
+        className="absolute top-2 right-2 text-red-500 text-xl hover:text-gray-700 font-bold"
+      >
+        ×
+      </button>
 
-                <button
-                  onClick={() => setIsOpen(false)}
-                  className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-1.5 rounded-lg mt-4 w-full text-sm"
-                >
-                  Close
-                </button>
-              </div>
-            </div>
-          )}
+      <button
+        onClick={() => setIsOpen(false)}
+        className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-1.5 rounded-lg mt-4 w-full text-sm"
+      >
+        {t("close")}
+      </button>
+    </div>
+  </div>
+)}
+
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-10">

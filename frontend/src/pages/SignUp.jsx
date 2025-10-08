@@ -32,7 +32,7 @@ const SignUp = () => {
     setIsError(false);
 
     if (formData.role === "Teacher" && !formData.course_name.trim()) {
-      setMessage(t("enterCourseName"));
+      setMessage(t("SenterCourseName"));
       setIsError(true);
       return;
     }
@@ -44,7 +44,7 @@ const SignUp = () => {
         setMessage(res.message);
         setIsError(false);
       } else {
-        setMessage(t("checkEmailToVerify"));
+        setMessage(t("ScheckEmailToVerify"));
         setIsError(false);
       }
     } catch (err) {
@@ -53,11 +53,11 @@ const SignUp = () => {
       const backendMessage = err?.response?.data?.message;
 
       if (backendMessage?.includes("already exists") && backendMessage?.includes("not verified")) {
-        setMessage(t("emailExistsNotVerified"));
+        setMessage(t("SemailExistsNotVerified"));
         setIsError(true);
       } else {
         setMessage(
-          backendMessage || t("signupFailed")
+          backendMessage || t("SsignupFailed")
         );
         setIsError(true);
       }
@@ -67,7 +67,7 @@ const SignUp = () => {
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-100">
       <div className="bg-white p-8 rounded-lg shadow-lg w-full max-w-md">
-        <h2 className="text-2xl font-bold mb-6 text-center">{t("createAccount")}</h2>
+        <h2 className="text-2xl font-bold mb-6 text-center">{t("ScreateAccount")}</h2>
 
         {message && (
           <div
@@ -81,46 +81,46 @@ const SignUp = () => {
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="block text-gray-700 mb-1">{t("fullName")}</label>
+            <label className="block text-gray-700 mb-1">{t('SfullName')}</label>
             <input
               type="text"
               name="fullName"
               value={formData.fullName}
               onChange={handleChange}
-              placeholder={t("fullNamePlaceholder")}
+              placeholder={t("SfullNamePlaceholder")}
               className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
               required
             />
           </div>
 
           <div>
-            <label className="block text-gray-700 mb-1">{t("email")}</label>
+            <label className="block text-gray-700 mb-1">{t("Semail")}</label>
             <input
               type="email"
               name="email"
               value={formData.email}
               onChange={handleChange}
-              placeholder={t("emailPlaceholder")}
+              placeholder={t("SemailPlaceholder")}
               className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
               required
             />
           </div>
 
           <div>
-            <label className="block text-gray-700 mb-1">{t("password")}</label>
+            <label className="block text-gray-700 mb-1">{t("Spassword")}</label>
             <input
               type="password"
               name="password"
               value={formData.password}
               onChange={handleChange}
-              placeholder={t("passwordPlaceholder")}
+              placeholder={t("SpasswordPlaceholder")}
               className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
               required
             />
           </div>
 
           <div>
-            <label className="block text-gray-700 mb-1">{t("role")}</label>
+            <label className="block text-gray-700 mb-1">{t("Srole")}</label>
             <select
               name="role"
               value={formData.role}
@@ -128,34 +128,34 @@ const SignUp = () => {
               className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
               required
             >
-              <option value="Student">{t("student")}</option>
-              <option value="Admin">{t("admin")}</option>
-              <option value="Teacher">{t("teacher")}</option>
+              <option value="Student">{t("Sstudent")}</option>
+              <option value="Admin">{t("Sadmin")}</option>
+              <option value="Teacher">{t("Steacher")}</option>
             </select>
           </div>
 
           {formData.role === "Teacher" && (
             <>
               <div>
-                <label className="block text-gray-700 mb-1">{t("courseName")}</label>
+                <label className="block text-gray-700 mb-1">{t("ScourseName")}</label>
                 <input
                   type="text"
                   name="course_name"
                   value={formData.course_name}
                   onChange={handleChange}
-                  placeholder={t("courseNamePlaceholder")}
+                  placeholder={t("ScourseNamePlaceholder")}
                   className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
                   required
                 />
               </div>
 
               <div>
-                <label className="block text-gray-700 mb-1">{t("courseDescription")}</label>
+                <label className="block text-gray-700 mb-1">{t("ScourseDescription")}</label>
                 <textarea
                   name="description"
                   value={formData.description}
                   onChange={handleChange}
-                  placeholder={t("courseDescriptionPlaceholder")}
+                  placeholder={t("ScourseDescriptionPlaceholder")}
                   className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
                 />
               </div>
@@ -171,14 +171,14 @@ const SignUp = () => {
             }`}
             disabled={isSigningUp}
           >
-            {isSigningUp ? t("signingUp") : t("signUp")}
+            {isSigningUp ? t("SsigningUp") : t("SsignUp")}
           </button>
         </form>
 
         <p className="text-center text-gray-500 mt-4">
-          {t("alreadyHaveAccount")}{" "}
+          {t("SalreadyHaveAccount")}{" "}
           <a href="/login" className="text-blue-500 hover:underline">
-            {t("logIn")}
+            {t("SlogIn")}
           </a>
         </p>
       </div>
