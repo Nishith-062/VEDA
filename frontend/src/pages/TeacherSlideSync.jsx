@@ -2,80 +2,85 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import toast from "react-hot-toast";
+import { useTranslation } from "react-i18next";
 
 export default function TeacherSlideSync() {
-    const navigate=useNavigate();
+  const navigate = useNavigate();
+  const { t } = useTranslation();
+
   const [title, setTitle] = useState("");
   const [audio, setAudio] = useState(null);
   const [slides, setSlides] = useState([]);
   const [timestamps, setTimestamps] = useState("");
   const [loading, setLoading] = useState(false);
 
-const handleUpload = async (e) => {
-  e.preventDefault();
-  if (!slides || slides.length === 0) return;
+  const handleUpload = async (e) => {
+    e.preventDefault();
+    if (!slides || slides.length === 0) return;
 
-  setLoading(true);
+    setLoading(true);
 
-  // Parse timestamps string into array
-  let parsedTimestamps;
-  try {
-    parsedTimestamps = JSON.parse(timestamps);
-    if (!Array.isArray(parsedTimestamps)) {
-      throw new Error("Timestamps must be an array");
+    let parsedTimestamps;
+    try {
+      parsedTimestamps = JSON.parse(timestamps);
+      if (!Array.isArray(parsedTimestamps)) {
+        throw new Error("Timestamps must be an array");
+      }
+    } catch (err) {
+      toast.error(
+        t("invalidTimestamps") ||
+          "Invalid timestamps format! Example: [0, 11, '1:08', '1:25']"
+      );
+      setLoading(false);
+      return;
     }
-  } catch (err) {
-    toast.error("Invalid timestamps format! Example: [0, 11, '1:08', '1:25']");
-    setLoading(false);
-    return;
-  }
 
-  const formData = new FormData();
-  formData.append("title", title);
-  formData.append("audio", audio);
-  slides.forEach((file) => formData.append("slides", file));
-  formData.append("timestamps", JSON.stringify(parsedTimestamps));
+    const formData = new FormData();
+    formData.append("title", title);
+    formData.append("audio", audio);
+    slides.forEach((file) => formData.append("slides", file));
+    formData.append("timestamps", JSON.stringify(parsedTimestamps));
 
-  try {
-    const res = await axios.post(
-      "https://veda-bj5v.onrender.com/api/lectures/upload",
-      formData
-    );
-    toast.success("Lecture uploaded successfully!");
-    setTitle("");
-    setAudio(null);
-    setSlides([]);
-    setTimestamps("");
-  } catch (err) {
-    console.error(err);
-    toast.error("Upload failed");
-  } finally {
-    setLoading(false);
-  }
-};
-
+    try {
+      await axios.post("https://veda-bj5v.onrender.com/api/lectures/upload", formData);
+      toast.success(t("uploadSuccess"));
+      setTitle("");
+      setAudio(null);
+      setSlides([]);
+      setTimestamps("");
+    } catch (err) {
+      console.error(err);
+      toast.error(t("uploadFailed"));
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <div className="max-w-3xl mx-auto p-6">
-        <button
-      onClick={() => navigate(-1)}
-      className="bg-blue-500 text-white px-4 py-2 rounded"
-    >
-      Go Back
-    </button>
-      <h1 className="text-3xl font-bold mb-6">Upload Lecture</h1>
+      <button
+        onClick={() => navigate(-1)}
+        className="bg-blue-500 text-white px-4 py-2 rounded mb-4"
+      >
+        {t("goBack") || "Go Back"}
+      </button>
+
+      <h1 className="text-3xl font-bold mb-6">{t("uploadLecture")}</h1>
 
       <div className="bg-white border rounded-xl shadow p-6 mb-8">
-        <h2 className="text-xl font-semibold mb-4">Lecture Details</h2>
+        <h2 className="text-xl font-semibold mb-4">
+          {t("lectureTitle") || "Lecture Details"}
+        </h2>
+
         <form className="space-y-4" onSubmit={handleUpload}>
           {/* Title */}
           <div>
             <label className="block mb-2 font-medium text-gray-700">
-              Title
+              {t("lectureTitle")}
             </label>
             <input
               type="text"
-              placeholder="Lecture Title"
+              placeholder={t("lectureTitlePlaceholder")}
               value={title}
               onChange={(e) => setTitle(e.target.value)}
               className="w-full px-4 py-2 border rounded-lg"
@@ -86,7 +91,7 @@ const handleUpload = async (e) => {
           {/* Audio */}
           <div>
             <label className="block mb-2 font-medium text-gray-700">
-              Audio File
+              {t("audioFile") || "Audio File"}
             </label>
             <div className="border border-gray-800 rounded-lg p-3">
               <input
@@ -98,7 +103,7 @@ const handleUpload = async (e) => {
               />
               {audio && (
                 <p className="text-sm mt-2 text-gray-500">
-                  Selected: {audio.name}
+                  {t("selected") || "Selected"}: {audio.name}
                 </p>
               )}
             </div>
@@ -107,7 +112,7 @@ const handleUpload = async (e) => {
           {/* Slides */}
           <div>
             <label className="block mb-2 font-medium text-gray-700">
-              Slides (Select in order)
+              {t("slides") || "Slides (Select in order)"}
             </label>
             <div className="border border-gray-800 rounded-lg p-3">
               <input
@@ -122,7 +127,7 @@ const handleUpload = async (e) => {
               />
               {slides.length > 0 && (
                 <p className="text-sm mt-2 text-gray-500">
-                  {slides.length} slides selected
+                  {slides.length} {t("slidesSelected") || "slides selected"}
                 </p>
               )}
             </div>
@@ -131,7 +136,7 @@ const handleUpload = async (e) => {
           {/* Timestamps */}
           <div>
             <label className="block mb-2 font-medium text-gray-700">
-              Timestamps 
+              {t("timestamps") || "Timestamps"}
             </label>
             <textarea
               placeholder="e.g. [0, 45, 120]"
@@ -150,7 +155,7 @@ const handleUpload = async (e) => {
               loading ? "bg-gray-400" : "bg-blue-600 hover:bg-blue-700"
             }`}
           >
-            {loading ? "Uploading..." : "Upload Lecture"}
+            {loading ? t("uploading") : t("uploadLecture")}
           </button>
         </form>
       </div>

@@ -228,7 +228,7 @@ export default function Student() {
             onClick={() => navigate("/student/live")}
             className="w-full md:w-auto px-6 py-2 rounded-full bg-green-600 hover:bg-green-700 text-white font-medium shadow-sm transition"
           >
-            Upcoming Live Classes
+            {t("upcomingLiveClasses")}
           </button>
         </div>
 
