@@ -6,7 +6,7 @@ import crypto from "crypto";
 import { sendVerificationEmail } from "../lib/sendEmail.js";
 
 
-const signup = async (req, res) => {
+export const signup = async (req, res) => {
   const { role, fullName, email, password, course_name, description } = req.body;
 
   if (!role || !fullName || !email || !password)
