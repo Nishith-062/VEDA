@@ -5,7 +5,7 @@ const router=express.Router()
 
 router.get('/student-info',async(req,res)=>{
     try {
-        const result=await User.find({role:'Student'})
+        const result=await User.find({role:'Student',isVerified:true})
         return res.status(200).json({data:result})
     } catch (error) {
         return res.status(500).json({ success: false, error: error.message })
@@ -15,7 +15,7 @@ router.get('/teacher-info',async (req,res) => {
      try {
      const teachers = await User.aggregate([
       {
-        $match: { role: "Teacher" }
+        $match: { role: "Teacher",isVerified:true }
       },
       {
         $lookup: {
