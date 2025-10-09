@@ -12,7 +12,7 @@ const VerifyEmailPage = () => {
     const verifyEmail = async () => {
       try {
         const res = await axios.get(`https://veda-bj5v.onrender.com/api/user/verify/${token}`, {
-          withCredentials: true, // 🔑 important for cookies (JWT)
+          withCredentials: true,
         });
         console.log(res.data);
         setStatus("success");
@@ -29,41 +29,41 @@ const VerifyEmailPage = () => {
   }, [token, navigate]);
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen bg-gray-950 text-white px-4">
-      {status === "loading" && (
-        <>
-          <Loader2 className="animate-spin w-12 h-12 text-blue-400 mb-4" />
-          <p>Verifying your email, please wait...</p>
-        </>
-      )}
+    <div className="flex items-center justify-center min-h-screen bg-gray-950 text-white px-4">
+      <div className="w-full max-w-md bg-gray-900 border border-gray-800 rounded-lg shadow-lg p-8 text-center transition-all duration-300">
+        {status === "loading" && (
+          <>
+            <Loader2 className="animate-spin w-12 h-12 text-blue-400 mx-auto mb-4" />
+            <h1 className="text-xl font-semibold mb-2">Verifying Your Email</h1>
+            <p className="text-gray-400">Please wait while we confirm your verification...</p>
+          </>
+        )}
 
-      {status === "success" && (
-        <>
-          <CheckCircle className="w-12 h-12 text-green-400 mb-4" />
-          <h1 className="text-xl font-semibold mb-2">
-            Email Verified Successfully 🎉
-          </h1>
-          <p className="text-gray-400">
-            Redirecting you to your dashboard...
-          </p>
-        </>
-      )}
+        {status === "success" && (
+          <>
+            <CheckCircle className="w-12 h-12 text-green-400 mx-auto mb-4" />
+            <h1 className="text-xl font-semibold mb-2">Email Verified Successfully 🎉</h1>
+            <p className="text-gray-400 mb-4">Redirecting you to your dashboard...</p>
+          </>
+        )}
 
-      {status === "error" && (
-        <>
-          <XCircle className="w-12 h-12 text-red-400 mb-4" />
-          <h1 className="text-xl font-semibold mb-2">Verification Failed</h1>
-          <p className="text-gray-400 mb-4">
-            Your link might be expired or invalid.
-          </p>
-          <button
-            onClick={() => navigate("/login")}
-            className="px-4 py-2 bg-blue-500 rounded-md hover:bg-blue-600 transition"
-          >
-            Go to Login
-          </button>
-        </>
-      )}
+        {status === "error" && (
+          <>
+            <XCircle className="w-12 h-12 text-red-400 mx-auto mb-4" />
+            <h1 className="text-xl font-semibold mb-2">Verification Failed</h1>
+            <p className="text-gray-400 mb-6">
+              This link may be invalid, expired, or has already been verified.
+              Please check your email for the original verification link and try again.
+            </p>
+            <button
+              onClick={() => navigate("/login")}
+              className="px-5 py-2 bg-blue-600 hover:bg-blue-700 rounded-md font-medium transition-colors"
+            >
+              Go to Login
+            </button>
+          </>
+        )}
+      </div>
     </div>
   );
 };

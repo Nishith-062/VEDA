@@ -138,9 +138,12 @@ export const verifyEmail = async (req, res) => {
       verificationToken: token,
       verificationTokenExpires: { $gt: Date.now() },
     });
-
+    console.log(user);
+    
     if (!user) {
-      return res.status(400).json({ message: "Invalid or expired token" });
+      console.log('asdf');
+      
+      return res.status(400).json({ message: "Invalid or token verified" });
     }
 
     user.isVerified = true;
