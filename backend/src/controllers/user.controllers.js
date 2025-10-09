@@ -4,6 +4,7 @@ import Course from "../models/course.model.js";
 import bcrypt from "bcryptjs";
 import crypto from "crypto";
 import { sendVerificationEmail } from "../lib/sendEmail.js";
+import { log } from "console";
 
 export const signup = async (req, res) => {
   const { role, fullName, email, password, course_name, description } =
@@ -43,6 +44,8 @@ export const signup = async (req, res) => {
       verificationToken,
       verificationTokenExpires,
     });
+    console.log(verificationToken);
+    
 
     try {
       await sendVerificationEmail(email, verificationToken);
@@ -134,11 +137,11 @@ export const checkAuth = (req, res) => {
 export const verifyEmail = async (req, res) => {
   try {
     const { token } = req.params;
+    console.log(token);
     const user = await User.findOne({
       verificationToken: token,
-      verificationTokenExpires: { $gt: Date.now() },
     });
-    console.log(user);
+    // console.log(user);
 
     if(user && user.isVerified){
       return res.status(200).json({message:'Your account is already verified'})
@@ -151,6 +154,8 @@ export const verifyEmail = async (req, res) => {
     user.isVerified = true;
     user.verificationTokenExpires = undefined;
     await user.save();
+    // console.log(user);
+    
 
     res.status(200).json({ message: "Email verified successfully!" });
   } catch (error) {
