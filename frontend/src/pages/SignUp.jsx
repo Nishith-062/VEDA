@@ -1,7 +1,9 @@
 import React, { useState } from "react";
 import { useAuthStore } from "../store/useAuthStore";
+import { useTranslation } from "react-i18next";
 
 const SignUp = () => {
+  const { t } = useTranslation();
   const { signup, isSigningUp } = useAuthStore();
   const [formData, setFormData] = useState({
     fullName: "",
@@ -29,9 +31,8 @@ const SignUp = () => {
     setMessage("");
     setIsError(false);
 
-    // Teacher must provide course_name
     if (formData.role === "Teacher" && !formData.course_name.trim()) {
-      setMessage("Please enter your course name.");
+      setMessage(t("SenterCourseName"));
       setIsError(true);
       return;
     }
@@ -43,7 +44,7 @@ const SignUp = () => {
         setMessage(res.message);
         setIsError(false);
       } else {
-        setMessage("Account created! Check your email to verify your account.");
+        setMessage(t("ScheckEmailToVerify"));
         setIsError(false);
       }
     } catch (err) {
@@ -52,13 +53,11 @@ const SignUp = () => {
       const backendMessage = err?.response?.data?.message;
 
       if (backendMessage?.includes("already exists") && backendMessage?.includes("not verified")) {
-        setMessage(
-          "Email exists but not verified. Please check your inbox and verify your email."
-        );
+        setMessage(t("SemailExistsNotVerified"));
         setIsError(true);
       } else {
         setMessage(
-          backendMessage || "Signup failed. Please check your email address or try again."
+          backendMessage || t("SsignupFailed")
         );
         setIsError(true);
       }
@@ -68,7 +67,7 @@ const SignUp = () => {
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-100">
       <div className="bg-white p-8 rounded-lg shadow-lg w-full max-w-md">
-        <h2 className="text-2xl font-bold mb-6 text-center">Create Account</h2>
+        <h2 className="text-2xl font-bold mb-6 text-center">{t("ScreateAccount")}</h2>
 
         {message && (
           <div
@@ -82,46 +81,46 @@ const SignUp = () => {
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="block text-gray-700 mb-1">Full Name</label>
+            <label className="block text-gray-700 mb-1">{t('SfullName')}</label>
             <input
               type="text"
               name="fullName"
               value={formData.fullName}
               onChange={handleChange}
-              placeholder="John Doe"
+              placeholder={t("SfullNamePlaceholder")}
               className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
               required
             />
           </div>
 
           <div>
-            <label className="block text-gray-700 mb-1">Email</label>
+            <label className="block text-gray-700 mb-1">{t("Semail")}</label>
             <input
               type="email"
               name="email"
               value={formData.email}
               onChange={handleChange}
-              placeholder="example@mail.com"
+              placeholder={t("SemailPlaceholder")}
               className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
               required
             />
           </div>
 
           <div>
-            <label className="block text-gray-700 mb-1">Password</label>
+            <label className="block text-gray-700 mb-1">{t("Spassword")}</label>
             <input
               type="password"
               name="password"
               value={formData.password}
               onChange={handleChange}
-              placeholder="Enter password"
+              placeholder={t("SpasswordPlaceholder")}
               className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
               required
             />
           </div>
 
           <div>
-            <label className="block text-gray-700 mb-1">Role</label>
+            <label className="block text-gray-700 mb-1">{t("Srole")}</label>
             <select
               name="role"
               value={formData.role}
@@ -129,34 +128,34 @@ const SignUp = () => {
               className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
               required
             >
-              <option value="Student">Student</option>
-              <option value="Admin">Admin</option>
-              <option value="Teacher">Teacher</option>
+              <option value="Student">{t("Sstudent")}</option>
+              <option value="Admin">{t("Sadmin")}</option>
+              <option value="Teacher">{t("Steacher")}</option>
             </select>
           </div>
 
           {formData.role === "Teacher" && (
             <>
               <div>
-                <label className="block text-gray-700 mb-1">Course Name</label>
+                <label className="block text-gray-700 mb-1">{t("ScourseName")}</label>
                 <input
                   type="text"
                   name="course_name"
                   value={formData.course_name}
                   onChange={handleChange}
-                  placeholder="Enter your course name"
+                  placeholder={t("ScourseNamePlaceholder")}
                   className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
                   required
                 />
               </div>
 
               <div>
-                <label className="block text-gray-700 mb-1">Course Description</label>
+                <label className="block text-gray-700 mb-1">{t("ScourseDescription")}</label>
                 <textarea
                   name="description"
                   value={formData.description}
                   onChange={handleChange}
-                  placeholder="Optional description"
+                  placeholder={t("ScourseDescriptionPlaceholder")}
                   className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
                 />
               </div>
@@ -172,14 +171,14 @@ const SignUp = () => {
             }`}
             disabled={isSigningUp}
           >
-            {isSigningUp ? "Signing Up..." : "Sign Up"}
+            {isSigningUp ? t("SsigningUp") : t("SsignUp")}
           </button>
         </form>
 
         <p className="text-center text-gray-500 mt-4">
-          Already have an account?{" "}
+          {t("SalreadyHaveAccount")}{" "}
           <a href="/login" className="text-blue-500 hover:underline">
-            Log In
+            {t("SlogIn")}
           </a>
         </p>
       </div>

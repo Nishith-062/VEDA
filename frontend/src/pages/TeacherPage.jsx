@@ -15,6 +15,7 @@ export default function TeacherDashboard() {
   const [message, setMessage] = useState("");
   const [uploading, setUploading] = useState(false);
   const { token } = useAuthStore();
+  const [isOpen, setIsOpen] = useState(false);
 
   const handleFileChange = (e) => setVideoFile(e.target.files[0]);
 
@@ -98,12 +99,70 @@ export default function TeacherDashboard() {
             </button>
 
             <button
-              onClick={() => toast.success(t("audioSlideHowItWorksAlert"))}
+              onClick={() => setIsOpen(true)}
               className="border border-blue-600 text-blue-600 hover:bg-blue-50 px-5 py-2 rounded-lg font-semibold transition"
             >
               {t("howItWorks")}
             </button>
           </div>
+      {isOpen && (
+  <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
+    <div className="bg-white rounded-2xl p-4 max-w-lg mx-4 relative shadow-xl">
+      <h3 className="text-xl font-semibold mb-3 text-center">
+        {t("audioSlideTitle")} - {t("howItWorks")}
+      </h3>
+
+      <p className="text-gray-700 mb-4 text-center text-sm">
+        {t("audioSlideDescription")} 
+        {/* Example translation key: "Upload a lecture audio and sync it with slides so students can follow along while listening." */}
+      </p>
+
+      {/* Input explanations */}
+      <div className="space-y-2">
+        <div className="bg-gray-50 p-2 rounded-md border-l-4 border-blue-600">
+          <h4 className="font-semibold text-gray-800 text-sm">{t("titleLabel")}</h4>
+          <p className="text-gray-600 text-xs">{t("titleDescription")}</p>
+        </div>
+
+        <div className="bg-gray-50 p-2 rounded-md border-l-4 border-blue-600">
+          <h4 className="font-semibold text-gray-800 text-sm">{t("audioFileLabel")}</h4>
+          <p className="text-gray-600 text-xs">{t("audioFileDescription")}</p>
+        </div>
+
+        <div className="bg-gray-50 p-2 rounded-md border-l-4 border-blue-600">
+          <h4 className="font-semibold text-gray-800 text-sm">{t("slidesLabel")}</h4>
+          <p className="text-gray-600 text-xs">{t("slidesDescription")}</p>
+        </div>
+
+        <div className="bg-gray-50 p-2 rounded-md border-l-4 border-blue-600">
+          <h4 className="font-semibold text-gray-800 text-sm">{t("timestampsLabel")}</h4>
+          <p className="text-gray-600 text-xs">{t("timestampsDescription")}</p>
+        </div>
+
+        <div className="bg-gray-50 p-2 rounded-md border-l-4 border-blue-600">
+          <h4 className="font-semibold text-gray-800 text-sm">{t("uploadLectureLabel")}</h4>
+          <p className="text-gray-600 text-xs">{t("uploadLectureDescription")}</p>
+        </div>
+      </div>
+
+      {/* Close buttons */}
+      <button
+        onClick={() => setIsOpen(false)}
+        className="absolute top-2 right-2 text-red-500 text-xl hover:text-gray-700 font-bold"
+      >
+        ×
+      </button>
+
+      <button
+        onClick={() => setIsOpen(false)}
+        className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-1.5 rounded-lg mt-4 w-full text-sm"
+      >
+        {t("close")}
+      </button>
+    </div>
+  </div>
+)}
+
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
