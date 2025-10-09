@@ -7,6 +7,7 @@ import {
   GraduationCap,
   Bot,
   Headphones,
+  Fullscreen,
 } from "lucide-react";
 
 const LoadingScreen = () => {
@@ -14,8 +15,14 @@ const LoadingScreen = () => {
     {
       icon: <Headphones className="w-8 h-8" />,
       title: "Audio First Learning",
-      desc: "90% less data than video streaming",
+      desc: "Uses 90% less data than live video streaming.",
     },
+        {
+      icon: <Fullscreen className="w-8 h-8" />,
+      title: "Audio-First + Slide Synchronization",
+      desc: "Low-data presentations — significantly lighter than video lectures.",
+    },
+
     {
       icon: <Wifi className="w-8 h-8" />,
       title: "Works on Weak Networks",
