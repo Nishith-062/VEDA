@@ -139,15 +139,16 @@ export const verifyEmail = async (req, res) => {
       verificationTokenExpires: { $gt: Date.now() },
     });
     console.log(user);
+
+    if(user && user.isVerified){
+      return res.status(200).json({message:'Your account is already verified'})
+    }
     
-    if (!user) {
-      console.log('asdf');
-      
+    if (!user) {      
       return res.status(400).json({ message: "Invalid or token verified" });
     }
 
     user.isVerified = true;
-    user.verificationToken = undefined;
     user.verificationTokenExpires = undefined;
     await user.save();
 
