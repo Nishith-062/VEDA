@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import toast from "react-hot-toast";
 import { useTranslation } from "react-i18next";
+import { LoaderCircle } from "lucide-react";
 
 export default function TeacherSlideSync() {
   const navigate = useNavigate();
@@ -42,7 +43,10 @@ export default function TeacherSlideSync() {
     formData.append("timestamps", JSON.stringify(parsedTimestamps));
 
     try {
-      await axios.post("https://veda-bj5v.onrender.com/api/lectures/upload", formData);
+      await axios.post(
+        "https://veda-bj5v.onrender.com/api/lectures/upload",
+        formData
+      );
       toast.success(t("uploadSuccess"));
       setTitle("");
       setAudio(null);
@@ -139,7 +143,7 @@ export default function TeacherSlideSync() {
               {t("timestamps") || "Timestamps"}
             </label>
             <textarea
-              placeholder="e.g. [0, 45, 120]"
+              placeholder='e.g. [0, 11, "1:08", "1:25"]'
               value={timestamps}
               onChange={(e) => setTimestamps(e.target.value)}
               className="w-full px-4 py-2 border rounded-lg"
@@ -155,7 +159,14 @@ export default function TeacherSlideSync() {
               loading ? "bg-gray-400" : "bg-blue-600 hover:bg-blue-700"
             }`}
           >
-            {loading ? t("uploading") : t("uploadLecture")}
+            {loading ? (
+              <span className="inline-flex items-center gap-2 text-blue-400 font-medium">
+                <LoaderCircle className="w-5 h-5 animate-spin" />
+                {t("uploading")}
+              </span>
+            ) : (
+              t("uploadLecture")
+            )}
           </button>
         </form>
       </div>
