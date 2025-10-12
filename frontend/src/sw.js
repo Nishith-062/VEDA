@@ -7,8 +7,11 @@ import { ExpirationPlugin } from "workbox-expiration";
 // ✅ Precache build assets injected by Workbox
 precacheAndRoute(self.__WB_MANIFEST);
 
-// ✅ IndexedDB safety check — prevent UnknownError from crashing SW
+// ✅ Install event: activate immediately
 self.addEventListener("install", (event) => {
+  // ⬅️ This makes the new SW activate right away instead of "waiting"
+  self.skipWaiting();
+
   event.waitUntil(
     (async () => {
       try {
