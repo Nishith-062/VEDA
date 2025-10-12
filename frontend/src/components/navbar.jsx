@@ -33,24 +33,21 @@ const Navbar = ({ authUser }) => {
                 <>
                   <button
                     onClick={() => setDropdownOpen(!dropdownOpen)}
-                    className="flex items-center gap-2 bg-gray-50 hover:bg-gray-100 text-gray-800 text-sm font-medium px-3 py-2 rounded-lg transition"
+                    className="flex justify-center items-center h-9 w-9 bg-amber-950 hover:bg-amber-900 cursor-pointer text-md font-medium rounded-full transition"
                   >
-                    <span>{authUser.fullName}</span>
-                    <ChevronDown
-                      className={`w-4 h-4 text-gray-500 transition-transform ${
-                        dropdownOpen ? "rotate-180" : ""
-                      }`}
-                    />
+                    <span className="text-amber-100">{authUser.fullName.slice(0,1).toUpperCase()}</span>
+
                   </button>
 
                   {dropdownOpen && (
                     <div className="absolute right-0 mt-2 w-44 bg-white border border-gray-200 rounded-md shadow-md py-1 flex flex-col">
+                      <span className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">{authUser.fullName}</span>
                       <button
                         onClick={() => {
                           useAuthStore.getState().logout();
                           setDropdownOpen(false);
                         }}
-                        className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                        className="block w-full text-left px-4 py-2 text-sm text-red-700 hover:bg-gray-100"
                       >
                         Logout
                       </button>
