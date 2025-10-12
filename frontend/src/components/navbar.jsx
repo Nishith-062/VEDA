@@ -3,6 +3,7 @@ import { ChevronDown } from "lucide-react";
 import { useAuthStore } from "../store/useAuthStore";
 import Online from "./Online";
 import Languageselector from "../pages/Languageselector";
+import DropDownhover from "./DropDownhover";
 
 const Navbar = ({ authUser }) => {
   const [dropdownOpen, setDropdownOpen] = useState(false);
@@ -47,12 +48,13 @@ const Navbar = ({ authUser }) => {
                           useAuthStore.getState().logout();
                           setDropdownOpen(false);
                         }}
-                        className="block w-full text-left px-4 py-2 text-sm text-red-700 hover:bg-gray-100"
+                        className="block w-full text-left px-4 cursor-pointer py-2 text-sm text-red-700 hover:bg-gray-100"
                       >
                         Logout
                       </button>
                     </div>
                   )}
+
                 </>
               ) : (
                 <span className="text-gray-600 text-sm">Not Logged In</span>

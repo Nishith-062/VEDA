@@ -65,7 +65,7 @@ export const FetchStudentAudioLectures = ({
                     onClick={() =>
                       navigate(`/student/Audiolecture/${lecture._id}`)
                     }
-                    className="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white py-2 m-3 rounded-full font-medium shadow-sm transition"
+                    className="flex-1 cursor-pointer bg-indigo-600 hover:bg-indigo-700 text-white py-2 m-3 rounded-full font-medium shadow-sm transition"
                   >
                     {t("watch")}
                   </button>
@@ -78,7 +78,7 @@ export const FetchStudentAudioLectures = ({
                     <button
                       onClick={() => handleOfflineDownload(lecture)}
                       disabled={isDownloading}
-                      className="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-700 py-2 m-3 rounded-full font-medium shadow-sm transition flex items-center justify-center gap-2"
+                      className="flex-1 bg-gray-100 cursor-pointer hover:bg-gray-200 text-gray-700 py-2 m-3 rounded-full font-medium shadow-sm transition flex items-center justify-center gap-2"
                     >
                       {isDownloading ? (
                         t("downloading")

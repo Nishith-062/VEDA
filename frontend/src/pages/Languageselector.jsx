@@ -20,10 +20,10 @@ const handleLanguageChange = () => {
   
 
   return (
-<div className="flex justify-center items-center">
+<div className="flex justify-center items-center cursor-pointer">
   <button
     onClick={handleLanguageChange}
-    className="flex items-center px-3 py-1.5 rounded-full border border-gray-200 shadow-sm hover:bg-gray-50 transition-colors duration-200 focus:outline-none focus:ring-1 focus:ring-orange-300"
+    className="flex items-center px-3 py-1.5 cursor-pointer rounded-full border border-gray-200 shadow-sm hover:bg-gray-50 transition-colors duration-200 focus:outline-none focus:ring-1 focus:ring-orange-300"
   >
     {lang === "en" ? (
       <span className="bg-orange-200 text-orange-800 px-2 py-0.5 rounded-full font-medium text-sm transition-all duration-200">

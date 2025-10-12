@@ -93,14 +93,14 @@ export default function TeacherDashboard() {
           <div className="flex gap-3">
             <button
               onClick={() => navigate("/teacher/slideaudio")}
-              className="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2 rounded-lg font-semibold shadow transition"
+              className="bg-blue-600 hover:bg-blue-700 cursor-pointer text-white px-5 py-2 rounded-lg font-semibold shadow transition"
             >
               {t("uploadLecture")}
             </button>
 
             <button
               onClick={() => setIsOpen(true)}
-              className="border border-blue-600 text-blue-600 hover:bg-blue-50 px-5 py-2 rounded-lg font-semibold transition"
+              className="border border-blue-600 text-blue-600 cursor-pointer hover:bg-blue-50 px-5 py-2 rounded-lg font-semibold transition"
             >
               {t("howItWorks")}
             </button>
@@ -168,14 +168,14 @@ export default function TeacherDashboard() {
                 {/* Close buttons */}
                 <button
                   onClick={() => setIsOpen(false)}
-                  className="absolute top-2 right-2 text-red-500 text-xl hover:text-gray-700 font-bold"
+                  className="absolute top-2 right-2 text-red-500 text-xl cursor-pointer hover:text-gray-700 font-bold"
                 >
                   ×
                 </button>
 
                 <button
                   onClick={() => setIsOpen(false)}
-                  className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-1.5 rounded-lg mt-4 w-full text-sm"
+                  className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-1.5 cursor-pointer rounded-lg mt-4 w-full text-sm"
                 >
                   {t("close")}
                 </button>
@@ -236,14 +236,14 @@ export default function TeacherDashboard() {
                 <button
                   type="submit"
                   disabled={uploading}
-                  className={`w-full py-3 rounded-lg font-semibold text-white shadow transition ${
+                  className={`w-full py-3 rounded-lg font-semibold cursor-pointer text-white shadow transition ${
                     uploading
                       ? "bg-blue-300 cursor-not-allowed"
                       : "bg-blue-600 hover:bg-blue-700"
                   }`}
                 >
                   {uploading ? (
-                    <span className="inline-flex items-center gap-2 text-blue-400 font-medium">
+                    <span className="inline-flex items-center gap-2 cursor-pointer text-blue-400 font-medium">
                       <LoaderCircle className="w-5 h-5 animate-spin" />
                       {t("uploading")}
                     </span>
@@ -280,7 +280,7 @@ export default function TeacherDashboard() {
             </p>
             <button
               onClick={() => navigate("/teacher/live")}
-              className="mt-8 w-full py-3 rounded-lg bg-green-600 hover:bg-green-700 text-white font-semibold shadow transition"
+              className="mt-8 w-full py-3 cursor-pointer rounded-lg bg-green-600 hover:bg-green-700 text-white font-semibold shadow transition"
             >
               {t("goLiveNow")}
             </button>

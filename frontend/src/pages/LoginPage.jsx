@@ -140,7 +140,7 @@ const LoginPage = () => {
             <button
               type="submit"
               disabled={isLoggingIn || !isOnline}
-              className={`w-full py-3 rounded-lg font-semibold text-white transition ${
+              className={`w-full py-3 rounded-lg font-semibold cursor-pointer text-white transition ${
                 isLoggingIn || !isOnline
                   ? "bg-indigo-300 cursor-not-allowed"
                   : "bg-indigo-600 hover:bg-indigo-700 shadow-md"
@@ -156,7 +156,7 @@ const LoginPage = () => {
                 type="button"
                 disabled={isLoggingIn || !isOnline}
                 onClick={() => loginAsGuest(role)}
-                className={`w-full py-3 rounded-lg font-semibold text-white transition ${
+                className={`w-full py-3 rounded-lg font-semibold cursor-pointer text-white transition ${
                   isLoggingIn || !isOnline
                     ? "bg-indigo-300 cursor-not-allowed"
                     : "bg-indigo-600 hover:bg-indigo-700 shadow-md"

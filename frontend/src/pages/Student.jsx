@@ -268,7 +268,7 @@ export default function Student() {
           </div>
           <button
             onClick={() => navigate("/student/live")}
-            className="w-full md:w-auto px-6 py-2 rounded-full bg-green-600 hover:bg-green-700 text-white font-medium shadow-sm transition"
+            className="w-full md:w-auto px-6 py-2 cursor-pointer rounded-full bg-green-600 hover:bg-green-700 text-white font-medium shadow-sm transition"
           >
             {t("upcomingLiveClasses")}
           </button>
@@ -284,80 +284,7 @@ export default function Student() {
           downloading={downloading} // <-- pass downloading state
         />
 
-        {/* Combined Offline Section */}
-        <section>
-          <div className="flex items-center justify-between mb-6">
-            <h2 className="text-xl font-semibold text-gray-800 flex items-center gap-2">
-              <CheckCircle className="w-5 h-5 text-green-600" />
-              {t("offlineLibrary")}
-            </h2>
-            <span className="text-sm text-gray-500">
-              {t("lectureCount", {
-                count: offlineVideos.length + offlineLectures.length,
-              })}
-            </span>
-          </div>
 
-          {offlineVideos.length === 0 && offlineLectures.length === 0 ? (
-            <div className="text-center py-10 bg-white border rounded-2xl shadow-sm">
-              <p className="text-sm text-gray-500">
-                {t("noDownloadedLectures")}
-              </p>
-            </div>
-          ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-              {/* Offline Videos */}
-              {offlineVideos.map((video) => (
-                <div
-                  key={video.id}
-                  className="bg-white border rounded-2xl shadow-sm overflow-hidden flex flex-col"
-                >
-                  <VideoThumbnail url={video.objectUrl} title={video.title} />
-                  <div className="p-5 flex flex-col flex-grow">
-                    <h3 className="font-medium text-gray-800 line-clamp-2 mb-4">
-                      {video.title}
-                    </h3>
-                    <button
-                      onClick={() => window.open(video.objectUrl, "_blank")}
-                      className="w-full bg-indigo-600 hover:bg-indigo-700 text-white py-2 px-4 rounded-full font-medium shadow-sm transition"
-                    >
-                      {t("watch")}
-                    </button>
-                  </div>
-                </div>
-              ))}
-
-              {/* Offline Audio+Slide Lectures */}
-              {offlineLectures.map((lecture) => (
-                <div
-                  key={lecture.id}
-                  className="bg-white border rounded-2xl p-1 shadow-sm flex flex-col"
-                >
-                  {lecture.slides?.[0] && (
-                    <img
-                      src={URL.createObjectURL(lecture.slides[0].blob)}
-                      alt="First Slide"
-                      className="w-full h-40 rounded-lg object-cover"
-                    />
-                  )}
-                  <h3 className="font-medium text-gray-800 mb-2 p-4">
-                    {lecture.title}
-                  </h3>
-                  <div className="flex gap-3 mt-4 px-4">
-                    <button
-                      onClick={() =>
-                        navigate(`/student/Audiolecture/${lecture.id}`)
-                      }
-                      className="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white py-2 rounded-full font-medium shadow-sm transition"
-                    >
-                      Watch
-                    </button>
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
-        </section>
 
         {/* Online Videos (Only when online) */}
         {isOnline && (
@@ -411,7 +338,7 @@ export default function Student() {
                         <div className="mt-auto flex gap-3">
                           <button
                             onClick={() => window.open(video.url, "_blank")}
-                            className="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white py-2 px-4 rounded-full font-medium shadow-sm transition text-center"
+                            className="flex-1 cursor-pointer bg-indigo-600 hover:bg-indigo-700 text-white py-2 px-4 rounded-full font-medium shadow-sm transition text-center"
                           >
                             {t("watch")}
                           </button>
@@ -421,7 +348,7 @@ export default function Student() {
                                 handleDownload(video.url, video.id, video.title)
                               }
                               disabled={downloading[video.id]}
-                              className="flex items-center justify-center gap-1 bg-gray-100 hover:bg-gray-200 text-gray-700 py-2 px-4 rounded-full font-medium shadow-sm transition"
+                              className="flex items-center cursor-pointer justify-center gap-1 bg-gray-100 hover:bg-gray-200 text-gray-700 py-2 px-4 rounded-full font-medium shadow-sm transition"
                             >
                               {downloading[video.id] ? (
                                 t("downloading")
