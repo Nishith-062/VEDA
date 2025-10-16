@@ -19,7 +19,6 @@ export const scheduleClass = async (req, res) => {
         course_name: "Default Course",
       });
     }
-
     const roomName = `class-${faculty_id}-${Date.now()}`;
 
     const newClass = await LiveClass.create({

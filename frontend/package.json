@@ -11,7 +11,7 @@
   },
   "dependencies": {
     "@jitsi/react-sdk": "^1.4.4",
-    "@livekit/components-react": "^2.9.14",
+    "@livekit/components-react": "^2.9.15",
     "@livekit/components-styles": "^1.1.6",
     "@stream-io/video-react-sdk": "^1.21.3",
     "@tailwindcss/vite": "^4.1.13",
@@ -21,7 +21,7 @@
     "idb": "^8.0.3",
     "js-cookie": "^3.0.5",
     "jwt-decode": "^4.0.0",
-    "livekit-client": "^2.15.8",
+    "livekit-client": "^2.15.10",
     "lucide-react": "^0.544.0",
     "react": "^19.1.1",
     "react-dom": "^19.1.1",

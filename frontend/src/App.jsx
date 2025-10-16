@@ -20,11 +20,17 @@ import Navbar from "./components/navbar";
 import OfflineWatcher from "./components/OfflineWatcher";
 import OfflineDownloads from "./pages/Offline";
 import SignUp from "./pages/SignUp";
+
+
+
 import VerifyEmailPage from "./pages/VerifyEmailPage";
 import TeacherSlideSync from "./pages/TeacherSlideSync";
 import { Toaster } from "react-hot-toast";
 import LoadingScreen from "./components/LoadingScreen";
 import AudioLecturePlayer from "./pages/AudioLecturePlayer";
+import AudioSlideStreamManage from "./pages/AudioSlideStreamManage";
+import AudioBroadcasePage from "./pages/AudioBroadcasePage";
+import AudioClassViewerpage from "./pages/AudioClassViewerpage";
 function App() {
   const { authUser, checkAuth, isCheckingAuth } = useAuthStore();
   const [open, setOpen] = useState(false);
@@ -184,6 +190,17 @@ function App() {
       )
     }
   />
+  {/* viewer page */}
+  <Route
+    path="/student/audio-class/:id"
+    element={
+      authUser && authUser.role === "Student" ? (
+        <AudioClassViewerpage />
+      ) : (
+        <Navigate to="/login" replace />
+      )
+    }
+  />
    <Route
     path="/student/Audiolecture/:id"
     element={
@@ -217,10 +234,31 @@ function App() {
             }
           />
           <Route
+            path="/teacher/slide-audiolive"
+            element={
+              authUser && authUser.role === "Teacher" ? (
+                <AudioSlideStreamManage />
+              ) : (
+                <Navigate to="/login" replace />
+              )
+            }
+          />
+          <Route
             path="/teacher/class/:id/broadcast"
             element={
               authUser && authUser.role === "Teacher" ? (
                 <BroadcastPage />
+              ) : (
+                <Navigate to="/login" replace />
+              )
+            }
+          />
+          {/* live audio broadcast Page */}
+           <Route
+            path="/teacher/class/:id/Slidebroadcast"
+            element={
+              authUser && authUser.role === "Teacher" ? (
+                <AudioBroadcasePage />
               ) : (
                 <Navigate to="/login" replace />
               )
@@ -256,6 +294,7 @@ function App() {
           <Route path="/verify/:token" element={<VerifyEmailPage />} />
 
           <Route path="*" element={<OfflineDownloads />} />
+
         </Routes>
       </main>
 

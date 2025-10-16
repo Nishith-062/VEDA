@@ -27,7 +27,6 @@ export default function TeacherManageClass() {
         const res = await axios.get(`${API_BASE}`, {
           headers: { Authorization: `Bearer ${token}` },
         });
-
         setClasses(Array.isArray(res.data.classes) ? res.data.classes : []);
       } catch (err) {
         console.error(

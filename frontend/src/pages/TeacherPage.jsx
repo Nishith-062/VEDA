@@ -284,6 +284,12 @@ export default function TeacherDashboard() {
             >
               {t("goLiveNow")}
             </button>
+            <button
+             onClick={()=>navigate('/teacher/slide-audiolive')}
+             className="mt-8 w-full  py-3 cursor-pointer rounded-lg bg-green-600 hover:bg-green-700 text-white font-semibold shadow transition"
+            >
+               Audio+Slide Synchronization Live
+            </button>
             {/* <button
             onClick={()=> navigate("/teacher/slideaudio")}
             className="mt-8 w-full py-3 rounded-lg bg-blue-500 hover:bg-blue-700 text-white font-semibold shadow transition"
