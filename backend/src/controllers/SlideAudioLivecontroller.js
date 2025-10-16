@@ -212,8 +212,10 @@ export const joinClass = async (req, res) => {
       canSubscribe: true,
     });
 
-    const token = at.toJwt();
-
+    const token = await at.toJwt();
+    console.log(typeof(token));
+    console.log(token);
+    
     return res.json({
       success: true,
       token,

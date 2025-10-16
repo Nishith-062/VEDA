@@ -69,7 +69,7 @@ const StudentLiveClasses = () => {
         Student Live Classes
       </h1>
       <LiveClassTable classes={classes} loading={loading} />
-      <h1>Audio + Slide Synchronization Live classes</h1>
+      <h1 className="p-3 m-3 text-lg bg-white">Audio + Slide Synchronization Live classes</h1>
       <LiveaudioClasstable classes={Audioclasses} loadingClasses={loadingClasses}/>
     </div>
   );
