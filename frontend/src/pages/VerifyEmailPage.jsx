@@ -46,7 +46,7 @@ const VerifyEmailPage = () => {
     const verifyEmail = async () => {
       try {
         const res = await axios.get(
-          `https://veda-bj5v.onrender.com/api/user/verify/${token}`,
+          `http://localhost:3000/api/user/verify/${token}`,
           { withCredentials: true }
         );
         console.log(res.data);

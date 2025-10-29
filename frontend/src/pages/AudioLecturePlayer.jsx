@@ -39,7 +39,7 @@ export default function AudioLecturePlayer({ lecture: propLecture }) {
   const slideContainerRef = useRef(null);
 
   const slides = lecture?.slides || [];
-  const backendUrl = 'https://veda-bj5v.onrender.com';
+  const backendUrl = 'http://localhost:3000';
 
   // 🔥 Try Offline First → Fallback to Online
   useEffect(() => {

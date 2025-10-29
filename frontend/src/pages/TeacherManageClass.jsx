@@ -18,7 +18,7 @@ export default function TeacherManageClass() {
   const [loading, setLoading] = useState(false);
   const [loadingClasses, setLoadingClasses] = useState(true); // ✅ skeleton toggle
 
-  const API_BASE = "https://veda-bj5v.onrender.com/api/live-class";
+  const API_BASE = "http://localhost:3000/api/live-class";
 
   // ✅ Fetch teacher’s classes
   useEffect(() => {
@@ -27,7 +27,6 @@ export default function TeacherManageClass() {
         const res = await axios.get(`${API_BASE}`, {
           headers: { Authorization: `Bearer ${token}` },
         });
-
         setClasses(Array.isArray(res.data.classes) ? res.data.classes : []);
       } catch (err) {
         console.error(

@@ -7,7 +7,7 @@ export default defineConfig({
     base: "/", // ensure correct base path
   server: {
     proxy: {
-      "/api": "https://veda-bj5v.onrender.com",
+      "/api": "http://localhost:3000",
     },
   },
   plugins: [
@@ -38,7 +38,7 @@ export default defineConfig({
         ],
       },
       devOptions: {
-        enabled: true,
+        enabled: false,
         type:'module'
       }
     }),

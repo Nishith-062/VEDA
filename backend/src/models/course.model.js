@@ -9,6 +9,16 @@ const courseSchema = new mongoose.Schema(
       required: true,
       unique: true,
     },
+    college_id: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "College",
+      required: true,
+    },
+    department_id: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Department",
+      required: true,
+    },
     course_name: {
       type: String,
       required: true,
@@ -16,12 +26,6 @@ const courseSchema = new mongoose.Schema(
     description: {
       type: String,
     },
-     students: [
-      {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "User",
-      },
-    ],
   },
   {
     timestamps: { createdAt: "created_at", updatedAt: false },

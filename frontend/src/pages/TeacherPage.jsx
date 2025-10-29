@@ -35,7 +35,7 @@ export default function TeacherDashboard() {
 
     try {
       const response = await axios.post(
-        "https://veda-bj5v.onrender.com/api/lectures",
+        "http://localhost:3000/api/lectures",
         formData,
         {
           headers: {
@@ -283,6 +283,12 @@ export default function TeacherDashboard() {
               className="mt-8 w-full py-3 cursor-pointer rounded-lg bg-green-600 hover:bg-green-700 text-white font-semibold shadow transition"
             >
               {t("goLiveNow")}
+            </button>
+            <button
+             onClick={()=>navigate('/teacher/slide-audiolive')}
+             className="mt-8 w-full  py-3 cursor-pointer rounded-lg bg-green-600 hover:bg-green-700 text-white font-semibold shadow transition"
+            >
+               Audio+Slide Synchronization Live
             </button>
             {/* <button
             onClick={()=> navigate("/teacher/slideaudio")}

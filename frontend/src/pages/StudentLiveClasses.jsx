@@ -3,10 +3,13 @@ import axios from "axios";
 import LiveClassTable from "../components/LiveClassesTable";
 import { useAuthStore } from "../store/useAuthStore";
 import { useNavigate } from "react-router-dom";
+import LiveaudioClasstable from "../components/LiveAudioClassesTable";
 
 const StudentLiveClasses = () => {
   const [classes, setClasses] = useState([]);
   const [loading, setLoading] = useState(true); // new loading state
+  const [loadingClasses,setLoadingClasses]=useState(false);
+  const [Audioclasses,setAudioClasses]=useState([]);
   const { token } = useAuthStore();
   const navigate=useNavigate()
   useEffect(() => {
@@ -14,7 +17,7 @@ const StudentLiveClasses = () => {
       try {
         setLoading(true);
         const res = await axios.get(
-          "https://veda-bj5v.onrender.com/api/live-class/schedule",
+          "http://localhost:3000/api/live-class/schedule",
           {
             headers: { Authorization: `Bearer ${token}` },
           }
@@ -30,6 +33,29 @@ const StudentLiveClasses = () => {
     fetchClasses();
   }, [token]);
 
+  // Fetching Audio Classes;
+  useEffect(()=>{
+    const fetcheAudioClasses=async()=>{
+      setLoadingClasses(true);  
+      try{
+              const res = await axios.get(
+          "http://localhost:3000/api/Audioclass-live/scheduleAudio",
+          {
+            headers: { Authorization: `Bearer ${token}` },
+          }
+        );
+        setAudioClasses(res.data.classes || []);
+          console.log(Audioclasses);
+         }catch(e){
+             console.error("Error fetching classes:", error.response || error.message);
+         }
+         finally{
+               setLoadingClasses(false);
+         } 
+    }
+    fetcheAudioClasses();
+  },[token]);
+
   return (
     <div className="p-6 bg-gray-50 min-h-screen">
   <button
@@ -43,6 +69,8 @@ const StudentLiveClasses = () => {
         Student Live Classes
       </h1>
       <LiveClassTable classes={classes} loading={loading} />
+      <h1 className="p-3 m-3 text-lg bg-white">Audio + Slide Synchronization Live classes</h1>
+      <LiveaudioClasstable classes={Audioclasses} loadingClasses={loadingClasses}/>
     </div>
   );
 };

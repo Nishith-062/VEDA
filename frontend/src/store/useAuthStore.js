@@ -1,7 +1,7 @@
 import { create } from "zustand";
 import axios from "axios";
 import toast, { Toaster } from 'react-hot-toast';
-const BASE_URL = "https://veda-bj5v.onrender.com";
+const BASE_URL = "http://localhost:3000";
 
 export const useAuthStore = create((set, get) => ({
   authUser: null,

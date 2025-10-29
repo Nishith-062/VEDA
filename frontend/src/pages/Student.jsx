@@ -2,47 +2,28 @@ import React, { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { useTranslation } from "react-i18next";
-import {
-  PlayCircle,
-  Video as VideoIcon,
-  Download,
-  CheckCircle,
-  BookOpen,
-} from "lucide-react";
-import VideoThumbnail from "../components/VideoThumbnail.jsx";
+import { PlayCircle, Video as VideoIcon } from "lucide-react";
 import ThumbnailSkeleton from "../components/ThumbnailSkeleton.jsx";
 import { useAuthStore } from "../store/useAuthStore.js";
-import {
-  addVideo,
-  getAllVideos,
-  addLecture,
-  getAllLectures,
-} from "../lib/videoDB";
 import toast from "react-hot-toast";
 import { showNotificationAlert } from "../components/showNotificationAlert.jsx";
-import { FetchStudentAudioLectures } from "../components/FetchStudentAudioLectures.jsx";
+import CourseCard from "../components/studentComponents/CourseCard.jsx"; // ✅ your card
 
-const backendUrl = "https://veda-bj5v.onrender.com";
+const backendUrl = "http://localhost:3000";
 
 export default function Student() {
   const navigate = useNavigate();
   const { t } = useTranslation();
   const { authUser, token } = useAuthStore();
 
-  const [onlineVideos, setOnlineVideos] = useState([]);
-  const [offlineVideos, setOfflineVideos] = useState([]);
-  const [offlineLectures, setOfflineLectures] = useState([]);
-  const [AudioLectures, setAudioLectures] = useState([]);
-  const [AudioLectureloading, setAudioLectureloading] = useState(true);
-  const [selectedAudioLecture, setSelectedAudioLecture] = useState(null);
+  const [courses, setCourses] = useState([]);
   const [loading, setLoading] = useState(true);
   const [isOnline, setIsOnline] = useState(navigator.onLine);
-  const [downloading, setDownloading] = useState({});
-  const [downloadedIds, setDownloadedIds] = useState(new Set());
-
   const createdObjectUrlsRef = useRef(new Set());
 
-  // ------------------- Cleanup object URLs -------------------
+
+
+
   useEffect(() => {
     return () => {
       createdObjectUrlsRef.current.forEach((url) => URL.revokeObjectURL(url));
@@ -50,21 +31,17 @@ export default function Student() {
     };
   }, []);
 
-  // ------------------- Online/Offline Tracking -------------------
   useEffect(() => {
     const goOnline = () => setIsOnline(true);
     const goOffline = () => setIsOnline(false);
-
     window.addEventListener("online", goOnline);
     window.addEventListener("offline", goOffline);
-
     return () => {
       window.removeEventListener("online", goOnline);
       window.removeEventListener("offline", goOffline);
     };
   }, []);
 
-  // ------------------- Subscribe to Notifications -------------------
   useEffect(() => {
     if (authUser?.role === "Student" && token) {
       (async () => {
@@ -112,158 +89,46 @@ export default function Student() {
     );
   }
 
-  // ------------------- Load Videos -------------------
   useEffect(() => {
-    async function loadVideos() {
+    async function loadCourses() {
+      setLoading(true);
       try {
-        let backendVideos = [];
         if (isOnline) {
-          const res = await axios.get(`${backendUrl}/api/lectures`);
-          backendVideos = (res.data.data || []).map((v) => ({
-            id: v._id || v.id,
-            title: v.title,
-            url: v.url,
-            course_name: v.course_name,
-          }));
+          const res = await axios.get(`${backendUrl}/api/students/courses`, {
+            headers: token ? { Authorization: `Bearer ${token}` } : {},
+          });
+          setCourses(res.data.courses || []);
+                  console.log(res.data.courses);
+
         }
-
-        const dbVideos = await getAllVideos();
-        const offlineMapped = dbVideos.map((v) => {
-          if (v.blob instanceof Blob) {
-            const objUrl = URL.createObjectURL(v.blob);
-            createdObjectUrlsRef.current.add(objUrl);
-            return { ...v, objectUrl: objUrl };
-          }
-          return v;
-        });
-
-        const dbLectures = await getAllLectures();
-
-        setDownloadedIds(new Set(dbVideos.map((v) => v.id)));
-        setOfflineVideos(offlineMapped);
-        setOfflineLectures(dbLectures);
-        setOnlineVideos(backendVideos);
+        
       } catch (err) {
-        console.error("Error fetching videos:", err);
+        console.error("Error fetching courses:", err);
       } finally {
         setLoading(false);
       }
     }
-
-    loadVideos();
+    loadCourses();
   }, [isOnline]);
-
-  // ------------------- Fetch Audio Lectures -------------------
-  useEffect(() => {
-    const fetchAudioLectures = async () => {
-      try {
-        const res = await axios.get(`${backendUrl}/api/lectures/audio`);
-        setAudioLectures(res.data.data || []);
-      } catch (e) {
-        console.error("Error fetching audio lectures:", e);
-      } finally {
-        setAudioLectureloading(false);
-      }
-    };
-    fetchAudioLectures();
-  }, []);
-
-  // ------------------- Download Online Video -------------------
-  async function handleDownload(url, id, title) {
-    try {
-      setDownloading((prev) => ({ ...prev, [id]: true }));
-      const res = await axios.get(url, { responseType: "blob" });
-      const videoBlob = res.data;
-
-      const videoFile = {
-        id: id || crypto.randomUUID(),
-        title: title || `video_${id}`,
-        blob: videoBlob,
-      };
-      await addVideo(videoFile);
-
-      const objUrl = URL.createObjectURL(videoBlob);
-      createdObjectUrlsRef.current.add(objUrl);
-
-      setOfflineVideos((prev) => [
-        ...prev,
-        { ...videoFile, objectUrl: objUrl },
-      ]);
-      setDownloadedIds((prev) => new Set(prev).add(videoFile.id));
-      toast.success("Video saved offline!");
-    } catch (err) {
-      console.error("Download failed:", err);
-      toast.error("Failed to save video offline.");
-    } finally {
-      setDownloading((prev) => ({ ...prev, [id]: false }));
-    }
-  }
-
-  // ------------------- Download Audio Lecture Offline -------------------
-  const handleOfflineDownload = async (lecture) => {
-    try {
-      setDownloading((prev) => ({ ...prev, [lecture._id]: true }));
-
-      // Audio
-      const audioUrl = lecture.audio.startsWith("http")
-        ? lecture.audio
-        : `${backendUrl}${lecture.audio}`;
-      const audioRes = await axios.get(audioUrl, { responseType: "blob" });
-
-      // Slides
-      const slideBlobs = await Promise.all(
-        lecture.slides.map(async (slide) => {
-          const url = slide.slideUrl.startsWith("http")
-            ? slide.slideUrl
-            : `${backendUrl}${slide.slideUrl}`;
-          const res = await axios.get(url, { responseType: "blob" });
-          return { blob: res.data, startTime: slide.startTime };
-        })
-      );
-
-      const lectureObj = {
-        id: lecture._id,
-        title: lecture.title,
-        audio: audioRes.data,
-        slides: slideBlobs,
-      };
-      await addLecture(lectureObj);
-      setOfflineLectures((prev) => [...prev, lectureObj]);
-      toast.success("Audio+Slide Lecture saved offline!");
-    } catch (err) {
-      console.error("Download lecture failed:", err);
-      toast.error("Failed to save lecture offline.");
-    } finally {
-      setDownloading((prev) => ({ ...prev, [lecture._id]: false }));
-    }
-  };
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Hero */}
-      <div className="bg-gradient-to-r from-indigo-50 to-white border-b py-12 px-6">
+      <div className="bg-gradient-to-r from-indigo-50 to-white py-12 px-6">
         <div className="max-w-6xl mx-auto text-center">
-          <h1 className="text-4xl font-bold text-gray-800">
-            {t("studentDashboard")}
-          </h1>
+          <h1 className="text-4xl font-bold text-gray-800">{t("studentDashboard")}</h1>
           <p className="mt-2 text-lg text-gray-500">{t("dashboardSubtitle")}</p>
         </div>
       </div>
 
       <div className="max-w-6xl mx-auto px-6 py-12 space-y-12">
-        {/* Live Class */}
         <div className="bg-white rounded-2xl shadow-sm border p-6 flex flex-col md:flex-row items-center justify-between gap-6">
           <div className="flex items-center gap-4">
             <div className="bg-green-100 p-3 rounded-full">
               <PlayCircle className="w-8 h-8 text-green-600" />
             </div>
             <div>
-              <h2 className="text-lg font-semibold text-gray-800">
-                {t("liveClass")}
-              </h2>
-              <p className="text-gray-500 text-sm">
-                {t("liveClassDescription")}
-              </p>
+              <h2 className="text-lg font-semibold text-gray-800">{t("liveClass")}</h2>
+              <p className="text-gray-500 text-sm">{t("liveClassDescription")}</p>
             </div>
           </div>
           <button
@@ -274,106 +139,31 @@ export default function Student() {
           </button>
         </div>
 
-        {/* Audio Lectures (Online) */}
-        <FetchStudentAudioLectures
-          selectedAudioLecture={selectedAudioLecture}
-          AudioLectureloading={AudioLectureloading}
-          handleOfflineDownload={handleOfflineDownload}
-          AudioLectures={AudioLectures}
-          offlineLectures={offlineLectures} // <-- pass offline lectures
-          downloading={downloading} // <-- pass downloading state
-        />
-
-
-
-        {/* Online Videos (Only when online) */}
-        {isOnline && (
-          <section>
-            <div className="flex items-center justify-between mb-6">
-              <h2 className="text-xl font-semibold text-gray-800 flex items-center gap-2">
-                <VideoIcon className="w-5 h-5 text-indigo-600" />
-                {t("onlineLibrary")}
-              </h2>
-              <span className="text-sm text-gray-500">
-                {t("lectureCount", { count: onlineVideos.length })}
-              </span>
-            </div>
-
+        <section>
+          <h2 className="text-xl font-semibold text-gray-800 flex items-center gap-2">
+            <VideoIcon className="w-5 h-5 text-indigo-600" />
+            Your Courses
+          </h2>
+          <div className="mt-6 grid grid-cols-1 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {loading ? (
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-                {[1, 2, 3].map((i) => (
-                  <div
-                    key={i}
-                    className="bg-white border rounded-2xl shadow-sm overflow-hidden"
-                  >
-                    <ThumbnailSkeleton />
-                  </div>
-                ))}
-              </div>
-            ) : onlineVideos.length === 0 ? (
-              <div className="text-center py-20 bg-white border rounded-2xl shadow-sm">
-                <p className="text-lg text-gray-600">{t("noOnlineLectures")}</p>
-              </div>
+              Array.from({ length: 3 }).map((_, idx) => <ThumbnailSkeleton key={idx} />)
+            ) : courses.length > 0 ? (
+              courses.map((course,i) => (
+                <div key={course._id} className='flex justify-center'>
+                <CourseCard
+                  key={course._id}
+                  courseId={course._id}
+                  title={course.course_name}
+                  description={course.description}
+                  instructor={course.faculty_id.fullName || "Instructor"}
+                />
+                </div>
+              ))
             ) : (
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-                {onlineVideos.map((video) => {
-                  const isDownloaded = downloadedIds.has(video.id);
-                  return (
-                    <div
-                      key={video.id}
-                      className="bg-white border rounded-2xl shadow-sm overflow-hidden flex flex-col"
-                    >
-                      <VideoThumbnail url={video.url} title={video.title} />
-                      <div className="p-5 flex flex-col flex-grow">
-                        <div className="flex items-center justify-between gap-3 mb-4">
-                          <h3 className="font-medium text-gray-800 line-clamp-2 flex-1">
-                            {video.title}
-                          </h3>
-                          <span className="inline-flex items-center gap-1 px-3 py-1 text-xs font-medium text-blue-700 bg-blue-100 rounded-full">
-                            <BookOpen className="w-3 h-3" />
-                            {video.course_name}
-                          </span>
-                        </div>
-
-                        <div className="mt-auto flex gap-3">
-                          <button
-                            onClick={() => window.open(video.url, "_blank")}
-                            className="flex-1 cursor-pointer bg-indigo-600 hover:bg-indigo-700 text-white py-2 px-4 rounded-full font-medium shadow-sm transition text-center"
-                          >
-                            {t("watch")}
-                          </button>
-                          {!isDownloaded && (
-                            <button
-                              onClick={() =>
-                                handleDownload(video.url, video.id, video.title)
-                              }
-                              disabled={downloading[video.id]}
-                              className="flex items-center cursor-pointer justify-center gap-1 bg-gray-100 hover:bg-gray-200 text-gray-700 py-2 px-4 rounded-full font-medium shadow-sm transition"
-                            >
-                              {downloading[video.id] ? (
-                                t("downloading")
-                              ) : (
-                                <>
-                                  <Download className="w-4 h-4" />{" "}
-                                  {t("download")}
-                                </>
-                              )}
-                            </button>
-                          )}
-                          {isDownloaded && (
-                            <span className="flex items-center gap-1 text-green-600 bg-green-50 border border-green-200 px-4 py-2 rounded-full text-sm font-medium">
-                              <CheckCircle className="w-4 h-4" /> {t("saved")}
-                            </span>
-                          )}
-                        </div>
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
+              <div>No courses available</div>
             )}
-          </section>
-        )}
+          </div>
+        </section>
       </div>
     </div>
   );

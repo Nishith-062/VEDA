@@ -25,6 +25,11 @@ import TeacherSlideSync from "./pages/TeacherSlideSync";
 import { Toaster } from "react-hot-toast";
 import LoadingScreen from "./components/LoadingScreen";
 import AudioLecturePlayer from "./pages/AudioLecturePlayer";
+import DepartmentDetails from "./pages/adminPage/DepartmentDetails";
+import StudentLecturePage from "./pages/StudentsPage/StudentLecturePage";
+import AudioClassViewerpage from "./pages/AudioClassViewerpage";
+import AudioBroadcastPage from "./pages/AudioBroadcasePage";
+import AudioSlideStreamManage from "./pages/AudioSlideStreamManage";
 function App() {
   const { authUser, checkAuth, isCheckingAuth } = useAuthStore();
   const [open, setOpen] = useState(false);
@@ -34,11 +39,15 @@ function App() {
   const { t } = useTranslation();
   const hideNavFooterRoutes = [
     "/teacher/class/:id/broadcast",
-    "/student/live-class/:id"
+    "/student/live-class/:id",
+    "/teacher/class/:id/Slidebroadcast",
+    "/student/audio-class/:id"
+
   ];
 
+
   // Check if current route matches any route in hideNavFooterRoutes
-  const shouldHideNavFooter = hideNavFooterRoutes.some(routePattern => {
+  const shouldHideNavFooter = hideNavFooterRoutes.some((routePattern) => {
     const regex = new RegExp(routePattern.replace(":id", "[^/]+"));
     return regex.test(location.pathname);
   });
@@ -121,7 +130,6 @@ function App() {
               )
             }
           />
-
           {/* Student Routes */}
           <Route
             path="/student"
@@ -153,47 +161,40 @@ function App() {
               )
             }
           />
-  {/* Student Routes */}
+          <Route
+            path="/student/lectures/:id"
+            element={
+              authUser?.role === "Student" ? (
+                <StudentLecturePage />
+              ) : (
+                <Navigate to="/login" replace />
+              )
+            }
+          />
+
+          <Route
+            path="/student/Audiolecture/:id"
+            element={
+              authUser && authUser.role === "Student" ? (
+                <AudioLecturePlayer />
+              ) : (
+                <Navigate to="/login" replace />
+              )
+            }
+          />
+
+            {/* viewer page */}
   <Route
-    path="/student"
+    path="/student/audio-class/:id"
     element={
       authUser && authUser.role === "Student" ? (
-        <Student />
+        <AudioClassViewerpage />
       ) : (
         <Navigate to="/login" replace />
       )
     }
   />
-  <Route
-    path="/student/live"
-    element={
-      authUser && authUser.role === "Student" ? (
-        <StudentLiveClasses />
-      ) : (
-        <Navigate to="/login" replace />
-      )
-    }
-  />
-  <Route
-    path="/student/live-class/:id"
-    element={
-      authUser && authUser.role === "Student" ? (
-        <ViewerPage />
-      ) : (
-        <Navigate to="/login" replace />
-      )
-    }
-  />
-   <Route
-    path="/student/Audiolecture/:id"
-    element={
-      authUser && authUser.role === "Student" ? (
-        <AudioLecturePlayer />
-      ) : (
-        <Navigate to="/login" replace />
-      )
-    }
-  />
+
 
           {/* Teacher Routes */}
           <Route
@@ -236,12 +237,45 @@ function App() {
               )
             }
           />
+
+            {/* live audio broadcast Page */}
+           <Route
+            path="/teacher/class/:id/Slidebroadcast"
+            element={
+              authUser && authUser.role === "Teacher" ? (
+                <AudioBroadcastPage />
+              ) : (
+                <Navigate to="/login" replace />
+              )
+            }
+          />
+                    <Route
+            path="/teacher/slide-audiolive"
+            element={
+              authUser && authUser.role === "Teacher" ? (
+                <AudioSlideStreamManage />
+              ) : (
+                <Navigate to="/login" replace />
+              )
+            }
+          />
+
           {/* Admin Routes */}
           <Route
             path="/admin"
             element={
               authUser && authUser.role === "Admin" ? (
                 <Admin />
+              ) : (
+                <Navigate to="/login" replace />
+              )
+            }
+          />
+          <Route
+            path="/admin/departments/:id"
+            element={
+              authUser && authUser.role === "Admin" ? (
+                <DepartmentDetails />
               ) : (
                 <Navigate to="/login" replace />
               )
@@ -260,28 +294,32 @@ function App() {
       </main>
 
       {/* Floating Chatbot */}
-      {authUser && authUser.role === "Teacher" && <Chatbot />}
+{authUser && authUser.role === "Teacher" && 
+ !location.pathname.match(/^\/teacher\/class\/[^/]+\/Slidebroadcast$/) && 
+ <Chatbot />
+}
 
       {/* Footer */}
-       {!shouldHideNavFooter &&
-      <footer className="bg-white border-t border-gray-200 shadow-sm">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 flex flex-col md:flex-row justify-between items-center gap-4">
-          <p className="text-sm text-gray-500">
-            © {new Date().getFullYear()} VEDA. All rights reserved.
-          </p>
-          <div className="flex gap-6 text-sm text-gray-500">
-            <a href="#" className="hover:text-gray-700 transition">
-              Privacy Policy
-            </a>
-            <a href="#" className="hover:text-gray-700 transition">
-              Terms of Service
-            </a>
-            <a href="#" className="hover:text-gray-700 transition">
-              Contact
-            </a>
+      {!shouldHideNavFooter && (
+        <footer className="bg-white border-t border-gray-200 shadow-sm">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 flex flex-col md:flex-row justify-between items-center gap-4">
+            <p className="text-sm text-gray-500">
+              © {new Date().getFullYear()} VEDA. All rights reserved.
+            </p>
+            <div className="flex gap-6 text-sm text-gray-500">
+              <a href="#" className="hover:text-gray-700 transition">
+                Privacy Policy
+              </a>
+              <a href="#" className="hover:text-gray-700 transition">
+                Terms of Service
+              </a>
+              <a href="#" className="hover:text-gray-700 transition">
+                Contact
+              </a>
+            </div>
           </div>
-        </div>
-      </footer>}
+        </footer>
+      )}
     </div>
   );
 }

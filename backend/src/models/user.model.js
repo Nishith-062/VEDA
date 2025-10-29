@@ -33,9 +33,12 @@ const userSchema = new mongoose.Schema(
       type: String,
       default: null,
     },
-        verificationTokenExpires: Date,
-
+    verificationTokenExpires: Date,
+    college_id: { type: mongoose.Schema.Types.ObjectId, ref: "College" },
+    department_id: { type: mongoose.Schema.Types.ObjectId, ref: "Department" },
+    department_name: String, // redundant field for faster query
   },
+
   { timestamps: true }
 );
 

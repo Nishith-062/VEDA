@@ -50,7 +50,7 @@ const ViewerPage = () => {
       setError("");
       try {
         const res = await axios.get(
-          `https://veda-bj5v.onrender.com/api/live-class/${id}/join`,
+          `http://localhost:3000/api/live-class/${id}/join`,
           { headers: { Authorization: `Bearer ${authToken}` } }
         );
 
@@ -359,6 +359,24 @@ function MyVideoConference({ streamMode }) {
     ],
     { onlySubscribed: streamMode !== "audio-only" }
   );
+  
+  if(tracks.length===0){
+    return(
+<div className="h-screen flex flex-col items-center justify-center bg-base-200 text-center px-4">
+  <div className="bg-base-100 shadow-xl rounded-2xl p-8 max-w-md">
+    <h1 className="text-2xl font-semibold mb-2">Host not in the meeting</h1>
+    <p className="text-base-content/70">
+      Please wait a few moments until the host joins the session.
+    </p>
+    <div className="mt-6">
+      <span className="loading loading-spinner loading-md text-primary"></span>
+    </div>
+  </div>
+</div>
+
+    )
+    
+  }
 
   if (streamMode === "audio-only") {
     return (

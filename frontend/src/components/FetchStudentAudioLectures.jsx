@@ -3,7 +3,7 @@ import React from "react";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 
-const backendUrl = "https://veda-bj5v.onrender.com";
+const backendUrl = "http://localhost:3000";
 
 export const FetchStudentAudioLectures = ({
   AudioLectures = [],
