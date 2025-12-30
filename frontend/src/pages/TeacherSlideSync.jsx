@@ -44,7 +44,7 @@ export default function TeacherSlideSync() {
 
     try {
       await axios.post(
-        "http://localhost:3000/api/lectures/upload",
+        "https://veda-bj5v.onrender.com/api/lectures/upload",
         formData
       );
       toast.success(t("uploadSuccess"));

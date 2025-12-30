@@ -9,7 +9,7 @@ import toast from "react-hot-toast";
 import { showNotificationAlert } from "../components/showNotificationAlert.jsx";
 import CourseCard from "../components/studentComponents/CourseCard.jsx"; // ✅ your card
 
-const backendUrl = "http://localhost:3000";
+const backendUrl = "https://veda-bj5v.onrender.com";
 
 export default function Student() {
   const navigate = useNavigate();

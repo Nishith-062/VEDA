@@ -7,7 +7,7 @@ function AudioSlideStreamManage() {
   const navigate = useNavigate();
   const token = useAuthStore((state) => state.token);
   const authUser = useAuthStore((state) => state.authUser);
-  const API_BASE = "http://localhost:3000/api/Audioclass-live";
+  const API_BASE = "https://veda-bj5v.onrender.com/api/Audioclass-live";
 
   const titleRef = useRef();
   const startTimeRef = useRef();

@@ -17,7 +17,7 @@ const StudentLiveClasses = () => {
       try {
         setLoading(true);
         const res = await axios.get(
-          "http://localhost:3000/api/live-class/schedule",
+          "https://veda-bj5v.onrender.com/api/live-class/schedule",
           {
             headers: { Authorization: `Bearer ${token}` },
           }
@@ -39,7 +39,7 @@ const StudentLiveClasses = () => {
       setLoadingClasses(true);  
       try{
               const res = await axios.get(
-          "http://localhost:3000/api/Audioclass-live/scheduleAudio",
+          "https://veda-bj5v.onrender.com/api/Audioclass-live/scheduleAudio",
           {
             headers: { Authorization: `Bearer ${token}` },
           }

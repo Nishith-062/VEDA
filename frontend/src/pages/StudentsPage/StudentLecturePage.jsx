@@ -64,7 +64,7 @@ const StudentLecturePage = () => {
 
         if (isOnline) {
           const res = await axios.get(
-            `http://localhost:3000/api/students/courses/${id}/lectures`,
+            `https://veda-bj5v.onrender.com/api/students/courses/${id}/lectures`,
             { withCredentials: true }
           );
           backendLectures = res.data.lectures || [];
@@ -131,7 +131,7 @@ const StudentLecturePage = () => {
     useEffect(() => {
     const fetchAudioLectures = async () => {
       try {
-        const res = await axios.get( `http://localhost:3000/api/students/audiocourses/${id}/lectures`,{withCredentials:true});
+        const res = await axios.get( `https://veda-bj5v.onrender.com/api/students/audiocourses/${id}/lectures`,{withCredentials:true});
         console.log(res.data);
         
         setAudioLectures(res.data.lectures || []);

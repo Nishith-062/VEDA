@@ -35,7 +35,7 @@ export default function TeacherDashboard() {
 
     try {
       const response = await axios.post(
-        "http://localhost:3000/api/lectures",
+        "https://veda-bj5v.onrender.com/api/lectures",
         formData,
         {
           headers: {

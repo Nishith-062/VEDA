@@ -68,7 +68,7 @@ self.addEventListener("push", (event) => {
 try {
   registerRoute(
     ({ url }) =>
-      url.origin === "http://localhost:3000" &&
+      url.origin === "https://veda-bj5v.onrender.com" &&
       url.pathname.startsWith("/api/lectures"),
     new NetworkFirst({
       cacheName: "api-lectures",

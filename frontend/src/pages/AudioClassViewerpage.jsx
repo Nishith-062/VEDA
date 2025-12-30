@@ -21,7 +21,7 @@ import {
   Loader2,
 } from "lucide-react";
 
-const BASE_URL = "http://localhost:3000/api/Audioclass-live";
+const BASE_URL = "https://veda-bj5v.onrender.com/api/Audioclass-live";
 
 // Component to sync and display slides
 function SlideSyncViewer({ slides }) {

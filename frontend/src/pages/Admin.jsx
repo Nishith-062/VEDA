@@ -7,7 +7,7 @@ import StatsCard from "../components/adminComponents/StatsCard";
 import DepartmentCard from "../components/adminComponents/DepartmentCard";
 import CreateDepartmentModal from "../components/adminComponents/CreateDepartmentModal";
 
-const BASE_URL = "http://localhost:3000/api/admin";
+const BASE_URL = "https://veda-bj5v.onrender.com/api/admin";
 
 const AdminDashboard = () => {
   const { token } = useAuthStore();
