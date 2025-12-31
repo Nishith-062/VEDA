@@ -1,6 +1,6 @@
 import fs from "fs";
 import path from "path";
-import { convert } from "pdf-poppler";
+// import { convert } from "pdf-poppler";
 import SlideAudioLiveClass from "../models/SlideAudioLivemodel.js";
 import Course from "../models/course.model.js";
 import cloudinary from "../lib/coudinary.js"; // corrected import
@@ -15,53 +15,54 @@ export const scheduleAudioLiveClass = async (req, res) => {
     const pdfFile = req.file;
     const faculty_id = req.user._id;
 
-    if (!pdfFile) return res.status(400).json({ error: "PDF file is required" });
+    if (!pdfFile) {
+      return res.status(400).json({ error: "PDF file is required" });
+    }
 
-    // Path to uploaded PDF
+    // Absolute path to uploaded PDF
     const pdfPath = path.resolve(pdfFile.path);
 
-    // Path to temporary folder for slides
-    const slidesDir = path.resolve("../slides");
-    if (!fs.existsSync(slidesDir)) fs.mkdirSync(slidesDir, { recursive: true });
+    // 1️⃣ Upload PDF to Cloudinary (PDF → image resource)
+    const pdfUpload = await cloudinary.uploader.upload(pdfPath, {
+      folder: "audio_slide_class",
+      resource_type: "image",
+    });
 
-    // Convert PDF to PNG images
-    const options = {
-      format: "png",
-      out_dir: slidesDir,
-      out_prefix: "slide",
-      scale: 1024,
-    };
-
-    await convert(pdfPath, options);
-
-    // Upload images to Cloudinary
-    const slideUrls = [];
-    const files = fs.readdirSync(slidesDir).filter(f => f.startsWith("slide") && f.endsWith(".png"));
-
-    for (const file of files) {
-      const filePath = path.join(slidesDir, file);
-      try {
-        const uploadResult = await cloudinary.uploader.upload(filePath, {
-          folder: "audio_slide_class",
-        });
-        slideUrls.push(uploadResult.secure_url);
-      } catch (err) {
-        console.error(`Failed to upload ${file}:`, err);
-      }
-      fs.unlinkSync(filePath); // delete temp image
+    if (!pdfUpload?.public_id) {
+      return res.status(500).json({ error: "Failed to upload PDF" });
     }
 
-    // Delete uploaded PDF
+    // 2️⃣ Generate slide image URLs (limit to first 10 pages)
+    const slideUrls = [];
+    const MAX_PAGES = 10;
+
+    for (let page = 1; page <= MAX_PAGES; page++) {
+      const slideUrl = cloudinary.url(pdfUpload.public_id, {
+        resource_type: "image",
+        format: "png",
+        page,
+        transformation: [{ width: 1024, crop: "scale" }],
+      });
+      slideUrls.push(slideUrl);
+    }
+
+    // 3️⃣ Remove temp PDF from server
     fs.unlinkSync(pdfPath);
 
-    if (!slideUrls.length) return res.status(400).json({ error: "No slides generated" });
-
-    // Ensure course exists
-    let course = await Course.findOne({ faculty_id }).select("_id");
-    if (!course) {
-      course = await Course.create({ faculty_id, course_name: "Default Course" });
+    if (!slideUrls.length) {
+      return res.status(400).json({ error: "No slides generated" });
     }
 
+    // 4️⃣ Ensure course exists
+    let course = await Course.findOne({ faculty_id }).select("_id");
+    if (!course) {
+      course = await Course.create({
+        faculty_id,
+        course_name: "Default Course",
+      });
+    }
+
+    // 5️⃣ Create scheduled live class
     const newClass = await SlideAudioLiveClass.create({
       faculty_id,
       course_id: course._id,
@@ -69,14 +70,22 @@ export const scheduleAudioLiveClass = async (req, res) => {
       startTime: starttime,
       streamId: "stream_" + Date.now(),
       slides: slideUrls,
+      status: "scheduled",
     });
 
-    return res.status(201).json({ success: true, class: newClass });
+    return res.status(201).json({
+      success: true,
+      class: newClass,
+    });
   } catch (err) {
     console.error("Error in scheduleAudioLiveClass:", err);
-    return res.status(500).json({ success: false, error: err.message });
+    return res.status(500).json({
+      success: false,
+      error: err.message,
+    });
   }
 };
+
 
 
 // 
